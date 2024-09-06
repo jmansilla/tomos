@@ -1,0 +1,18 @@
+// Simplest example of AyED2 snippet:
+
+var one: int
+var two: int
+var three: int
+
+var arrow_one: pointer of int
+var arrow_two: pointer of int
+var arrow_three: pointer of int
+
+one := 1
+two := 10
+three := 3
+
+arrow_one := *one
+arrow_two := arrow_one
+alloc(arrow_three)
+*arrow_three := *arrow_two
