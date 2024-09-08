@@ -10,7 +10,7 @@ var arrow_three: pointer of int
 
 one := 1
 two := 10
-three := 3
+three := 3 + one
 
 arrow_one := *one
 arrow_two := arrow_one
