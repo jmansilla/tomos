@@ -1,5 +1,4 @@
 // Simplest example of AyED2 snippet:
-
 var one: int
 var two: int
 var three: int

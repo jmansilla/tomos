@@ -7,20 +7,21 @@ from tomos.expressions.ayed2.types import *
 from tomos.expressions.ayed2.expressions import *
 from tomos.expressions.ayed2.operators import *
 
-unary_symbols = ' | '.join(map(lambda s:'"%s"'%s, UnaryOpTable.keys()))
-binary_symbols = ' | '.join(map(lambda s:'"%s"'%s, BinaryOpTable.keys()))
+unary_symbols = " | ".join(map(lambda s: '"%s"' % s, UnaryOpTable.keys()))
+binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 
 
-ayed2_grammar = fr"""
-?start: line*
+ayed2_grammar = rf"""
+?module: line*
 
 ?line: var_declaration
     | assignment
     | function_call
 
-var_declaration: "var" NAME ":" type
+var_declaration: "var" vname ":" type
 assignment: destination ":=" expr
 
+vname : NAME
 destination: NAME
      | pointed
 pointed: "*" NAME
@@ -57,9 +58,24 @@ COMMENT: "//" /[^\n]*/
 
 
 class TreeToAST(Transformer):
+
+    # def __default__(self, data, children, meta):
+    #     r = super(TreeToAST, self).__default__(data, children, meta)
+    #     if data in ['__start_star_0', '_constant']:
+    #         return r
+    #     print('default', '1-', type(data), '2-', data, '3-', children, '4-', meta)
+    #     return r
+
+    def module(self, args):
+        return Module(name='', body=args)
+
+    def vname(self, args):
+        assert len(args) == 1
+        return args[0]
+
     def var_declaration(self, args):
-        name, type = args
-        return VarDeclaration(name=name, type=type)
+        name, declared_type = args
+        return VarDeclaration(name=name, declared_type=declared_type)
 
     def pointer(self, args):
         assert len(args) == 1
@@ -71,7 +87,7 @@ class TreeToAST(Transformer):
         assert len(args) == 1
         token = args[0]
         if token.value not in type_map:
-            raise UnexpectedInput(f'Unknown type: {token.value}')
+            raise UnexpectedInput(f"Unknown type: {token.value}")
         return type_map[token.value](token=token)
 
     def destination(self, args):
@@ -83,23 +99,21 @@ class TreeToAST(Transformer):
 
     def assignment(self, args):
         dest, expr = args
-        if isinstance(dest, Variable):
-            return Assignment(destination=dest, expr=expr)
-        elif isinstance(dest, Tree) and len(dest.children) == 1 and isinstance(dest.children[0], Variable):
-            return Assignment(destination=dest.children[0], expr=expr, pointed=True)
+        if isinstance(dest, Token):
+            return Assignment(name=dest, expr=expr)
         else:
-            raise UnexpectedInput(f'Unknown assignment destination: {dest}')
+            if isinstance(dest.data, Token) and dest.data.value == "pointed":
+                return Assignment(name=dest.children[0], expr=expr, pointed=True)
+            else:
+                raise UnexpectedInput(f"Unknown assignment destination: {dest}")
 
     def NUMBER(self, token):
         if not token.value.isdigit():
-            raise UnexpectedInput(f'Invalid number: {token.value}')
+            raise UnexpectedInput(f"Invalid number: {token.value}")
         return NaturalConstant(token=token)
 
     def BOOL(self, token):
         return BooleanConstant(token=token)
-
-    def NAME(self, token):
-        return Variable(name=token)
 
     def unary_op(self, args):
         op, expr = args
@@ -111,11 +125,10 @@ class TreeToAST(Transformer):
 
     def expr(self, args):
         if len(args) != 1:
-            raise UnexpectedInput(f'Invalid expression: {args}')
+            raise UnexpectedInput(f"Invalid expression: {args}")
         return args[0]
 
     args = list
 
 
-parser = Lark(ayed2_grammar, start='start', parser='lalr', transformer=TreeToAST())
-
+parser = Lark(ayed2_grammar, start="module", parser="lalr", transformer=TreeToAST())
