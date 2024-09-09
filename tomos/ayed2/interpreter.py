@@ -5,6 +5,12 @@ class State:
         self.heap = {}
 
 
+class EvalVisitor:
+
+    def visit(self, expr, state):
+        return expr.eval(state)
+
+
 class Inspectable:
     def __init__(self):
         self.timeline = []

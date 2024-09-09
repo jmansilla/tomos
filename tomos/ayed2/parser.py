@@ -3,9 +3,9 @@ from lark.exceptions import UnexpectedInput
 from lark.lexer import Token
 from lark.tree import Tree
 
-from tomos.expressions.ayed2.types import *
-from tomos.expressions.ayed2.expressions import *
-from tomos.expressions.ayed2.operators import *
+from tomos.ayed2.expressions.types import *
+from tomos.ayed2.expressions.expressions import *
+from tomos.ayed2.expressions.operators import *
 
 unary_symbols = " | ".join(map(lambda s: '"%s"' % s, UnaryOpTable.keys()))
 binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))

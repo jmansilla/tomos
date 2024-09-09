@@ -1,4 +1,4 @@
-from tomos.expressions.ayed2.types import *
+from tomos.ayed2.expressions.types import *
 
 
 class Module:
