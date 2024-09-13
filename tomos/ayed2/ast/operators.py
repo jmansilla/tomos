@@ -1,7 +1,6 @@
 UnaryOpTable = {
     "-": "Negative",
-    "*": "Pointed",
-    "not": "Not",
+    "!": "Not",
 }
 
 BinaryOpTable = {
@@ -10,12 +9,12 @@ BinaryOpTable = {
     "*": "Times",
     "/": "Div",
     "%": "Reminder",
+    "||": "Or",
+    "&&": "And",
     "==": "Equal",
     "!=": "NotEqual",
     "<": "LessThan",
     "<=": "LessThanEqual",
     ">": "MoreThan",
     ">=": "MoreThanEqual",
-    "or": "Or",
-    "and": "And",
 }

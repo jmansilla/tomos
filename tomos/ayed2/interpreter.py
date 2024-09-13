@@ -14,10 +14,15 @@ class EvalVisitor:
 class Inspectable:
     def __init__(self):
         self.timeline = []
+        self.by_name = {}
 
-    def register_snapshot(self, expr, snapshot):
+    def register_snapshot(self, expr, data, name=None):
         from copy import deepcopy
-        self.timeline.append(deepcopy(snapshot))
+        new_snapshot = deepcopy(data)
+        self.timeline.append(new_snapshot)
+        if name is not None:
+            assert name not in self.by_name
+            self.by_name[name] = new_snapshot
 
 
 class NaiveLinearInterpreter(Inspectable):
@@ -32,11 +37,16 @@ class NaiveLinearInterpreter(Inspectable):
         self.ast = ast
         self.state = State()
 
+    def get_entry_point(self):
+        assert hasattr(self.ast, "body")
+        return self.ast.body  # abstraction broken here. Shall not be a list
+
     def eval(self):
         self.finished = False
-        assert hasattr(self.ast, "body")
-        for expr in self.ast.body:
-            self.register_snapshot(expr, self.state)
-            self.state = expr.eval(self.state)
-        self.register_snapshot(None, self.state)
+        ev = EvalVisitor()
+        self.register_snapshot(None, self.state, name="initial")
+        for instruction in self.get_entry_point():
+            self.register_snapshot(instruction, self.state)
+            self.state = ev.visit(instruction, self.state)
+        self.register_snapshot(None, self.state, name="final")
         return self.state
