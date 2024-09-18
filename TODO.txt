@@ -1,0 +1,43 @@
+
+a)  [ ] Hacer Evaluador de expresiones
+        [ ] testing
+b)  [ ] Hacer evaluador de sentencias básicas (no if, no for, no while)
+        [ ] testing
+c)  [ ] Hacer evaluador de programas
+        [ ] entry-point es el código del archivo
+        [ ] type checking dinámico
+d)  [ ] Hacer POC de graficar paso a paso:
+        [ ] mostrar el estado del Stack
+        [ ] mostrar estado del Heapy Heapy
+        [ ] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
+            y cuál sigue
+e)  [ ] Agregar otros tipos básicos (char, bool)
+        [ ] al parser
+        [ ] al Evaluador
+        [ ] al graficador
+f)  [ ] Agregar Arrays
+        [ ] al parser
+        [ ] al Evaluador
+        [ ] al graficador
+g)  [ ] Agregar Enums
+        [ ] al parser
+        [ ] al Evaluador
+        [ ] al graficador
+h)  [ ] Agregar records/strucs
+        [ ] al parser
+        [ ] al Evaluador
+        [ ] al graficador
+i)  [ ] Completar sentencias (if, for, while)
+        [ ] al parser
+        [ ] al evaluador
+        [ ] al graficador
+j)  [ ] Mejorar la UI del graficador
+
+Para hacer más adelante (extras)
+e.1) [ ] Agregar procedimientos y funciones
+e.2) [ ] Cambiar la noción de entry-point
+e.3) [ ] Type Checking estático
+e.4) [ ] Clases Ord y Eq
+e.5) [ ] Agregar programas multi-módulo (imports)
+e.6) [ ] Intérprete interactivo?
+
