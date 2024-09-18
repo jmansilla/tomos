@@ -62,11 +62,6 @@ class Variable(Expr):
     def __repr__(self) -> str:
         return f"Variable({self.name})"
 
-    def eval(self, state):
-        if self.name not in state.stack:
-            raise Exception(f"Variable {self.name} is not defined.")
-        return state.stack[self.name]
-
 
 class UnaryOp(Expr):
     def __init__(self, op, expr):
