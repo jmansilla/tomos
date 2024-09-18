@@ -63,3 +63,7 @@ type_map = {
     "bool": BoolType,
     "char": CharType,
 }
+
+
+class Ayed2TypeError(Exception):
+    pass

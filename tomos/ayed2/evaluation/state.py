@@ -1,21 +1,33 @@
-UNKNOWN_VALUE = object()
+from tomos.ayed2.ast.types import Ayed2TypeError
+
+UnkownValue = object()
 
 
 class State:
     def __init__(self):
         self.stack = {}
         self.stack_types = {}
-        self.heap = {}
-        self.heap_types = {}
 
-    def set_stack_type(self, name, type):
-        self.stack_types[name] = type
+    def declare_static_variable(self, name, var_type):
+        if name in self.stack_types:
+            raise Ayed2TypeError(f"Variable {name} already declared.")
+        self.stack_types[name] = var_type
 
-    def update_stack(self, name, value, type):
+    def set_static_variable_value(self, name, value, var_type):
+        if name not in self.stack_types:
+            raise Ayed2TypeError(f"Variable {name} is not declared.")
+        if self.stack_types[name] != var_type:
+            raise Ayed2TypeError(
+                f"Variable {name} was declared of type {self.stack_types[name]}, "
+                 "but attempted to set value of type {var_type}.")
         self.stack[name] = value
 
-    def update_heap(self, name, value):
-        self.heap[name] = value
+    def get_static_variable_value(self, name):
+        if name not in self.stack_types:
+            raise Ayed2TypeError(f"Variable {name} is not declared.")
+        if name not in self.stack:
+            return UnkownValue
+        return self.stack[name]
 
-    def set_heap_type(self, name, type):
-        self.heap[name] = type
+    def list_declared_variables(self):
+        return dict(self.stack_types)
