@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tomos.parser.ayed2 import parser
+from tomos.ayed2.parser import parser
 
 
 class TestParsing(TestCase):

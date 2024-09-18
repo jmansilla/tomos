@@ -11,7 +11,7 @@
 #                   | ⟨variable⟩.⟨fname⟩
 #                   | *⟨variable⟩
 
-from tomos.ayed2.expressions.types import *
+from tomos.ayed2.ast.types import *
 
 
 NAMED_CONSTANTS = [
