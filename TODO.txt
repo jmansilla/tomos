@@ -38,7 +38,8 @@ Para hacer más adelante (extras)
 ex.1) [ ] Agregar procedimientos y funciones
 ex.2) [ ] Cambiar la noción de entry-point
 ex.3) [ ] Type Checking estático
-ex.4) [ ] Clases Ord y Eq
-ex.5) [ ] Agregar programas multi-módulo (imports)
-ex.6) [ ] Intérprete interactivo?
+ex.4) [ ] Coercion de tipos
+ex.5) [ ] Clases Ord y Eq
+ex.6) [ ] Agregar programas multi-módulo (imports)
+ex.7) [ ] Intérprete interactivo?
 
