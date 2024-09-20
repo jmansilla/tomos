@@ -3,7 +3,10 @@ import factory
 
 from lark.lexer import Token
 from tomos.ayed2.ast.expressions import (
-    IntegerConstant, BooleanConstant, RealConstant, Variable
+    IntegerConstant,
+    BooleanConstant,
+    RealConstant,
+    Variable,
 )
 from tomos.ayed2.evaluation.state import State
 

@@ -1,5 +1,6 @@
 import re
 
+
 class VisitError(Exception):
     pass
 
@@ -11,7 +12,7 @@ class NodeVisitor:
         # Transforms CammelCase to snake_case, and preppends "visit_"
         name = _type.__name__
         pattern = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
-        return "visit_" + pattern.sub('_', name).lower()
+        return "visit_" + pattern.sub("_", name).lower()
 
     def visit(self, node, *args, **kwargs):
         state = kwargs["state"]

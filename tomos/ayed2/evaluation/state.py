@@ -24,7 +24,8 @@ class State:
         if self.stack_types[name] != var_type:
             raise Ayed2TypeError(
                 f"Variable {name} was declared of type {self.stack_types[name]}, "
-                 "but attempted to set value of type {var_type}.")
+                "but attempted to set value of type {var_type}."
+            )
         self.stack[name] = value
 
     def get_static_variable_value(self, name):

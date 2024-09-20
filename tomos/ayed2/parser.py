@@ -148,7 +148,7 @@ class TreeToAST(Transformer):
     #     return r
 
     def module(self, args):
-        return Module(name='', body=args)
+        return Module(name="", body=args)
 
     def vname(self, args):
         assert len(args) == 1

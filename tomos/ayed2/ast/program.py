@@ -36,7 +36,7 @@ class Module(ProgramExpression):
 
     def pretty(self):
         title = f"module {self.name}\n\t"
-        body = '\n\t'.join(map(lambda c: repr(c), self.body))
+        body = "\n\t".join(map(lambda c: repr(c), self.body))
         return title + body
 
 

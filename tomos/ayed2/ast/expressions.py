@@ -1,11 +1,11 @@
 #  Expressions
 #  ===========
 #      ⟨expression⟩ ::= ⟨constant⟩ | ⟨functioncall⟩ | ⟨operation⟩ | ⟨variable〉
-#      ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | ⟨character⟩ | ⟨enum_name⟩ | inf | null
+#      ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | ⟨character⟩ | ⟨enum_name⟩ | inf | null
 # [-]  ⟨functioncall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
-#      ⟨operation⟩ ::= ⟨expression⟩ ⟨binary⟩ ⟨expression⟩ | ⟨unary⟩ ⟨expression⟩
-#      ⟨binary⟩ ::= + | − | * | / | % | || | && | <= | >= | < | > | == | !=
-#      ⟨unary⟩ ::= - | !
+#      ⟨operation⟩ ::= ⟨expression⟩ ⟨binary⟩ ⟨expression⟩ | ⟨unary⟩ ⟨expression⟩
+#      ⟨binary⟩ ::= + | − | * | / | % | || | && | <= | >= | < | > | == | !=
+#      ⟨unary⟩ ::= - | !
 #      ⟨variable⟩ ::= ⟨id⟩
 #                   | ⟨variable⟩[⟨expression⟩ ... ⟨expression⟩ ]
 #                   | ⟨variable⟩.⟨fname⟩
@@ -117,4 +117,3 @@ class FunctionCall(Expr):
 
     def __repr__(self) -> str:
         return f"FunctionCall({self.name}, {self.args})"
-

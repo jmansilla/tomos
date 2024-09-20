@@ -24,6 +24,10 @@
 # [-]  ⟨field⟩ ::= ⟨fname⟩ : ⟨type⟩
 
 
+class Ayed2TypeError(Exception):
+    pass
+
+
 class BasicType:
     def __init__(self, token):
         self._token = token
@@ -63,7 +67,3 @@ type_map = {
     "bool": BoolType,
     "char": CharType,
 }
-
-
-class Ayed2TypeError(Exception):
-    pass

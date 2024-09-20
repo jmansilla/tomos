@@ -4,9 +4,13 @@ from tomos.ayed2.ast.types import IntType
 from tomos.ayed2.evaluation.state import UnkownValue
 from tomos.ayed2.evaluation.interpreter import ExpressionsEvaluatorVisitor
 from .factories import (
-    StateFactory, IntegerConstantFactory, BooleanConstantFactory, RealConstantFactory,
-    VariableFactory
+    StateFactory,
+    IntegerConstantFactory,
+    BooleanConstantFactory,
+    RealConstantFactory,
+    VariableFactory,
 )
+
 
 def run_eval(expr, state=None):
     if state is None:
@@ -47,7 +51,7 @@ class TestEvalConstantExpressions(TestCase):
         expr = RealConstantFactory(token__value="5.5")
         self.assertEqual(run_eval(expr), 5.5)
 
-    def test_eval_integer_inf(self):
+    def test_eval_real_inf(self):
         expr = RealConstantFactory(token__value="inf")
         self.assertEqual(run_eval(expr), float("inf"))
 
