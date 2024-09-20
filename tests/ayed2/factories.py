@@ -8,6 +8,7 @@ from tomos.ayed2.ast.expressions import (
     RealConstant,
     Variable,
 )
+from tomos.ayed2.ast.operators import UnaryOp, BinaryOp, UnaryOpTable, BinaryOpTable
 from tomos.ayed2.evaluation.state import State
 
 
@@ -24,25 +25,40 @@ class StateFactory(factory.Factory):
         model = State
 
 
-class IntegerConstantFactory(factory.Factory):
+class AbstractConstantFactory(factory.Factory):
+    class Meta:
+        abstract = True
+
+    token = factory.SubFactory(
+        TokenFactory,
+        value=factory.LazyAttribute(
+            lambda ob: str(ob.factory_parent.faker_value).lower()
+        ),
+    )
+
+
+class IntegerConstantFactory(AbstractConstantFactory):
     class Meta:
         model = IntegerConstant
 
-    token = factory.SubFactory(TokenFactory)
+    class Params:
+        faker_value = factory.Faker("pyint", min_value=0)
 
 
-class RealConstantFactory(factory.Factory):
+class RealConstantFactory(AbstractConstantFactory):
     class Meta:
         model = RealConstant
 
-    token = factory.SubFactory(TokenFactory)
+    class Params:
+        faker_value = factory.Faker("pyfloat", min_value=0)
 
 
-class BooleanConstantFactory(factory.Factory):
+class BooleanConstantFactory(AbstractConstantFactory):
     class Meta:
         model = BooleanConstant
 
-    token = factory.SubFactory(TokenFactory)
+    class Params:
+        faker_value = factory.Faker("pybool")
 
 
 class VariableFactory(factory.Factory):
@@ -50,3 +66,22 @@ class VariableFactory(factory.Factory):
         model = Variable
 
     name = factory.SubFactory(TokenFactory)
+
+
+def get_tkn_faker_value(ob, faker_attr_name="token_faker_value"):
+    return getattr(ob.factory_parent, faker_attr_name)
+
+
+class UnaryOpFactory(factory.Factory):
+    class Meta:
+        model = UnaryOp
+
+    class Params:
+        token_faker_value = factory.Faker("random_element", elements=UnaryOpTable.keys())
+
+    op = factory.SubFactory(
+        TokenFactory,
+        value=factory.LazyAttribute(get_tkn_faker_value)
+    )
+
+    expr = factory.SubFactory(IntegerConstantFactory)

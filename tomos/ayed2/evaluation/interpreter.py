@@ -1,5 +1,6 @@
 from copy import deepcopy
 from tomos.ayed2.evaluation.state import State
+from tomos.ayed2.ast.types import IntType, RealType, BoolType
 from tomos.visit import NodeVisitor
 
 
@@ -13,17 +14,15 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         return self.visit(expr, state=state)
 
     def visit_boolean_constant(self, expr, **kw):
-        if expr.value_str == "true":
-            return True
-        elif expr.value_str == "false":
-            return False
+        if expr.value_str in BoolType.NAMED_CONSTANTS:
+            return BoolType.NAMED_CONSTANTS[expr.value_str]
         else:
             raise EvaluationError(f"Invalid boolean value {expr.value_str}")
 
     def visit_integer_constant(self, expr, **kw):
         raw = expr.value_str
-        if raw == "inf":
-            return float("inf")
+        if raw in IntType.NAMED_CONSTANTS:
+            return IntType.NAMED_CONSTANTS[raw]
         try:
             return int(raw)
         except ValueError:
@@ -31,10 +30,26 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
 
     def visit_real_constant(self, expr, **kw):
         raw = expr.value_str
+        if raw in RealType.NAMED_CONSTANTS:
+            return RealType.NAMED_CONSTANTS[raw]
         try:
             return float(raw)
         except ValueError:
             raise EvaluationError(f"Invalid real value {expr.value_str}")
+
+    def visit_unary_op(self, expr, **kw):
+        children = kw["children"]
+        assert len(children) == 1
+        sub_value = children[0]
+        if expr.op == "-":
+            return -sub_value
+        if expr.op == "+":
+            return +sub_value
+        elif expr.op == "!":
+            return not sub_value
+        else:
+            raise EvaluationError(f"Invalid unary operator {expr.op}")
+
 
     def visit_variable(self, expr, **kw):
         state = kw["state"]

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tomos.ayed2.ast.types import IntType
+from tomos.ayed2.ast.types import IntType, BoolType
 from tomos.ayed2.evaluation.state import UnkownValue
 from tomos.ayed2.evaluation.interpreter import ExpressionsEvaluatorVisitor
 from .factories import (
@@ -9,6 +9,7 @@ from .factories import (
     BooleanConstantFactory,
     RealConstantFactory,
     VariableFactory,
+    UnaryOpFactory,
 )
 
 
@@ -81,3 +82,36 @@ class TestEvalVariableExpressions(TestCase):
         state = StateFactory()
         state.declare_static_variable("x", IntType)
         self.assertEqual(run_eval(expr, state), UnkownValue)
+
+
+class TestEvalUnaryExpressions(TestCase):
+    def test_eval_negative_integer(self):
+        sub_expr = IntegerConstantFactory()
+        expr = UnaryOpFactory(op__value="-", expr=sub_expr)
+        sub_val = run_eval(sub_expr)
+        self.assertEqual(run_eval(expr), -1 * sub_val)
+
+    def test_eval_positive_integer(self):
+        sub_expr = IntegerConstantFactory()
+        expr = UnaryOpFactory(op__value="+", expr=sub_expr)
+        sub_val = run_eval(sub_expr)
+        self.assertEqual(run_eval(expr), sub_val)
+
+    def test_eval_negative_real(self):
+        sub_expr = RealConstantFactory()
+        expr = UnaryOpFactory(op__value="-", expr=sub_expr)
+        sub_val = run_eval(sub_expr)
+        self.assertEqual(run_eval(expr), -1 * sub_val)
+
+    def test_eval_positive_real(self):
+        sub_expr = RealConstantFactory()
+        expr = UnaryOpFactory(op__value="+", expr=sub_expr)
+        sub_val = run_eval(sub_expr)
+        self.assertEqual(run_eval(expr), sub_val)
+
+    def test_eval_not_boolean(self):
+        for value in BoolType.NAMED_CONSTANTS.keys():
+            sub_expr = BooleanConstantFactory(token__value=value)
+            expr = UnaryOpFactory(op__value="!", expr=sub_expr)
+            sub_val = run_eval(sub_expr)
+            self.assertEqual(run_eval(expr), not sub_val)
