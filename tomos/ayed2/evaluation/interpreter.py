@@ -1,14 +1,42 @@
-class State:
-    def __init__(self):
-        self.stack = {}
-        self.stack_types = {}
-        self.heap = {}
+from tomos.ayed2.evaluation.state import State
+from tomos.visit import NodeVisitor
+
+class EvaluationError(Exception):
+    pass
 
 
-class EvalVisitor:
+class ExpressionsEvaluatorVisitor(NodeVisitor):
 
-    def visit(self, expr, state):
-        return expr.eval(state)
+    def eval(self, expr, state):
+        return self.visit(expr, state=state)
+
+    def visit_boolean_constant(self, expr, **kw):
+        if expr.value_str == "true":
+            return True
+        elif expr.value_str == "false":
+            return False
+        else:
+            raise EvaluationError(f"Invalid boolean value {expr.value_str}")
+
+    def visit_integer_constant(self, expr, **kw):
+        raw = expr.value_str
+        if raw == "inf":
+            return float("inf")
+        try:
+            return int(raw)
+        except ValueError:
+            raise EvaluationError(f"Invalid integer value {expr.value_str}")
+
+    def visit_real_constant(self, expr, **kw):
+        raw = expr.value_str
+        try:
+            return float(raw)
+        except ValueError:
+            raise EvaluationError(f"Invalid real value {expr.value_str}")
+
+    def visit_variable(self, expr, **kw):
+        state = kw["state"]
+        return state.get_static_variable_value(expr.name)
 
 
 class Inspectable:

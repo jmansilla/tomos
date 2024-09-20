@@ -1,5 +1,10 @@
 from tomos.ayed2.ast.types import Ayed2TypeError
 
+
+class UndeclaredVariableError(Exception):
+    pass
+
+
 UnkownValue = object()
 
 
@@ -24,7 +29,7 @@ class State:
 
     def get_static_variable_value(self, name):
         if name not in self.stack_types:
-            raise Ayed2TypeError(f"Variable {name} is not declared.")
+            raise UndeclaredVariableError(f"Variable {name} is not declared.")
         if name not in self.stack:
             return UnkownValue
         return self.stack[name]
