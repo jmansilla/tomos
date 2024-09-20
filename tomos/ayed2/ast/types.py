@@ -37,15 +37,15 @@ class BasicType:
 
 
 class IntType(BasicType):
-    pass
+    NAMED_CONSTANTS = {"inf": float("inf")}
 
 
 class BoolType(BasicType):
-    pass
+    NAMED_CONSTANTS = {"true": True, "false": False}
 
 
 class RealType(BasicType):
-    pass
+    NAMED_CONSTANTS = {"inf": float("inf")}
 
 
 class CharType(BasicType):
@@ -53,6 +53,8 @@ class CharType(BasicType):
 
 
 class PointerOf(BasicType):
+    NAMED_CONSTANTS = {"null": None}
+
     def __init__(self, token, of):
         super().__init__(token)
         self._of = of
