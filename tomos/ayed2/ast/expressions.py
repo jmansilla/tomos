@@ -1,14 +1,15 @@
 #  Expressions
 #  ===========
 #      ⟨expression⟩ ::= ⟨constant⟩ | ⟨functioncall⟩ | ⟨operation⟩ | ⟨variable〉
-#      ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | ⟨character⟩ | ⟨enum_name⟩ | inf | null
+#      ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | inf | null
+# [-]                 | ⟨character⟩ | ⟨enum_name⟩
 # [-]  ⟨functioncall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
 #      ⟨operation⟩ ::= ⟨expression⟩ ⟨binary⟩ ⟨expression⟩ | ⟨unary⟩ ⟨expression⟩
 #      ⟨binary⟩ ::= + | − | * | / | % | || | && | <= | >= | < | > | == | !=
 #      ⟨unary⟩ ::= - | !
 #      ⟨variable⟩ ::= ⟨id⟩
-#                   | ⟨variable⟩[⟨expression⟩ ... ⟨expression⟩ ]
-#                   | ⟨variable⟩.⟨fname⟩
+# [-]               | ⟨variable⟩[⟨expression⟩ ... ⟨expression⟩ ]
+# [-]               | ⟨variable⟩.⟨fname⟩
 #                   | *⟨variable⟩
 
 from tomos.ayed2.ast.types import *
