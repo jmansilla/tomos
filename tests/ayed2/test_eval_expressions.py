@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType
 from tomos.ayed2.evaluation.state import UnkownValue
-from tomos.ayed2.evaluation.interpreter import ExpressionsEvaluatorVisitor
+from tomos.ayed2.evaluation.expressions import ExpressionsEvaluatorVisitor
 from .factories import (
     StateFactory,
     IntegerConstantFactory,
