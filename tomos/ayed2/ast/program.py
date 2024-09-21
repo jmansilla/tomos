@@ -32,11 +32,11 @@ class Module(ProgramExpression):
         self.body = body
 
     def __repr__(self) -> str:
-        return f"Module({self.children})"
+        return f"Module({self.body})"
 
     def pretty(self):
         title = f"module {self.name}\n\t"
-        body = '\n\t'.join(map(lambda c: repr(c), self.body))
+        body = "\n\t".join(map(lambda c: repr(c), self.body))
         return title + body
 
 

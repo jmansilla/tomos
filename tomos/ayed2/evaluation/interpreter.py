@@ -1,14 +1,5 @@
-class State:
-    def __init__(self):
-        self.stack = {}
-        self.stack_types = {}
-        self.heap = {}
-
-
-class EvalVisitor:
-
-    def visit(self, expr, state):
-        return expr.eval(state)
+from copy import deepcopy
+from tomos.ayed2.evaluation.state import State
 
 
 class Inspectable:
@@ -17,7 +8,6 @@ class Inspectable:
         self.by_name = {}
 
     def register_snapshot(self, expr, data, name=None):
-        from copy import deepcopy
         new_snapshot = deepcopy(data)
         self.timeline.append(new_snapshot)
         if name is not None:
@@ -32,6 +22,7 @@ class NaiveLinearInterpreter(Inspectable):
     Assumes the code is a succession of expressions.
     Executes one expression after the other in sequential order.
     """
+
     def __init__(self, ast):
         super().__init__()
         self.ast = ast
@@ -39,7 +30,7 @@ class NaiveLinearInterpreter(Inspectable):
 
     def get_entry_point(self):
         assert hasattr(self.ast, "body")
-        return self.ast.body  # abstraction broken here. Shall not be a list
+        return self.ast.body  # abstraction broken here. Shall not be a list
 
     def eval(self):
         self.finished = False

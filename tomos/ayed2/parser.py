@@ -7,6 +7,7 @@ from tomos.ayed2.ast.types import *
 from tomos.ayed2.ast.expressions import *
 from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
+from tomos.ayed2.ast.program import *
 
 unary_symbols = " | ".join(map(lambda s: '"%s"' % s, UnaryOpTable.keys()))
 binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
@@ -147,7 +148,7 @@ class TreeToAST(Transformer):
     #     return r
 
     def module(self, args):
-        return Module(name='', body=args)
+        return Module(name="", body=args)
 
     def vname(self, args):
         assert len(args) == 1
@@ -190,7 +191,7 @@ class TreeToAST(Transformer):
     def NUMBER(self, token):
         if not token.value.isdigit():
             raise UnexpectedInput(f"Invalid number: {token.value}")
-        return NaturalConstant(token=token)
+        return IntegerConstant(token=token)
 
     def BOOL(self, token):
         return BooleanConstant(token=token)
