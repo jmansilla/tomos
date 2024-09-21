@@ -78,11 +78,12 @@ class UnaryOpFactory(factory.Factory):
         model = UnaryOp
 
     class Params:
-        token_faker_value = factory.Faker("random_element", elements=UnaryOpTable.keys())
+        token_faker_value = factory.Faker(
+            "random_element", elements=UnaryOpTable.keys()
+        )
 
     op = factory.SubFactory(
-        TokenFactory,
-        value=factory.LazyAttribute(get_tkn_faker_value)
+        TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
     expr = factory.SubFactory(IntegerConstantFactory)
@@ -93,11 +94,12 @@ class BinaryOpFactory(factory.Factory):
         model = BinaryOp
 
     class Params:
-        token_faker_value = factory.Faker("random_element", elements=BinaryOpTable.keys())
+        token_faker_value = factory.Faker(
+            "random_element", elements=BinaryOpTable.keys()
+        )
 
     op = factory.SubFactory(
-        TokenFactory,
-        value=factory.LazyAttribute(get_tkn_faker_value)
+        TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
     left = factory.SubFactory(IntegerConstantFactory)

@@ -4,7 +4,7 @@ from tomos.ayed2.ast.types import IntType, RealType, BoolType
 from tomos.visit import NodeVisitor
 
 
-class EvaluationError(Exception):
+class ExpressionEvaluationError(Exception):
     pass
 
 
@@ -17,7 +17,7 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         if expr.value_str in BoolType.NAMED_CONSTANTS:
             return BoolType.NAMED_CONSTANTS[expr.value_str]
         else:
-            raise EvaluationError(f"Invalid boolean value {expr.value_str}")
+            raise ExpressionEvaluationError(f"Invalid boolean value {expr.value_str}")
 
     def visit_integer_constant(self, expr, **kw):
         raw = expr.value_str
@@ -26,7 +26,7 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         try:
             return int(raw)
         except ValueError:
-            raise EvaluationError(f"Invalid integer value {expr.value_str}")
+            raise ExpressionEvaluationError(f"Invalid integer value {expr.value_str}")
 
     def visit_real_constant(self, expr, **kw):
         raw = expr.value_str
@@ -35,7 +35,7 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         try:
             return float(raw)
         except ValueError:
-            raise EvaluationError(f"Invalid real value {expr.value_str}")
+            raise ExpressionEvaluationError(f"Invalid real value {expr.value_str}")
 
     def visit_unary_op(self, expr, **kw):
         children = kw["children"]
@@ -48,7 +48,7 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         elif expr.op == "!":
             return not sub_value
         else:
-            raise EvaluationError(f"Invalid unary operator {expr.op}")
+            raise ExpressionEvaluationError(f"Invalid unary operator {expr.op}")
 
     def visit_binary_op(self, expr, **kw):
         children = kw["children"]
@@ -81,7 +81,7 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
             return left > right
         if expr.op == ">=":
             return left >= right
-        raise EvaluationError(f"Invalid binary operator {expr.op}")
+        raise ExpressionEvaluationError(f"Invalid binary operator {expr.op}")
 
     def visit_variable(self, expr, **kw):
         state = kw["state"]
