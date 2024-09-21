@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType
 from tomos.ayed2.evaluation.state import UnkownValue
-from tomos.ayed2.evaluation.expressions import ExpressionsEvaluatorVisitor
+from tomos.ayed2.evaluation.expressions import ExpressionsEvaluator
 from .factories import (
     StateFactory,
     IntegerConstantFactory,
@@ -17,7 +17,7 @@ from .factories import (
 def run_eval(expr, state=None):
     if state is None:
         state = StateFactory()
-    evaluator = ExpressionsEvaluatorVisitor()
+    evaluator = ExpressionsEvaluator()
     return evaluator.eval(expr, state)
 
 
