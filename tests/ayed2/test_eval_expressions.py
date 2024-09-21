@@ -10,6 +10,7 @@ from .factories import (
     RealConstantFactory,
     VariableFactory,
     UnaryOpFactory,
+    BinaryOpFactory,
 )
 
 
@@ -115,3 +116,11 @@ class TestEvalUnaryExpressions(TestCase):
             expr = UnaryOpFactory(op__value="!", expr=sub_expr)
             sub_val = run_eval(sub_expr)
             self.assertEqual(run_eval(expr), not sub_val)
+
+
+class TestEvalBinaryExpressions(TestCase):
+    def test_adding_integers(self):
+        a = IntegerConstantFactory(token__value="5")
+        b = IntegerConstantFactory(token__value="5")
+        expr = BinaryOpFactory(op__value="+", left=a, right=b)
+        self.assertEqual(run_eval(expr), 10)

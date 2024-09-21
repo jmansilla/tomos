@@ -64,3 +64,7 @@ class BinaryOp(Expr):
 
     def __repr__(self) -> str:
         return f"BinaryOp({self.left}, {self.op}, {self.right})"
+
+    def children(self):
+        yield self.left
+        yield self.right

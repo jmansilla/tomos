@@ -50,6 +50,38 @@ class ExpressionsEvaluatorVisitor(NodeVisitor):
         else:
             raise EvaluationError(f"Invalid unary operator {expr.op}")
 
+    def visit_binary_op(self, expr, **kw):
+        children = kw["children"]
+        assert len(children) == 2
+        left = children[0]
+        right = children[1]
+        if expr.op == "+":
+            return left + right
+        if expr.op == "-":
+            return left - right
+        if expr.op == "*":
+            return left * right
+        if expr.op == "/":
+            return left / right
+        if expr.op == "%":
+            return left % right
+        if expr.op == "||":
+            return left or right
+        if expr.op == "&&":
+            return left and right
+        if expr.op == "==":
+            return left == right
+        if expr.op == "!=":
+            return left != right
+        if expr.op == "<":
+            return left < right
+        if expr.op == "<=":
+            return left <= right
+        if expr.op == ">":
+            return left > right
+        if expr.op == ">=":
+            return left >= right
+        raise EvaluationError(f"Invalid binary operator {expr.op}")
 
     def visit_variable(self, expr, **kw):
         state = kw["state"]

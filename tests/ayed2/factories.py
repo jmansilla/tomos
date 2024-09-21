@@ -12,6 +12,11 @@ from tomos.ayed2.ast.operators import UnaryOp, BinaryOp, UnaryOpTable, BinaryOpT
 from tomos.ayed2.evaluation.state import State
 
 
+def get_tkn_faker_value(ob, faker_attr_name="token_faker_value"):
+    # auxiliary method for params factories
+    return getattr(ob.factory_parent, faker_attr_name)
+
+
 class TokenFactory(factory.Factory):
     class Meta:
         model = Token
@@ -68,10 +73,6 @@ class VariableFactory(factory.Factory):
     name = factory.SubFactory(TokenFactory)
 
 
-def get_tkn_faker_value(ob, faker_attr_name="token_faker_value"):
-    return getattr(ob.factory_parent, faker_attr_name)
-
-
 class UnaryOpFactory(factory.Factory):
     class Meta:
         model = UnaryOp
@@ -85,3 +86,19 @@ class UnaryOpFactory(factory.Factory):
     )
 
     expr = factory.SubFactory(IntegerConstantFactory)
+
+
+class BinaryOpFactory(factory.Factory):
+    class Meta:
+        model = BinaryOp
+
+    class Params:
+        token_faker_value = factory.Faker("random_element", elements=BinaryOpTable.keys())
+
+    op = factory.SubFactory(
+        TokenFactory,
+        value=factory.LazyAttribute(get_tkn_faker_value)
+    )
+
+    left = factory.SubFactory(IntegerConstantFactory)
+    right = factory.SubFactory(IntegerConstantFactory)
