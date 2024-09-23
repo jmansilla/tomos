@@ -6,7 +6,7 @@ class ExpressionEvaluationError(Exception):
     pass
 
 
-class ExpressionsEvaluator(NodeVisitor):
+class ExpressionEvaluator(NodeVisitor):
 
     def eval(self, expr, state):
         return self.visit(expr, state=state)
