@@ -1,10 +1,10 @@
 
-a)  [ ] Hacer Evaluador de expresiones
+a)  [x] Hacer Evaluador de expresiones
+        [x] testing
+b)  [x] Hacer evaluador de sentencias básicas (no if, no for, no while)
         [ ] testing
-b)  [ ] Hacer evaluador de sentencias básicas (no if, no for, no while)
-        [ ] testing
-c)  [ ] Hacer evaluador de programas
-        [ ] entry-point es el código del archivo
+c)  [x] Hacer evaluador de programas
+        [x] entry-point es el código del archivo
         [ ] type checking dinámico
 d)  [ ] Extender parser y evaluador con alloc y free como builtins (no procedimientos)
 e)  [ ] Hacer POC de graficar paso a paso:
