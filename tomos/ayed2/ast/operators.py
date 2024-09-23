@@ -41,7 +41,7 @@ class UnaryOp(Expr):
         return f"UnaryOp({self.op}, {self.expr})"
 
     def children(self):
-        yield self.expr
+        return [self.expr]
 
 
 class BinaryOp(Expr):
@@ -66,5 +66,4 @@ class BinaryOp(Expr):
         return f"BinaryOp({self.left}, {self.op}, {self.right})"
 
     def children(self):
-        yield self.left
-        yield self.right
+        return [self.left, self.right]
