@@ -14,19 +14,26 @@
 
 
 class Sentence:
-
-    def eval(self, state):
-        raise NotImplementedError(f"Not implemented for {self.__class__}")
+    pass
 
 
 class Skip(Sentence):
-    pass
+    def __repr__(self) -> str:
+        return "Skip()"
 
 
 class ProcedureCall(Sentence):
     # TODO
     pass
 
+
+class BuiltinCall(ProcedureCall):
+    def __init__(self, name, args):
+        self._name = name
+        self._args = args
+
+    def __repr__(self) -> str:
+        return f"BuiltinCall(name={self._name}, args={self._args})"
 
 class If(Sentence):
     def __init__(self, guard, then_body, else_body):
@@ -65,4 +72,4 @@ class Assignment(Sentence):
 
     def __repr__(self) -> str:
         star = "*" if self.pointed else ""
-        return f"FunctionCall(name={star}{self.name}, expr={self.expr})"
+        return f"Assignment(dest={star}{self.name}, expr={self.expr})"
