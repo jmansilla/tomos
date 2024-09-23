@@ -18,13 +18,14 @@ class State:
             raise Ayed2TypeError(f"Variable {name} already declared.")
         self.stack_types[name] = var_type
 
-    def set_static_variable_value(self, name, value, var_type):
+    def set_static_variable_value(self, name, value):
         if name not in self.stack_types:
             raise Ayed2TypeError(f"Variable {name} is not declared.")
-        if self.stack_types[name] != var_type:
+        var_type = self.stack_types[name]
+        if not var_type.is_valid_value(value):
             raise Ayed2TypeError(
                 f"Variable {name} was declared of type {self.stack_types[name]}, "
-                "but attempted to set value of type {var_type}."
+                "but attempted to set value {value} that's not valid for this type."
             )
         self.stack[name] = value
 

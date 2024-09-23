@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType
 from tomos.ayed2.evaluation.state import UnkownValue
-from tomos.ayed2.evaluation.expressions import ExpressionsEvaluator
+from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from .factories import (
     StateFactory,
     IntegerConstantFactory,
@@ -17,7 +17,7 @@ from .factories import (
 def run_eval(expr, state=None):
     if state is None:
         state = StateFactory()
-    evaluator = ExpressionsEvaluator()
+    evaluator = ExpressionEvaluator()
     return evaluator.eval(expr, state)
 
 
@@ -69,7 +69,7 @@ class TestEvalVariableExpressions(TestCase):
         expr = VariableFactory(name__value="x")
         state = StateFactory()
         state.declare_static_variable("x", IntType)
-        state.set_static_variable_value("x", 5, IntType)
+        state.set_static_variable_value("x", 5)
         self.assertEqual(run_eval(expr, state), 5)
 
     def test_undeclared_variable_raises_exception(self):
