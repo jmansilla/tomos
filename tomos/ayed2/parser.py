@@ -71,7 +71,7 @@ binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 #
 #  Program
 #  =======
-#      ⟨program⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩
+#      ⟨program⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩ ⟨body⟩
 #      ⟨funprocdecl⟩ ::= ⟨function⟩ | ⟨procedure⟩
 
 #      ⟨body⟩ ::= ⟨variabledecl⟩ ... ⟨variabledecl⟩ ⟨sentences⟩
@@ -91,36 +91,56 @@ binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 #      ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
 #      ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩
 
-
+# Everything that's defined like <<TYPEDECLARATION>> means to be done later
 ayed2_grammar = rf"""
-?module: line*
+?program: typedef_section funprocdef_section body
 
-?line: var_declaration
-    | assignment
-    | function_call
+typedef_section: typedef*
 
+typedef: "<<TYPEDECLARATION>>"
+
+funprocdef_section: funprocdef*
+
+funprocdef: "<<FUNPROCDECLARATION>>"
+
+body: vardef_section sentences
+
+vardef_section: var_declaration*
 var_declaration: "var" vname ":" type
+vname : NAME
+
+sentences: _sentence*
+
+_sentence: skip
+    | builtin_call
+    | assignment
+
+skip: "skip"
+
+builtin_call: (ALLOC | FREE) "(" vname ")"
+ALLOC: "alloc"
+FREE: "free"
+
 assignment: destination ":=" expr
 
-vname : NAME
 destination: NAME
-     | pointed
+    | pointed
 pointed: "*" NAME
-
-function_call: NAME "(" args ")"
-args: expr ("," expr)*
 
 expr: _constant
     | unary_op
     | binary_op
-    | function_call
-    | NAME
+    | variable
+    | "*"variable
+    | "(" expr ")"
 
 _constant: NUMBER | BOOL
 BOOL: "true" | "false"
 
+variable: NAME
+
 type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
-BASIC_TYPE: "int" | "bool"
+BASIC_TYPE: "int" | "bool" | "real" | "char"
 
 unary_op: UNARY_OP expr
 binary_op: expr BIN_OP expr
@@ -147,12 +167,21 @@ class TreeToAST(Transformer):
     #     print('default', '1-', type(data), '2-', data, '3-', children, '4-', meta)
     #     return r
 
-    def module(self, args):
-        return Module(name="", body=args)
+    def program(self, args):
+        tdef, fdef, body = args
+        print(body)
+        return Program(typedef_section=tdef.children, funprocdef_section=fdef.children, body=body)
+
+    def body(self, args):
+        vardef, sentences = args
+        return Body(var_declarations=vardef.children, sentences=sentences.children)
 
     def vname(self, args):
         assert len(args) == 1
         return args[0]
+
+    def skip(self, args):
+        return Skip()
 
     def var_declaration(self, args):
         name, declared_type = args
@@ -174,9 +203,13 @@ class TreeToAST(Transformer):
     def destination(self, args):
         return args[0]
 
-    def function_call(self, args):
-        name, args = args
-        return FunctionCall(name=name, args=args)
+    def builtin_call(self, args):
+        name, *call_args = args
+        return BuiltinCall(name=name, args=call_args)
+
+    # def function_call(self, args):
+    #     name, args = args
+    #     return FunctionCall(name=name, args=args)
 
     def assignment(self, args):
         dest, expr = args
@@ -204,6 +237,9 @@ class TreeToAST(Transformer):
         left, op, right = args
         return BinaryOp(left=left, op=op, right=right)
 
+    def variable(self, args):
+        return Variable(name=args[0])
+
     def expr(self, args):
         if len(args) != 1:
             raise UnexpectedInput(f"Invalid expression: {args}")
@@ -212,4 +248,4 @@ class TreeToAST(Transformer):
     args = list
 
 
-parser = Lark(ayed2_grammar, start="module", parser="lalr", transformer=TreeToAST())
+parser = Lark(ayed2_grammar, start="program", parser="lalr", transformer=TreeToAST())
