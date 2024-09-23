@@ -5,7 +5,12 @@ class UndeclaredVariableError(Exception):
     pass
 
 
-UnkownValue = object()
+class UnkownSingleton:
+    def __repr__(self):
+        return "<UnkownValue>"
+
+
+UnkownValue = UnkownSingleton()
 
 
 class State:
