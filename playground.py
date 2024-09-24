@@ -10,6 +10,10 @@ class ShowState:
         from tomos.ayed2.ast.types import PointerOf
         with open(self.filename, 'w') as f:
             table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
+            table.align['Name'] = 'l'
+            table.align['Type'] = 'l'
+            table.align['Value'] = 'r'
+            table.align['Pointed value'] = 'r'
             for name, cell in state.list_declared_variables().items():
                 cell = state.cell_by_names[name]
                 row = [name, cell.var_type, cell.var_type.SIZE, cell.address, cell.value, '']
@@ -19,6 +23,7 @@ class ShowState:
                     if referenced_cell is not None:
                         row[-1] = referenced_cell.value
                 table.add_row(row)
+            table._dividers[-1] = True
             for cell in state.heap.values():
                 table.add_row(['', cell.var_type, cell.var_type.SIZE, cell.address, cell.value, ''])
             print(table, file=f)
