@@ -18,6 +18,13 @@ class Sentence:
 
 
 class Skip(Sentence):
+    def __init__(self, token):
+        self._token = token
+
+    @property
+    def line_number(self):
+        return self._token.line
+
     def __repr__(self) -> str:
         return "Skip()"
 
@@ -31,6 +38,10 @@ class BuiltinCall(ProcedureCall):
     def __init__(self, name, args):
         self._name = name
         self._args = args
+
+    @property
+    def line_number(self):
+        return self._name.line
 
     def __repr__(self) -> str:
         return f"BuiltinCall(name={self._name}, args={self._args})"
@@ -57,19 +68,26 @@ class For(Sentence):
 
 
 class Assignment(Sentence):
-    def __init__(self, name, expr, pointed=False):
-        self._name_token = name
+    def __init__(self, dest, expr):
+        self._dest_variable = dest
         self._expr = expr
-        self.pointed = pointed
 
     @property
     def name(self):
-        return self._name_token.value
+        return self._dest_variable.name
+
+    @property
+    def line_number(self):
+        return self._dest_variable.line_number
+
+    @property
+    def _contained_at(self):
+        return self._dest_variable._contained_at
 
     @property
     def expr(self):
         return self._expr
 
     def __repr__(self) -> str:
-        star = "*" if self.pointed else ""
-        return f"Assignment(dest={star}{self.name}, expr={self.expr})"
+        full_name = self._dest_variable.symbols_name
+        return f"Assignment(dest={full_name}, expr={self.expr})"
