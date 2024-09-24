@@ -38,6 +38,7 @@ class BasicType:
 
 class IntType(BasicType):
     NAMED_CONSTANTS = {"inf": float("inf")}
+    SIZE = 1
 
     @classmethod
     def is_valid_value(cls, value):
@@ -49,6 +50,7 @@ class IntType(BasicType):
 
 class BoolType(BasicType):
     NAMED_CONSTANTS = {"true": True, "false": False}
+    SIZE = 1
 
     @classmethod
     def is_valid_value(cls, value):
@@ -57,6 +59,7 @@ class BoolType(BasicType):
 
 class RealType(BasicType):
     NAMED_CONSTANTS = {"inf": float("inf")}
+    SIZE = 2
 
     @classmethod
     def is_valid_value(cls, value):
@@ -64,6 +67,7 @@ class RealType(BasicType):
 
 
 class CharType(BasicType):
+    SIZE = 1
 
     @classmethod
     def is_valid_value(cls, value):
@@ -72,6 +76,7 @@ class CharType(BasicType):
 
 class PointerOf(BasicType):
     NAMED_CONSTANTS = {"null": None}
+    SIZE = 2
 
     def __init__(self, token, of):
         super().__init__(token)
@@ -82,9 +87,8 @@ class PointerOf(BasicType):
 
     @classmethod
     def is_valid_value(cls, value):
-        print('Needs to be implemented yet')
-        # we'll need to deal with different pointer types
-        return True
+        from tomos.ayed2.evaluation.state import MemoryAddress
+        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, MemoryAddress)
 
 
 type_map = {
