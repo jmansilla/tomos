@@ -12,10 +12,10 @@ e)  [x] Hacer POC de graficar paso a paso:
         [x] mostrar estado del Heap
         [x] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
             y cuál sigue
-f)  [ ] Agregar otros tipos básicos (char, bool)
-        [ ] al parser
-        [ ] al Evaluador
-        [ ] al graficador
+f)  [x] Agregar otros tipos básicos (char, bool, real)
+        [x] al parser
+        [x] al Evaluador
+        [x] al graficador
 g)  [ ] Agregar Arrays
         [ ] al parser
         [ ] al Evaluador
