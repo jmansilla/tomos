@@ -111,33 +111,35 @@ vname : NAME
 
 sentences: _sentence*
 
-_sentence: skip
+_sentence: SKIP
     | builtin_call
     | assignment
 
-skip: "skip"
+SKIP: "skip"
 
-builtin_call: (ALLOC | FREE) "(" vname ")"
+builtin_call: (ALLOC | FREE) "(" variable ")"
 ALLOC: "alloc"
 FREE: "free"
 
 assignment: destination ":=" expr
 
-destination: NAME
-    | pointed
-pointed: "*" NAME
+destination: variable
+    | contained_at
+contained_at: "*" variable
 
 expr: _constant
     | unary_op
     | binary_op
     | variable
-    | "*"variable
+    | address_of
+    | contained_at
     | "(" expr ")"
 
 _constant: NUMBER | BOOL
 BOOL: "true" | "false"
 
 variable: NAME
+address_of: "&" variable
 
 type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
 BASIC_TYPE: "int" | "bool" | "real" | "char"
@@ -160,16 +162,8 @@ COMMENT: "//" /[^\n]*/
 
 class TreeToAST(Transformer):
 
-    # def __default__(self, data, children, meta):
-    #     r = super(TreeToAST, self).__default__(data, children, meta)
-    #     if data in ['__start_star_0', '_constant']:
-    #         return r
-    #     print('default', '1-', type(data), '2-', data, '3-', children, '4-', meta)
-    #     return r
-
     def program(self, args):
         tdef, fdef, body = args
-        print(body)
         return Program(typedef_section=tdef.children, funprocdef_section=fdef.children, body=body)
 
     def body(self, args):
@@ -180,8 +174,8 @@ class TreeToAST(Transformer):
         assert len(args) == 1
         return args[0]
 
-    def skip(self, args):
-        return Skip()
+    def SKIP(self, token):
+        return Skip(token)
 
     def var_declaration(self, args):
         name, declared_type = args
@@ -213,13 +207,7 @@ class TreeToAST(Transformer):
 
     def assignment(self, args):
         dest, expr = args
-        if isinstance(dest, Token):
-            return Assignment(name=dest, expr=expr)
-        else:
-            if isinstance(dest.data, Token) and dest.data.value == "pointed":
-                return Assignment(name=dest.children[0], expr=expr, pointed=True)
-            else:
-                raise UnexpectedInput(f"Unknown assignment destination: {dest}")
+        return Assignment(dest=dest, expr=expr)
 
     def NUMBER(self, token):
         if not token.value.isdigit():
@@ -239,6 +227,16 @@ class TreeToAST(Transformer):
 
     def variable(self, args):
         return Variable(name=args[0])
+
+    def address_of(self, args):
+        var = args[0]
+        var._address_of = True
+        return var
+
+    def contained_at(self, args):
+        var = args[0]
+        var._contained_at = True
+        return var
 
     def expr(self, args):
         if len(args) != 1:
