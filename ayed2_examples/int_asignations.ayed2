@@ -17,4 +17,5 @@ one := one + one
 arrow_two := arrow_one
 alloc(arrow_three)
 *arrow_three := *arrow_two + three
-
+free(arrow_three)
+*arrow_three := 5  // This shall cause a memory error
