@@ -5,12 +5,12 @@ b)  [x] Hacer evaluador de sentencias básicas (no if, no for, no while)
         [ ] testing
 c)  [x] Hacer evaluador de programas
         [x] entry-point es el código del archivo
-        [_] type checking dinámico
+        [.] type checking dinámico
 d)  [x] Extender parser y evaluador con alloc y free como builtins (no procedimientos)
 e)  [x] Hacer POC de graficar paso a paso:
         [x] mostrar el estado del Stack
         [x] mostrar estado del Heap
-        [ ] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
+        [x] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
             y cuál sigue
 f)  [ ] Agregar otros tipos básicos (char, bool)
         [ ] al parser
