@@ -25,9 +25,8 @@ _sentence: SKIP
 
 SKIP: "skip"
 
-builtin_call: (ALLOC | FREE) "(" variable ")"
-ALLOC: "alloc"
-FREE: "free"
+builtin_call: builtin_name "(" variable ")"
+!builtin_name: "alloc" | "free"
 
 assignment: destination ":=" expr
 
@@ -38,13 +37,14 @@ contained_at: "*" variable
 expr: _constant
     | unary_op
     | binary_op
-    | variable
     | address_of
     | contained_at
+    | variable
     | "(" expr ")"
 
-_constant: NUMBER | BOOL
-BOOL: "true" | "false"
+_constant: INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
+!bool_literal: "true" | "false"
+CHAR_LITERAL:  /./
 
 variable: NAME
 address_of: "&" variable
@@ -60,7 +60,9 @@ BIN_OP: {binary_symbols}
 COMMENT: "//" /[^\n]*/
 
 %import common.CNAME            -> NAME
-%import common.SIGNED_NUMBER    -> NUMBER
+%import common.INT              -> INT
+%import common.FLOAT            -> REAL
+
 
 %ignore COMMENT
 %import common.WS

@@ -2,17 +2,17 @@ from pathlib import Path
 
 from lark import Lark, Transformer
 from lark.exceptions import UnexpectedInput
-from lark.lexer import Token
-from lark.tree import Tree
 
 from tomos.ayed2.ast.types import *
 from tomos.ayed2.ast.expressions import *
 from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
 from tomos.ayed2.ast.program import *
+from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 
 
 class TreeToAST(Transformer):
+    do_eval_literals = True
 
     def program(self, args):
         tdef, fdef, body = args
@@ -49,6 +49,10 @@ class TreeToAST(Transformer):
     def destination(self, args):
         return args[0]
 
+    def builtin_name(self, args):
+        token = args[0]
+        return token
+
     def builtin_call(self, args):
         name, *call_args = args
         return BuiltinCall(name=name, args=call_args)
@@ -60,14 +64,6 @@ class TreeToAST(Transformer):
     def assignment(self, args):
         dest, expr = args
         return Assignment(dest=dest, expr=expr)
-
-    def NUMBER(self, token):
-        if not token.value.isdigit():
-            raise UnexpectedInput(f"Invalid number: {token.value}")
-        return IntegerConstant(token=token)
-
-    def BOOL(self, token):
-        return BooleanConstant(token=token)
 
     def unary_op(self, args):
         op, expr = args
@@ -94,6 +90,31 @@ class TreeToAST(Transformer):
         if len(args) != 1:
             raise UnexpectedInput(f"Invalid expression: {args}")
         return args[0]
+
+    # LITERALS
+    def parse_literal(self, _class, token):
+        literal = _class(token=token)
+        if self.do_eval_literals:
+            evaluator = ExpressionEvaluator()
+            try:
+                evaluator.eval(literal, state=None)
+            except Exception as e:
+                type_name = _class._type.__name__
+                raise UnexpectedInput(f"Invalid literal for {type_name}: {token.value}")
+        return literal
+
+    def INT(self, token):
+        return self.parse_literal(IntegerConstant, token)
+
+    def REAL(self, token):
+        return self.parse_literal(RealConstant, token)
+
+    def bool_literal(self, args):
+        token = args[0]
+        return self.parse_literal(BooleanConstant, token)
+
+    def CHAR_LITERAL(self, token):
+        return self.parse_literal(CharConstant, token)
 
     args = list
 
