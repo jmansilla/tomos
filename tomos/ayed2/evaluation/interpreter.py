@@ -89,4 +89,7 @@ class _Interpreter(NodeVisitor):
         if sentence._name == 'alloc':
             variable = sentence._args[0]
             state.alloc(variable.name)
+        elif sentence._name == 'free':
+            variable = sentence._args[0]
+            state.free(variable.name)
         return state

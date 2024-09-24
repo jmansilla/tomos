@@ -5,7 +5,7 @@ class UndeclaredVariableError(Exception):
     pass
 
 
-class MemoryViolationError(Exception):
+class MemoryInfrigementError(Exception):
     pass
 
 
@@ -38,9 +38,21 @@ class State:
         if not isinstance(cell.var_type, PointerOf):
             raise Ayed2TypeError(f"Cannot allocate. Variable {name} is not a pointer.")
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type._of)
-        self.heap[new_cell.address] = new_cell
         self.memory_cells[new_cell.address] = new_cell
+        self.heap[new_cell.address] = new_cell
         self.cell_by_names[name].value = new_cell.address
+
+    def free(self, name):
+        if name not in self.cell_by_names:
+            raise Ayed2TypeError(f"Variable {name} is not declared.")
+        cell = self.cell_by_names[name]
+        if not isinstance(cell.var_type, PointerOf):
+            raise Ayed2TypeError(f"Cannot free. Variable {name} is not a pointer.")
+        if cell.value not in self.memory_cells or cell.value not in self.heap:
+            raise MemoryInfrigementError()
+        del self.memory_cells[cell.value]
+        del self.heap[cell.value]
+        cell.value = UnkownValue
 
     def set_static_variable_value(self, name, value, contained_at=False):
         if name not in self.cell_by_names:
@@ -49,7 +61,7 @@ class State:
         if contained_at:
             assert isinstance(cell.var_type, PointerOf)
             if cell.value not in self.memory_cells:
-                raise MemoryViolationError()
+                raise MemoryInfrigementError()
             cell = self.memory_cells[cell.value]
         if not cell.var_type.is_valid_value(value):
             star = "*" if contained_at else ""
@@ -69,7 +81,7 @@ class State:
             if contained_at:
                 assert isinstance(cell.var_type, PointerOf)
                 if cell.value not in self.memory_cells:
-                    raise MemoryViolationError()
+                    raise MemoryInfrigementError()
                 referenced_cell = self.memory_cells[cell.value]
                 return referenced_cell.value
             else:
