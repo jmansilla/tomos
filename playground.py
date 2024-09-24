@@ -45,15 +45,28 @@ class ShowSentence:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    def __init__(self, filename):
+    def __init__(self, filename, full=False):
         self.filename = filename
+        self.full = full
         self.source_lines = open(filename).read().split('\n')
 
-
     def __call__(self, last_sentence, state, sentence_to_run):
-        print(self.OKCYAN, sentence_to_run, self.ENDC)
-        actual_line = self.source_lines[sentence_to_run.line_number - 1]
-        print(self.OKBLUE, actual_line, self.ENDC)
+        if self.full:
+            import os
+            os.system('cls' if os.name == 'nt' else 'clear')
+            for i, line in enumerate(self.source_lines, start=1):
+                prefix = f"{i: 5}"
+                if i == sentence_to_run.line_number:
+                    prefix = self.OKGREEN + prefix + self.ENDC
+                print(prefix, line)
+            print("-" * 80)
+            print("Sentence AST to run:")
+            print("\t", self.HEADER, sentence_to_run, self.ENDC)
+
+        else:
+            print(self.OKCYAN, sentence_to_run, self.ENDC)
+            actual_line = self.source_lines[sentence_to_run.line_number - 1]
+            print(self.OKBLUE, actual_line, self.ENDC)
 
 
 if __name__ == "__main__":
@@ -65,7 +78,7 @@ if __name__ == "__main__":
     ast = parser.parse(open(source).read())
     print(ast.pretty())
 
-    interpreter = Interpreter(ast, pre_hooks=[ShowSentence(source), wait_for_input, ],
+    interpreter = Interpreter(ast, pre_hooks=[ShowSentence(source, full=True), wait_for_input, ],
                               post_hooks=[ShowState('state.mem'), ])
     if "--run" in sys.argv:
         result = interpreter.run()
