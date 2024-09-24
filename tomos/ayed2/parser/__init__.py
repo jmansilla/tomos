@@ -12,73 +12,7 @@ from tomos.ayed2.ast.program import *
 unary_symbols = " | ".join(map(lambda s: '"%s"' % s, UnaryOpTable.keys()))
 binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 
-# Everything that's defined like <<TYPEDECLARATION>> means to be done later
-ayed2_grammar = rf"""
-?program: typedef_section funprocdef_section body
-
-typedef_section: typedef*
-
-typedef: "<<TYPEDECLARATION>>"
-
-funprocdef_section: funprocdef*
-
-funprocdef: "<<FUNPROCDECLARATION>>"
-
-body: vardef_section sentences
-
-vardef_section: var_declaration*
-var_declaration: "var" vname ":" type
-vname : NAME
-
-sentences: _sentence*
-
-_sentence: SKIP
-    | builtin_call
-    | assignment
-
-SKIP: "skip"
-
-builtin_call: (ALLOC | FREE) "(" variable ")"
-ALLOC: "alloc"
-FREE: "free"
-
-assignment: destination ":=" expr
-
-destination: variable
-    | contained_at
-contained_at: "*" variable
-
-expr: _constant
-    | unary_op
-    | binary_op
-    | variable
-    | address_of
-    | contained_at
-    | "(" expr ")"
-
-_constant: NUMBER | BOOL
-BOOL: "true" | "false"
-
-variable: NAME
-address_of: "&" variable
-
-type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
-BASIC_TYPE: "int" | "bool" | "real" | "char"
-
-unary_op: UNARY_OP expr
-binary_op: expr BIN_OP expr
-UNARY_OP: {unary_symbols}
-BIN_OP: {binary_symbols}
-
-COMMENT: "//" /[^\n]*/
-
-%import common.CNAME            -> NAME
-%import common.SIGNED_NUMBER    -> NUMBER
-
-%ignore COMMENT
-%import common.WS
-%ignore WS
-"""
+ayed2_grammar = ""
 
 
 class TreeToAST(Transformer):
