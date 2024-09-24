@@ -67,6 +67,7 @@ class RealType(BasicType):
 
 
 class CharType(BasicType):
+    NAMED_CONSTANTS = dict()
     SIZE = 1
 
     @classmethod
