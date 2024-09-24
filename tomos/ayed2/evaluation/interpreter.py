@@ -8,34 +8,45 @@ class Interpreter:
     """
     Interpreter for sentences.
     """
-    def __init__(self, ast, hooks=None):
+    def __init__(self, ast, pre_hooks=None, post_hooks=None):
         self.ast = ast
         self.state = State()
-        self.hooks = hooks or []
+        self.pre_hooks = pre_hooks or []
+        self.post_hooks = post_hooks or []
 
-    def _run_hooks(self, next_sentence):
-        if not self.hooks:
+    def _run_pre_hooks(self, next_sentence):
+        if not self.pre_hooks:
             return
-        if not hasattr(self, 'last_sentence'):
-            self.last_sentence = None
-        for hook in self.hooks:
-            hook(self.last_sentence, self.state, next_sentence)
-        self.last_sentence = next_sentence
+        for hook in self.pre_hooks:
+            hook(self.previous_sentence, self.state, next_sentence)
+
+    def _run_post_hooks(self):
+        if not self.post_hooks:
+            return
+        for hook in self.post_hooks:
+            hook(self.previous_sentence, self.state)
+
+    def _run_sentence(self, kind, sentence_to_run):
+        if not hasattr(self, 'previous_sentence'):
+            self.previous_sentence = None
+
+        self._run_pre_hooks(sentence_to_run)
+        if kind == 'body':
+            self.state = self.main_interpreter.eval(sentence_to_run, state=self.state)
+        else:
+            print('running', kind)
+        self.previous_sentence = sentence_to_run
+        self._run_post_hooks()
 
     def run(self):
         self.main_interpreter = _Interpreter()
-        self.last_sentence = None
-        for sentence in self.ast.typedef_section:
-            self._run_hooks(sentence)
-            print ('running typedef', sentence)
-        for sentence in self.ast.funprocdef_section:
-            self._run_hooks(sentence)
-            print ('running funprocdef', sentence)
-        for sentence in self.ast.body:
-            self._run_hooks(sentence)
-            print ('running body', sentence)
-            self.state = self.main_interpreter.eval(sentence, state=self.state)
-        self._run_hooks(sentence)
+        for name, section in [
+            ('typedef', self.ast.typedef_section),
+            ('funprocdef', self.ast.funprocdef_section),
+            ('body', self.ast.body)
+        ]:
+            for sentence in section:
+                self._run_sentence(name, sentence)
 
         return self.state
 
@@ -70,8 +81,12 @@ class _Interpreter(NodeVisitor):
     def visit_assignment(self, sentence, **kw):
         state = kw["state"]
         value = self.visit_expr(sentence.expr, state=state)
-        state.set_static_variable_value(sentence.name, value)
+        state.set_static_variable_value(sentence.name, value, sentence._contained_at)
         return state
 
-    def visit_if(self, sentence, **kw):
-        pass
+    def visit_builtin_call(self, sentence, **kw):
+        state = kw["state"]
+        if sentence._name == 'alloc':
+            variable = sentence._args[0]
+            state.alloc(variable.name)
+        return state
