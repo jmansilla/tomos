@@ -7,7 +7,8 @@ class ShowState:
         self.filename = filename
 
     def __call__(self, last_sentence, state):
-        from tomos.ayed2.ast.types import PointerOf
+        from tomos.ayed2.ast.types import PointerOf, CharType
+        from tomos.ayed2.evaluation.state import UnkownValue
         with open(self.filename, 'w') as f:
             table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
             table.align['Name'] = 'l'
@@ -16,12 +17,18 @@ class ShowState:
             table.align['Pointed value'] = 'r'
             for name, cell in state.list_declared_variables().items():
                 cell = state.cell_by_names[name]
-                row = [name, cell.var_type, cell.var_type.SIZE, cell.address, cell.value, '']
+                value = cell.value
+                if isinstance(cell.var_type, CharType) and not value == UnkownValue:
+                    value = f"'{value}'"
+                row = [name, cell.var_type, cell.var_type.SIZE, cell.address, value, '']
 
                 if isinstance(cell.var_type, PointerOf):
                     referenced_cell = state.memory_cells.get(cell.value, None)
                     if referenced_cell is not None:
-                        row[-1] = referenced_cell.value
+                        ref_value = referenced_cell.value
+                        if isinstance(referenced_cell.var_type, CharType) and not ref_value == UnkownValue:
+                            ref_value = f"'{ref_value}'"
+                        row[-1] = ref_value
                 table.add_row(row)
             table._dividers[-1] = True
             for cell in state.heap.values():
@@ -65,7 +72,7 @@ class ShowSentence:
                     prefix = self.OKGREEN + prefix + self.ENDC
                 print(prefix, line)
             print("-" * 80)
-            print("Sentence AST to run:")
+            print("Abstract-Sentence to run:")
             print("\t", self.HEADER, sentence_to_run, self.ENDC)
 
         else:
@@ -83,7 +90,11 @@ if __name__ == "__main__":
     ast = parser.parse(open(source).read())
     print(ast.pretty())
 
-    interpreter = Interpreter(ast, pre_hooks=[ShowSentence(source, full=True), wait_for_input, ],
+    interpreter = Interpreter(ast,
+                              pre_hooks=[ShowSentence(source, full=True),
+                                        #  Sleeper(0.5),
+                                         wait_for_input,
+                                         ],
                               post_hooks=[ShowState('state.mem'), ])
     if "--run" in sys.argv:
         result = interpreter.run()

@@ -12,10 +12,10 @@ e)  [x] Hacer POC de graficar paso a paso:
         [x] mostrar estado del Heap
         [x] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
             y cuál sigue
-f)  [ ] Agregar otros tipos básicos (char, bool)
-        [ ] al parser
-        [ ] al Evaluador
-        [ ] al graficador
+f)  [x] Agregar otros tipos básicos (char, bool, real)
+        [x] al parser
+        [x] al Evaluador
+        [x] al graficador
 g)  [ ] Agregar Arrays
         [ ] al parser
         [ ] al Evaluador
@@ -33,6 +33,8 @@ j)  [ ] Completar sentencias (if, for, while)
         [ ] al evaluador
         [ ] al graficador
 k)  [ ] Mejorar la UI del graficador / reemplazarlo
+        [ ] syntax highlight
+
 
 Para hacer más adelante (extras)
 ex.1) [ ] Agregar procedimientos y funciones
@@ -43,3 +45,11 @@ ex.5) [ ] Clases Ord y Eq
 ex.6) [ ] Agregar programas multi-módulo (imports)
 ex.7) [ ] Intérprete interactivo?
 
+
+misc:
+ - strings?
+ - valores booleanos como objetos distintos
+ - default values para tipos basicos?
+ - donde se usa null?
+ - parsear null y/o inf
+ 

@@ -1,0 +1,69 @@
+// Everything that's defined like <<TYPEDECLARATION>> means to be done later
+// Everything in the shape of {some_name} will be replaced in python code
+
+?program: typedef_section funprocdef_section body
+
+typedef_section: typedef*
+
+typedef: "<<TYPEDECLARATION>>"
+
+funprocdef_section: funprocdef*
+
+funprocdef: "<<FUNPROCDECLARATION>>"
+
+body: vardef_section sentences
+
+vardef_section: var_declaration*
+var_declaration: "var" vname ":" type
+vname : NAME
+
+sentences: _sentence*
+
+_sentence: SKIP
+    | builtin_call
+    | assignment
+
+SKIP: "skip"
+
+builtin_call: builtin_name "(" variable ")"
+!builtin_name: "alloc" | "free"
+
+assignment: destination ":=" expr
+
+destination: variable
+    | contained_at
+contained_at: "*" variable
+
+expr: _constant
+    | unary_op
+    | binary_op
+    | address_of
+    | contained_at
+    | variable
+    | "(" expr ")"
+
+_constant: INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
+!bool_literal: "true" | "false"
+CHAR_LITERAL:  /./
+
+variable: NAME
+address_of: "&" variable
+
+type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
+BASIC_TYPE: "int" | "bool" | "real" | "char"
+
+unary_op: UNARY_OP expr
+binary_op: expr BIN_OP expr
+UNARY_OP: {unary_symbols}
+BIN_OP: {binary_symbols}
+
+COMMENT: "//" /[^\n]*/
+
+%import common.CNAME            -> NAME
+%import common.INT              -> INT
+%import common.FLOAT            -> REAL
+
+
+%ignore COMMENT
+%import common.WS
+%ignore WS

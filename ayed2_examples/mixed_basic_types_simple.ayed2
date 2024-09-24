@@ -1,0 +1,27 @@
+// Simplest example of AyED2 snippet:
+var one: char
+var two: int
+var three: bool
+var four: real
+
+var arrow_one: pointer of char
+var arrow_two: pointer of int
+var arrow_three: pointer of bool
+var arrow_four: pointer of real
+
+one := 'f'
+two := 10
+three := true
+four := 4.0
+
+arrow_one := &one
+one := 'a'
+arrow_two := &two
+*arrow_two := *arrow_two + 10
+alloc(arrow_three)
+alloc(arrow_four)
+*arrow_three := !three
+free(arrow_three)
+*arrow_four := four / 3
+
+

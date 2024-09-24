@@ -1,0 +1,77 @@
+The Abstract Syntax Tree of the AYED2 language
+==============================================
+
+Expressions
+===========
+    ⟨expression⟩ ::= ⟨constant⟩ | ⟨functioncall⟩ | ⟨operation⟩ | ⟨variable〉
+    ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | ⟨character⟩ | ⟨enum_name⟩ | inf | null
+    ⟨functioncall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
+    ⟨operation⟩ ::= ⟨expression⟩ ⟨binary⟩ ⟨expression⟩ | ⟨unary⟩ ⟨expression⟩
+    ⟨binary⟩ ::= + | − | * | / | % | || | && | <= | >= | < | > | == | !=
+    ⟨unary⟩ ::= - | !
+    ⟨variable⟩ ::= ⟨id⟩
+                | ⟨variable⟩[⟨expression⟩ ... ⟨expression⟩ ]
+                | ⟨variable⟩.⟨fname⟩
+                | *⟨variable⟩
+
+Sentences
+=========
+    ⟨sentence⟩ ::= skip | ⟨assignment⟩ | ⟨procedurecall⟩ | ⟨if⟩ | ⟨while⟩ | ⟨for⟩
+    ⟨assignment⟩ ::= ⟨variable⟩ := ⟨expression⟩
+    ⟨while⟩ ::= while ⟨expression⟩ do ⟨sentences⟩
+    ⟨sentences⟩ ::= ⟨sentence⟩ ... ⟨sentence⟩
+
+    ⟨procedurecall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
+                        | alloc ( ⟨variable⟩ )
+                        | free  ( ⟨variable⟩ )
+
+    ⟨if⟩ ::= if ⟨expression⟩ then ⟨sentences⟩ else ⟨sentences⟩
+    ⟨for⟩ ::= for ⟨id⟩ := ⟨expression⟩ to ⟨expression⟩ do ⟨sentences⟩
+            | for ⟨id⟩ := ⟨expression⟩ downto ⟨expression⟩ do ⟨sentences⟩
+
+Types
+=====
+    ⟨type⟩ ::= int | real | bool | char
+            | ⟨array⟩
+            | ⟨pointer⟩
+            | ⟨defined_type⟩
+            | ⟨typevariable⟩
+
+    ⟨array⟩ ::= array ⟨arraysize⟩ ... ⟨arraysize⟩ of ⟨type⟩
+    ⟨arraysize⟩ ::= ⟨natural⟩ | ⟨sname⟩
+    ⟨pointer⟩ ::= pointer ⟨type⟩
+
+    ⟨typevariable⟩ ::= ⟨typeid⟩
+    ⟨defined_type⟩ ::= ⟨tname⟩ of ⟨type⟩ ... ⟨type⟩
+
+    ⟨io⟩ ::= in | out | in/out
+
+    ⟨class⟩ ::= Eq | Ord
+
+    ⟨typedecl⟩ ::= enum ⟨tname⟩ = ⟨cname⟩ ... ⟨cname⟩
+                | syn ⟨tname⟩ of ⟨typearguments⟩ = ⟨type⟩
+                | tuple ⟨tname⟩ of ⟨typearguments⟩ = ⟨field⟩ ... ⟨field⟩
+    ⟨typearguments⟩ ::= ⟨typevariable⟩ ... ⟨typevariable⟩
+    ⟨field⟩ ::= ⟨fname⟩ : ⟨type⟩
+
+Program
+=======
+    ⟨program⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩ ⟨body⟩
+    ⟨funprocdecl⟩ ::= ⟨function⟩ | ⟨procedure⟩
+
+    ⟨body⟩ ::= ⟨variabledecl⟩ ... ⟨variabledecl⟩ ⟨sentences⟩
+    ⟨variabledecl⟩ ::= var ⟨id⟩ ... ⟨id⟩ : ⟨type⟩
+
+    ⟨function⟩ ::= fun ⟨id⟩ ( ⟨funargument⟩ ... ⟨funargument⟩ ) ret ⟨funreturn⟩
+                    where ⟨constraints⟩
+                    in ⟨body⟩
+    ⟨funargument⟩ ::= ⟨id⟩ : ⟨type⟩
+    ⟨funreturn⟩ ::= ⟨id⟩ : ⟨type⟩
+
+    ⟨procedure⟩ ::= proc ⟨id⟩ ( ⟨procargument⟩ ... ⟨procargument⟩ )
+                    where ⟨constraints⟩
+                    in ⟨body⟩
+    ⟨procargument⟩ ::= ⟨io⟩ ⟨id⟩ : ⟨type⟩
+
+    ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
+    ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩

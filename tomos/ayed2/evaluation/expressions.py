@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import IntType, RealType, BoolType
+from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType
 from tomos.visit import NodeVisitor
 
 
@@ -16,6 +16,14 @@ class ExpressionEvaluator(NodeVisitor):
             return BoolType.NAMED_CONSTANTS[expr.value_str]
         else:
             raise ExpressionEvaluationError(f"Invalid boolean value {expr.value_str}")
+
+    def visit_char_constant(self, expr, **kw):
+        raw = expr.value_str
+        if raw in CharType.NAMED_CONSTANTS:
+            return CharType.NAMED_CONSTANTS[raw]
+        if CharType.is_valid_value(raw):
+            return raw
+        raise ExpressionEvaluationError(f"Invalid char value \"{expr.value_str}\"")
 
     def visit_integer_constant(self, expr, **kw):
         raw = expr.value_str
