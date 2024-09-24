@@ -1,3 +1,6 @@
+// Everything that's defined like <<TYPEDECLARATION>> means to be done later
+// Everything in the shape of {some_name} will be replaced in python code
+
 ?program: typedef_section funprocdef_section body
 
 typedef_section: typedef*
