@@ -33,15 +33,19 @@ class _Constant(Expr):
 
 
 class BooleanConstant(_Constant):
-    type = BoolType
+    _type = BoolType
 
 
 class IntegerConstant(_Constant):
-    type = IntType
+    _type = IntType
 
 
 class RealConstant(_Constant):
-    type = RealType
+    _type = RealType
+
+
+class CharConstant(_Constant):
+    _type = CharType
 
 
 class Variable(Expr):
