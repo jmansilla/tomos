@@ -11,7 +11,11 @@ one := 1
 two := 10
 three := 3 + one
 
-arrow_one := *one
+skip
+arrow_one := &one
+one := one + one
 arrow_two := arrow_one
 alloc(arrow_three)
-*arrow_three := *arrow_two
+*arrow_three := *arrow_two + three
+free(arrow_three)
+*arrow_three := 5  // This shall cause a memory error

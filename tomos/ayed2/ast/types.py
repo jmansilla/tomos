@@ -38,22 +38,45 @@ class BasicType:
 
 class IntType(BasicType):
     NAMED_CONSTANTS = {"inf": float("inf")}
+    SIZE = 1
+
+    @classmethod
+    def is_valid_value(cls, value):
+        # dear python says that True and False are instances of int
+        if isinstance(value, bool):
+            return False
+        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, int)
 
 
 class BoolType(BasicType):
     NAMED_CONSTANTS = {"true": True, "false": False}
+    SIZE = 1
+
+    @classmethod
+    def is_valid_value(cls, value):
+        return isinstance(value, bool)
 
 
 class RealType(BasicType):
     NAMED_CONSTANTS = {"inf": float("inf")}
+    SIZE = 2
+
+    @classmethod
+    def is_valid_value(cls, value):
+        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, float)
 
 
 class CharType(BasicType):
-    pass
+    SIZE = 1
+
+    @classmethod
+    def is_valid_value(cls, value):
+        return isinstance(value, str) and len(value) == 1
 
 
 class PointerOf(BasicType):
     NAMED_CONSTANTS = {"null": None}
+    SIZE = 2
 
     def __init__(self, token, of):
         super().__init__(token)
@@ -61,6 +84,11 @@ class PointerOf(BasicType):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._of})"
+
+    @classmethod
+    def is_valid_value(cls, value):
+        from tomos.ayed2.evaluation.state import MemoryAddress
+        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, MemoryAddress)
 
 
 type_map = {

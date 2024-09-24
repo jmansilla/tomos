@@ -26,18 +26,34 @@ class ProgramExpression:
     pass
 
 
-class Module(ProgramExpression):
-    def __init__(self, name, body):
-        self.name = name
+class Program(ProgramExpression):
+    def __init__(self, typedef_section, funprocdef_section, body):
+        self.typedef_section = typedef_section
+        self.funprocdef_section = funprocdef_section
         self.body = body
 
     def __repr__(self) -> str:
-        return f"Module({self.body})"
+        return f"Program({self.body})"
 
     def pretty(self):
-        title = f"module {self.name}\n\t"
-        body = "\n\t".join(map(lambda c: repr(c), self.body))
-        return title + body
+        result = f"Program\n"
+        indent = "  "
+        for section_name in ["typedef_section", "funprocdef_section", "body"]:
+            section = getattr(self, section_name)
+            result += f"{indent}{section_name}\n"
+            entries = f"\n".join(map(lambda c: indent * 2 + repr(c), section))
+            result += entries
+        return result
+
+
+class Body(ProgramExpression):
+    def __init__(self, var_declarations, sentences):
+        self.var_declarations = var_declarations
+        self.sentences = sentences
+
+    def __iter__(self):
+        yield from self.var_declarations
+        yield from self.sentences
 
 
 class VarDeclaration(ProgramExpression):
@@ -50,11 +66,15 @@ class VarDeclaration(ProgramExpression):
         return self._name_token.value
 
     @property
-    def type(self):
+    def line_number(self):
+        return self._name_token.line
+
+    @property
+    def var_type(self):
         return self._type
 
     def __repr__(self) -> str:
-        return f"VarDeclaration(name={self.name}, type={self.type})"
+        return f"VarDeclaration(name={self.name}, type={self.var_type})"
 
 
 class TypeDeclaration(ProgramExpression):

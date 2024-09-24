@@ -71,7 +71,7 @@ binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 #
 #  Program
 #  =======
-#      ⟨program⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩
+#      ⟨program⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩ ⟨body⟩
 #      ⟨funprocdecl⟩ ::= ⟨function⟩ | ⟨procedure⟩
 
 #      ⟨body⟩ ::= ⟨variabledecl⟩ ... ⟨variabledecl⟩ ⟨sentences⟩
@@ -91,36 +91,58 @@ binary_symbols = " | ".join(map(lambda s: '"%s"' % s, BinaryOpTable.keys()))
 #      ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
 #      ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩
 
-
+# Everything that's defined like <<TYPEDECLARATION>> means to be done later
 ayed2_grammar = rf"""
-?module: line*
+?program: typedef_section funprocdef_section body
 
-?line: var_declaration
-    | assignment
-    | function_call
+typedef_section: typedef*
 
+typedef: "<<TYPEDECLARATION>>"
+
+funprocdef_section: funprocdef*
+
+funprocdef: "<<FUNPROCDECLARATION>>"
+
+body: vardef_section sentences
+
+vardef_section: var_declaration*
 var_declaration: "var" vname ":" type
+vname : NAME
+
+sentences: _sentence*
+
+_sentence: SKIP
+    | builtin_call
+    | assignment
+
+SKIP: "skip"
+
+builtin_call: (ALLOC | FREE) "(" variable ")"
+ALLOC: "alloc"
+FREE: "free"
+
 assignment: destination ":=" expr
 
-vname : NAME
-destination: NAME
-     | pointed
-pointed: "*" NAME
-
-function_call: NAME "(" args ")"
-args: expr ("," expr)*
+destination: variable
+    | contained_at
+contained_at: "*" variable
 
 expr: _constant
     | unary_op
     | binary_op
-    | function_call
-    | NAME
+    | variable
+    | address_of
+    | contained_at
+    | "(" expr ")"
 
 _constant: NUMBER | BOOL
 BOOL: "true" | "false"
 
+variable: NAME
+address_of: "&" variable
+
 type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
-BASIC_TYPE: "int" | "bool"
+BASIC_TYPE: "int" | "bool" | "real" | "char"
 
 unary_op: UNARY_OP expr
 binary_op: expr BIN_OP expr
@@ -140,19 +162,20 @@ COMMENT: "//" /[^\n]*/
 
 class TreeToAST(Transformer):
 
-    # def __default__(self, data, children, meta):
-    #     r = super(TreeToAST, self).__default__(data, children, meta)
-    #     if data in ['__start_star_0', '_constant']:
-    #         return r
-    #     print('default', '1-', type(data), '2-', data, '3-', children, '4-', meta)
-    #     return r
+    def program(self, args):
+        tdef, fdef, body = args
+        return Program(typedef_section=tdef.children, funprocdef_section=fdef.children, body=body)
 
-    def module(self, args):
-        return Module(name="", body=args)
+    def body(self, args):
+        vardef, sentences = args
+        return Body(var_declarations=vardef.children, sentences=sentences.children)
 
     def vname(self, args):
         assert len(args) == 1
         return args[0]
+
+    def SKIP(self, token):
+        return Skip(token)
 
     def var_declaration(self, args):
         name, declared_type = args
@@ -174,19 +197,17 @@ class TreeToAST(Transformer):
     def destination(self, args):
         return args[0]
 
-    def function_call(self, args):
-        name, args = args
-        return FunctionCall(name=name, args=args)
+    def builtin_call(self, args):
+        name, *call_args = args
+        return BuiltinCall(name=name, args=call_args)
+
+    # def function_call(self, args):
+    #     name, args = args
+    #     return FunctionCall(name=name, args=args)
 
     def assignment(self, args):
         dest, expr = args
-        if isinstance(dest, Token):
-            return Assignment(name=dest, expr=expr)
-        else:
-            if isinstance(dest.data, Token) and dest.data.value == "pointed":
-                return Assignment(name=dest.children[0], expr=expr, pointed=True)
-            else:
-                raise UnexpectedInput(f"Unknown assignment destination: {dest}")
+        return Assignment(dest=dest, expr=expr)
 
     def NUMBER(self, token):
         if not token.value.isdigit():
@@ -204,6 +225,19 @@ class TreeToAST(Transformer):
         left, op, right = args
         return BinaryOp(left=left, op=op, right=right)
 
+    def variable(self, args):
+        return Variable(name=args[0])
+
+    def address_of(self, args):
+        var = args[0]
+        var._address_of = True
+        return var
+
+    def contained_at(self, args):
+        var = args[0]
+        var._contained_at = True
+        return var
+
     def expr(self, args):
         if len(args) != 1:
             raise UnexpectedInput(f"Invalid expression: {args}")
@@ -212,4 +246,4 @@ class TreeToAST(Transformer):
     args = list
 
 
-parser = Lark(ayed2_grammar, start="module", parser="lalr", transformer=TreeToAST())
+parser = Lark(ayed2_grammar, start="program", parser="lalr", transformer=TreeToAST())

@@ -6,7 +6,7 @@ class ExpressionEvaluationError(Exception):
     pass
 
 
-class ExpressionsEvaluator(NodeVisitor):
+class ExpressionEvaluator(NodeVisitor):
 
     def eval(self, expr, state):
         return self.visit(expr, state=state)
@@ -83,4 +83,4 @@ class ExpressionsEvaluator(NodeVisitor):
 
     def visit_variable(self, expr, **kw):
         state = kw["state"]
-        return state.get_static_variable_value(expr.name)
+        return state.get_static_variable_value(expr.name, expr._address_of, expr._contained_at)

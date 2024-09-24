@@ -26,19 +26,19 @@ class TestEvalState(TestCase):
     def test_set_variable(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        state.set_static_variable_value("x", 5, IntType)
+        state.set_static_variable_value("x", 5)
         self.assertEqual(state.get_static_variable_value("x"), 5)
 
     def test_set_variable_of_wrong_type_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
         with self.assertRaises(Ayed2TypeError):
-            state.set_static_variable_value("x", True, BoolType)
+            state.set_static_variable_value("x", True)
 
     def test_set_variable_before_declaration_raises_exception(self):
         state = State()
         with self.assertRaises(Ayed2TypeError):
-            state.set_static_variable_value("x", 5, IntType)
+            state.set_static_variable_value("x", 5)
 
     def test_get_variable_after_declaration_returns_unkown(self):
         state = State()
