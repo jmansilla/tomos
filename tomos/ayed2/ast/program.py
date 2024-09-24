@@ -66,6 +66,10 @@ class VarDeclaration(ProgramExpression):
         return self._name_token.value
 
     @property
+    def line_number(self):
+        return self._name_token.line
+
+    @property
     def var_type(self):
         return self._type
 
