@@ -46,6 +46,7 @@ class BuiltinCall(ProcedureCall):
     def __repr__(self) -> str:
         return f"BuiltinCall(name={self._name}, args={self._args})"
 
+
 class If(Sentence):
     def __init__(self, guard, then_body, else_body):
         self._guard = guard
@@ -81,8 +82,8 @@ class Assignment(Sentence):
         return self._dest_variable.line_number
 
     @property
-    def _contained_at(self):
-        return self._dest_variable._contained_at
+    def _dereferenced(self):
+        return self._dest_variable._dereferenced
 
     @property
     def expr(self):

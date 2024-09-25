@@ -57,17 +57,17 @@ class Body(ProgramExpression):
 
 
 class VarDeclaration(ProgramExpression):
-    def __init__(self, name, declared_type):
-        self._name_token = name
+    def __init__(self, var, declared_type):
+        self._var = var
         self._type = declared_type
 
     @property
     def name(self):
-        return self._name_token.value
+        return self._var.name
 
     @property
     def line_number(self):
-        return self._name_token.line
+        return self._var.line_number
 
     @property
     def var_type(self):

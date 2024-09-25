@@ -49,10 +49,10 @@ class CharConstant(_Constant):
 
 
 class Variable(Expr):
-    def __init__(self, name, address_of=False, contained_at=False):
+    def __init__(self, name, address_of=False, dereferenced=False):
         self._name_token = name
         self._address_of = address_of
-        self._contained_at = contained_at
+        self._dereferenced = dereferenced
 
     @property
     def name(self):
@@ -64,9 +64,9 @@ class Variable(Expr):
 
     @property
     def symbols_name(self):
-        cont_at = "&" if self._address_of else ""
-        star = "*" if self._contained_at else ""
-        return f"{cont_at}{star}{self.name}"
+        address = "&" if self._address_of else ""
+        star = "*" if self._dereferenced else ""
+        return f"{address}{star}{self.name}"
 
     def __repr__(self) -> str:
         return f"Variable({self.symbols_name})"

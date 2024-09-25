@@ -8,9 +8,9 @@ UnaryOpTable = {
 }
 
 BinaryOpTable = {
+    "*": "Times",
     "+": "Sum",
     "-": "Minus",
-    "*": "Times",
     "/": "Div",
     "%": "Reminder",
     "||": "Or",

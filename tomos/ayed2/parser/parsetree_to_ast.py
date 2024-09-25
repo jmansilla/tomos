@@ -20,16 +20,12 @@ class TreeToAST(Transformer):
         vardef, sentences = args
         return Body(var_declarations=vardef.children, sentences=sentences.children)
 
-    def vname(self, args):
-        assert len(args) == 1
-        return args[0]
-
     def SKIP(self, token):
         return Skip(token)
 
     def var_declaration(self, args):
-        name, declared_type = args
-        return VarDeclaration(name=name, declared_type=declared_type)
+        var, declared_type = args
+        return VarDeclaration(var=var, declared_type=declared_type)
 
     def pointer(self, args):
         assert len(args) == 1
@@ -79,9 +75,9 @@ class TreeToAST(Transformer):
         var._address_of = True
         return var
 
-    def contained_at(self, args):
+    def dereferenced_variable(self, args):
         var = args[0]
-        var._contained_at = True
+        var._dereferenced = True
         return var
 
     def expr(self, args):

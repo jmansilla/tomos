@@ -54,31 +54,31 @@ class State:
         del self.heap[cell.value]
         cell.value = UnkownValue
 
-    def set_static_variable_value(self, name, value, contained_at=False):
+    def set_static_variable_value(self, name, value, dereferenced=False):
         if name not in self.cell_by_names:
             raise Ayed2TypeError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
-        if contained_at:
+        if dereferenced:
             assert isinstance(cell.var_type, PointerOf)
             if cell.value not in self.memory_cells:
                 raise MemoryInfrigementError()
             cell = self.memory_cells[cell.value]
         if not cell.var_type.is_valid_value(value):
-            star = "*" if contained_at else ""
+            star = "*" if dereferenced else ""
             raise Ayed2TypeError(
                 f"Variable {star}{name} was declared of type {cell.var_type}, "
                 f"but attempted to set value {value}({type(value)}) that's not valid for this type."
             )
         cell.value = value
 
-    def get_static_variable_value(self, name, address_of=False, contained_at=False):
+    def get_static_variable_value(self, name, address_of=False, dereferenced=False):
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if address_of:
             return cell.address
         else:
-            if contained_at:
+            if dereferenced:
                 assert isinstance(cell.var_type, PointerOf)
                 if cell.value not in self.memory_cells:
                     raise MemoryInfrigementError()
