@@ -16,23 +16,26 @@ f)  [x] Agregar otros tipos básicos (char, bool, real)
         [x] al parser
         [x] al Evaluador
         [x] al graficador
-g)  [ ] Agregar Arrays
+g)  [ ] Pulir parsing
+        [ ] precedencia de operadores
+h)  [ ] Agregar Arrays
         [ ] al parser
         [ ] al Evaluador
         [ ] al graficador
-h)  [ ] Agregar Enums
+i)  [ ] Agregar Enums
         [ ] al parser
         [ ] al Evaluador
         [ ] al graficador
-i)  [ ] Agregar records/strucs
+j)  [ ] Agregar records/strucs
         [ ] al parser
         [ ] al Evaluador
         [ ] al graficador
-j)  [ ] Completar sentencias (if, for, while)
+k)  [ ] Agregar sinonimos
+l)  [ ] Completar sentencias (if, for, while)
         [ ] al parser
         [ ] al evaluador
         [ ] al graficador
-k)  [ ] Mejorar la UI del graficador / reemplazarlo
+m)  [ ] Mejorar la UI del graficador / reemplazarlo
         [ ] syntax highlight
 
 
@@ -52,4 +55,3 @@ misc:
  - default values para tipos basicos?
  - donde se usa null?
  - parsear null y/o inf
- 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.parser import parser
-from tomos.ayed2.ast.expressions import Expr, _Constant, Variable
+from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant
 from tomos.ayed2.ast.operators import UnaryOp, BinaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Assignment
@@ -35,7 +35,6 @@ class TestParseBasicTypeSentences(TestCase):
         ]:
             source = f"var x: {name}"
             sentences = get_parsed_sentences(source)
-            print(sentences)
             self.assertEqual(len(sentences), 1)
             sent = sentences[0]
             self.assertIsInstance(sent, VarDeclaration)
@@ -90,7 +89,6 @@ class TestParseExpressions(TestCase):
     def test_parse_numeric_binary_ops(self):
         for symbol in ["+", "*", "/", "%", "-", "<", "<=", ">", ">=", "==", "!="]:
             source = f"x := 1 {symbol} 2"
-            print('Will parse', source)
             expr = self.parsed_expr(source)
             self.assertIsInstance(expr, BinaryOp)
             self.assertEqual(expr.op, symbol)
@@ -102,7 +100,6 @@ class TestParseExpressions(TestCase):
     def test_parse_boolean_binary_ops(self):
         for symbol in ["||", "&&", "==", "!="]:
             source = f"x := true {symbol} false"
-            print('Will parse', source)
             expr = self.parsed_expr(source)
             self.assertIsInstance(expr, BinaryOp)
             self.assertEqual(expr.op, symbol)
@@ -123,3 +120,17 @@ class TestParseExpressions(TestCase):
         self.assertIsInstance(expr, Variable)
         self.assertEqual(expr.name, "y")
         self.assertEqual(expr._dereferenced, True)
+
+    def test_parse_complex_expression(self):
+        source = "x := 1 + 2 * 3"
+        expr = self.parsed_expr(source)
+        self.assertIsInstance(expr, BinaryOp)
+        self.assertEqual(expr.op, "+")
+        self.assertIsInstance(expr.left, IntegerConstant)
+        self.assertEqual(expr.left.value_str, "1")
+        self.assertIsInstance(expr.right, BinaryOp)
+        self.assertEqual(expr.right.op, "*")
+        self.assertIsInstance(expr.right.left, IntegerConstant)
+        self.assertEqual(expr.right.left.value_str, "2")
+        self.assertIsInstance(expr.right.right, IntegerConstant)
+        self.assertEqual(expr.right.right.value_str, "3")
