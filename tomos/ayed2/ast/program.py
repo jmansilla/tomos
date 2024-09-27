@@ -21,6 +21,7 @@
 # [-]  ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
 # [-]  ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩
 
+from tomos.ayed2.ast.sentences import Sentence
 
 class ProgramExpression:
     pass
@@ -48,7 +49,9 @@ class Program(ProgramExpression):
 
 class Body(ProgramExpression):
     def __init__(self, var_declarations, sentences):
+        assert all(isinstance(v, VarDeclaration) for v in var_declarations)
         self.var_declarations = var_declarations
+        assert all(isinstance(s, Sentence) for s in sentences)
         self.sentences = sentences
 
     def __iter__(self):

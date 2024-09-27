@@ -34,7 +34,7 @@ class ProcedureCall(Sentence):
     pass
 
 
-class BuiltinCall(ProcedureCall):
+class BuiltinCall(Sentence):
     def __init__(self, name, args):
         self.name = name
         self.args = args
