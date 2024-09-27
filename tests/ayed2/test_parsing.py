@@ -21,8 +21,8 @@ def get_parsed_sentences(source, single_sentence=False):
         source = source + ";"
     program = parser.parse(source)
     if single_sentence:
-        return next(iter(program.body))
-    return [s for s in program.body]
+        return next(iter(program.body))  # type: ignore
+    return [s for s in program.body]     # type: ignore
 
 
 class TestParseBasicTypeSentences(TestCase):
@@ -45,8 +45,8 @@ class TestParseBasicTypeSentences(TestCase):
         source = "x := 1"
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
-        self.assertEqual(sent.name, "x")
-        self.assertIsInstance(sent.expr, Expr)
+        self.assertEqual(sent.name, "x")         # type: ignore
+        self.assertIsInstance(sent.expr, Expr)   # type: ignore
 
     def test_parse_literals(self):
         for value, var_type in [
@@ -58,8 +58,8 @@ class TestParseBasicTypeSentences(TestCase):
             source = f"x := {value}"
             sent = get_parsed_sentences(source, single_sentence=True)
             self.assertIsInstance(sent, Assignment)
-            self.assertIsInstance(sent.expr, _Constant)
-            self.assertEqual(sent.expr._type, var_type)
+            self.assertIsInstance(sent.expr, _Constant)  # type: ignore
+            self.assertEqual(sent.expr._type, var_type)  # type: ignore
 
 
 class TestParseExpressions(TestCase):
@@ -68,9 +68,12 @@ class TestParseExpressions(TestCase):
     # the assigned-expression
 
     def parsed_expr(self, source):
+        # here we'll add "x := " to what we receive as the expression source
+        if ':=' not in source:
+            source = "x := " + source
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
-        return sent.expr
+        return sent.expr  # type: ignore
 
     def assertExpressionIs(self, expr, expected_str):
         self.assertIsInstance(expr, Expr)
@@ -80,25 +83,25 @@ class TestParseExpressions(TestCase):
         self.assertEqual(str(expr1), str(expr2))
 
     def test_parse_unary_ops_neg(self):
-        source = "x := -1"
+        source = "-1"
         expr = self.parsed_expr(source)
         self.assertExpressionIs(expr, "UnaryOp(-, IntegerConstant(1))")
 
     def test_parse_unary_ops_not(self):
-        source = "x := !true"
+        source = "!true"
         expr = self.parsed_expr(source)
         self.assertExpressionIs(expr, "UnaryOp(!, BooleanConstant(true))")
 
     def test_parse_numeric_binary_ops(self):
         for symbol in ["+", "*", "/", "%", "-", "<", "<=", ">", ">=", "==", "!="]:
-            source = f"x := 1 {symbol} 2"
+            source = f"1 {symbol} 2"
             expr = self.parsed_expr(source)
             self.assertExpressionIs(
                 expr, f"BinaryOp(IntegerConstant(1), {symbol}, IntegerConstant(2))")
 
     def test_parse_boolean_binary_ops(self):
         for symbol in ["||", "&&", "==", "!="]:
-            source = f"x := true {symbol} false"
+            source = f"true {symbol} false"
             expr = self.parsed_expr(source)
             self.assertExpressionIs(
                 expr,
@@ -106,33 +109,63 @@ class TestParseExpressions(TestCase):
             )
 
     def test_parse_variable_expression(self):
-        source = "x := y"
+        source = "y"
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
         self.assertEqual(expr.name, "y")
 
     def test_parse_dereferenced_variable_expression(self):
-        source = "x := *y"
+        source = "*y"
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
         self.assertEqual(expr.name, "y")
         self.assertEqual(expr._dereferenced, True)
 
-    def test_parse_complex_expression(self):
-        source = "x := 1 + 2 * 3"
+    def test_parse_dereferenced_negated(self):
+        source = "-*y"
         expr = self.parsed_expr(source)
-        self.assertExpressionIs(
-            expr,
-            "BinaryOp(IntegerConstant(1), +, BinaryOp("
-                "IntegerConstant(2), *, IntegerConstant(3))"
-            ")",
-        )
+        self.assertIsInstance(expr, UnaryOp)
+        self.assertEqual(expr.op, "-")
+        self.assertIsInstance(expr.expr, Variable)
+        self.assertEqual(expr.expr.name, "y")
+        self.assertEqual(expr.expr._dereferenced, True)
 
-    # Testing Operator Precedence
+    # Testing Operators Associativity and Precedence
 
-    def test_parse_simple_precedence(self):
-        source_a = "x := 1 + 2 * 3"
-        expr_a = self.parsed_expr(source_a)
-        source_b = "x := 1 + (2 * 3)"
-        expected = self.parsed_expr(source_b)
-        self.assertExpressionEquals(expr_a, expected)
+    def test_precedence_order(self):
+        source = "1 + 2 - 3 * 4 / 5 % 6 == 7"
+        parenthesed = "((1 + 2) - (((3 * 4) / 5) % 6)) == 7"
+        expr = self.parsed_expr(source)
+        expected = self.parsed_expr(parenthesed)
+        self.assertExpressionEquals(expr, expected)
+
+    def test_parse_associativity_order(self):
+        for source, parenthesed in [
+            ("1 + 2 + 3", "(1 + 2) + 3"),
+            ("1 - 2 - 3", "(1 - 2) - 3"),
+            ("1 + 2 - 3", "(1 + 2) - 3"),
+            ("1 - 2 + 3", "(1 - 2) + 3"),
+            ("1 * 2 * 3", "(1 * 2) * 3"),
+            ("1 / 2 / 3", "(1 / 2) / 3"),
+            ("1 * 2 / 3", "(1 * 2) / 3"),
+            ("1 / 2 * 3", "(1 / 2) * 3"),
+            ("1 % 2 % 3", "(1 % 2) % 3"),
+        ]:
+            expr = self.parsed_expr(source)
+            expected = self.parsed_expr(parenthesed)
+            self.assertExpressionEquals(expr, expected)
+
+    def test_parse_precedence(self):
+        for source, parenthesed in [
+            ("1 + 2 * 3", "1 + (2 * 3)"),
+            ("1 - 2 * 3", "1 - (2 * 3)"),
+            ("1 * 2 + 3", "(1 * 2) + 3"),
+            ("1 * 2 - 3", "(1 * 2) - 3"),
+            ("1 + 2 / 3", "1 + (2 / 3)"),
+            ("1 - 2 / 3", "1 - (2 / 3)"),
+            ("1 / 2 + 3", "(1 / 2) + 3"),
+            ("1 / 2 - 3", "(1 / 2) - 3"),
+        ]:
+            expr = self.parsed_expr(source)
+            expected = self.parsed_expr(parenthesed)
+            self.assertExpressionEquals(expr, expected)
