@@ -72,41 +72,35 @@ class TestParseExpressions(TestCase):
         self.assertIsInstance(sent, Assignment)
         return sent.expr
 
+    def assertExpressionIs(self, expr, expected_str):
+        self.assertIsInstance(expr, Expr)
+        self.assertEqual(str(expr), expected_str)
+
     def test_parse_unary_ops_neg(self):
         source = "x := -1"
         expr = self.parsed_expr(source)
-        self.assertIsInstance(expr, UnaryOp)
-        self.assertEqual(expr.op, "-")
-        self.assertIsInstance(expr.expr, _Constant)
+        self.assertExpressionIs(expr, "UnaryOp(-, IntegerConstant(1))")
 
     def test_parse_unary_ops_not(self):
         source = "x := !true"
         expr = self.parsed_expr(source)
-        self.assertIsInstance(expr, UnaryOp)
-        self.assertEqual(expr.op, "!")
-        self.assertIsInstance(expr.expr, _Constant)
+        self.assertExpressionIs(expr, "UnaryOp(!, BooleanConstant(true))")
 
     def test_parse_numeric_binary_ops(self):
         for symbol in ["+", "*", "/", "%", "-", "<", "<=", ">", ">=", "==", "!="]:
             source = f"x := 1 {symbol} 2"
             expr = self.parsed_expr(source)
-            self.assertIsInstance(expr, BinaryOp)
-            self.assertEqual(expr.op, symbol)
-            self.assertIsInstance(expr.left, _Constant)
-            self.assertEqual(expr.left.value_str, "1")
-            self.assertIsInstance(expr.right, _Constant)
-            self.assertEqual(expr.right.value_str, "2")
+            self.assertExpressionIs(
+                expr, f"BinaryOp(IntegerConstant(1), {symbol}, IntegerConstant(2))")
 
     def test_parse_boolean_binary_ops(self):
         for symbol in ["||", "&&", "==", "!="]:
             source = f"x := true {symbol} false"
             expr = self.parsed_expr(source)
-            self.assertIsInstance(expr, BinaryOp)
-            self.assertEqual(expr.op, symbol)
-            self.assertIsInstance(expr.left, _Constant)
-            self.assertEqual(expr.left.value_str, "true")
-            self.assertIsInstance(expr.right, _Constant)
-            self.assertEqual(expr.right.value_str, "false")
+            self.assertExpressionIs(
+                expr,
+                f"BinaryOp(BooleanConstant(true), {symbol}, BooleanConstant(false))",
+            )
 
     def test_parse_variable_expression(self):
         source = "x := y"
@@ -124,13 +118,9 @@ class TestParseExpressions(TestCase):
     def test_parse_complex_expression(self):
         source = "x := 1 + 2 * 3"
         expr = self.parsed_expr(source)
-        self.assertIsInstance(expr, BinaryOp)
-        self.assertEqual(expr.op, "+")
-        self.assertIsInstance(expr.left, IntegerConstant)
-        self.assertEqual(expr.left.value_str, "1")
-        self.assertIsInstance(expr.right, BinaryOp)
-        self.assertEqual(expr.right.op, "*")
-        self.assertIsInstance(expr.right.left, IntegerConstant)
-        self.assertEqual(expr.right.left.value_str, "2")
-        self.assertIsInstance(expr.right.right, IntegerConstant)
-        self.assertEqual(expr.right.right.value_str, "3")
+        self.assertExpressionIs(
+            expr,
+            "BinaryOp(IntegerConstant(1), +, BinaryOp("
+                "IntegerConstant(2), *, IntegerConstant(3))"
+            ")",
+        )
