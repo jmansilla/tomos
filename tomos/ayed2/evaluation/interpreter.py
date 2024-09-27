@@ -81,7 +81,7 @@ class _Interpreter(NodeVisitor):
     def visit_assignment(self, sentence, **kw):
         state = kw["state"]
         value = self.visit_expr(sentence.expr, state=state)
-        state.set_static_variable_value(sentence.name, value, sentence._dereferenced)
+        state.set_static_variable_value(sentence.name, value, sentence.dereferenced)
         return state
 
     def visit_builtin_call(self, sentence, **kw):

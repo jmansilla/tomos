@@ -70,8 +70,7 @@ class VariableFactory(factory.Factory):
     class Meta:
         model = Variable
 
-    name = factory.SubFactory(TokenFactory)
-
+    name_token = factory.SubFactory(TokenFactory)
 
 class UnaryOpFactory(factory.Factory):
     class Meta:
@@ -82,7 +81,7 @@ class UnaryOpFactory(factory.Factory):
             "random_element", elements=UnaryOpTable.keys()
         )
 
-    op = factory.SubFactory(
+    op_token = factory.SubFactory(
         TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
@@ -98,9 +97,9 @@ class BinaryOpFactory(factory.Factory):
             "random_element", elements=BinaryOpTable.keys()
         )
 
-    op = factory.SubFactory(
+    op_token = factory.SubFactory(
         TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
-    left = factory.SubFactory(IntegerConstantFactory)
-    right = factory.SubFactory(IntegerConstantFactory)
+    left_expr = factory.SubFactory(IntegerConstantFactory)
+    right_expr = factory.SubFactory(IntegerConstantFactory)
