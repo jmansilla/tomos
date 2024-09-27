@@ -17,7 +17,7 @@ f)  [x] Agregar otros tipos básicos (char, bool, real)
         [x] al Evaluador
         [x] al graficador
 g)  [ ] Pulir parsing
-        [ ] precedencia de operadores
+        [x] precedencia de operadores
 h)  [ ] Agregar Arrays
         [ ] al parser
         [ ] al Evaluador

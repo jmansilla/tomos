@@ -55,13 +55,36 @@ class TreeToAST(Transformer):
         dest, expr = args
         return Assignment(dest=dest, expr=expr)
 
-    def unary_op(self, args):
-        op, expr = args
-        return UnaryOp(op=op, expr=expr)
+    def expr_binary(self, args):
+        # Encapsulates BinaryExpressions or higher in precedence
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 3:
+            left, op, right = args
+            return BinaryOp(left=left, op=op, right=right)
+        elif len(args) > 3:
+            # here we need to solve associativity
+            left, op, right, *rest = args
+            sub_expr = BinaryOp(left=left, op=op, right=right)
+            return self.expr_binary([sub_expr] + rest)
+        else:
+            raise UnexpectedInput(f"Invalid binary expression: {args}")
 
-    def binary_op(self, args):
-        left, op, right = args
-        return BinaryOp(left=left, op=op, right=right)
+    expr_term = expr_binary
+    expr_factor = expr_binary
+    expr_comparison = expr_binary
+    expr_equality = expr_binary
+    expr_junction = expr_binary
+
+    def expr_unary(self, args):
+        # Unary encapsulates UnaryExpressions or higher in precedence
+        if len(args) == 1:
+            # it may be a constant or variable alone
+            return args[0]
+        elif len(args) == 2:
+            op, expr = args
+            return UnaryOp(op=op, expr=expr)
+        return args
 
     def variable(self, args):
         return Variable(name=args[0])
