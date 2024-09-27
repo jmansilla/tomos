@@ -76,6 +76,9 @@ class TestParseExpressions(TestCase):
         self.assertIsInstance(expr, Expr)
         self.assertEqual(str(expr), expected_str)
 
+    def assertExpressionEquals(self, expr1, expr2):
+        self.assertEqual(str(expr1), str(expr2))
+
     def test_parse_unary_ops_neg(self):
         source = "x := -1"
         expr = self.parsed_expr(source)
@@ -124,3 +127,12 @@ class TestParseExpressions(TestCase):
                 "IntegerConstant(2), *, IntegerConstant(3))"
             ")",
         )
+
+    # Testing Operator Precedence
+
+    def test_parse_simple_precedence(self):
+        source_a = "x := 1 + 2 * 3"
+        expr_a = self.parsed_expr(source_a)
+        source_b = "x := 1 + (2 * 3)"
+        expected = self.parsed_expr(source_b)
+        self.assertExpressionEquals(expr_a, expected)
