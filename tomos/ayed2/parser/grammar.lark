@@ -3,6 +3,8 @@
 
 ?program: typedef_section funprocdef_section body
 
+_SEP: (";" | NL)  // separator
+
 typedef_section: typedef*
 
 typedef: "<<TYPEDECLARATION>>"
@@ -13,11 +15,11 @@ funprocdef: "<<FUNPROCDECLARATION>>"
 
 body: vardef_section sentences
 
-vardef_section: var_declaration*
-var_declaration: "var" vname ":" type
-vname : NAME
+vardef_section: (var_declaration _SEP)*
 
-sentences: _sentence*
+var_declaration: "var" variable ":" type
+
+sentences: (_sentence _SEP)*
 
 _sentence: SKIP
     | builtin_call
@@ -28,17 +30,11 @@ SKIP: "skip"
 builtin_call: builtin_name "(" variable ")"
 !builtin_name: "alloc" | "free"
 
-assignment: destination ":=" expr
-
-destination: variable
-    | contained_at
-contained_at: "*" variable
-
 expr: _constant
     | unary_op
     | binary_op
     | address_of
-    | contained_at
+    | dereferenced_variable
     | variable
     | "(" expr ")"
 
@@ -48,6 +44,12 @@ CHAR_LITERAL:  /./
 
 variable: NAME
 address_of: "&" variable
+
+assignment: destination ":=" expr
+
+destination: variable
+    | dereferenced_variable
+dereferenced_variable: "*" variable
 
 type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
 BASIC_TYPE: "int" | "bool" | "real" | "char"
@@ -63,7 +65,7 @@ COMMENT: "//" /[^\n]*/
 %import common.INT              -> INT
 %import common.FLOAT            -> REAL
 
-
-%ignore COMMENT
 %import common.WS
+%import common.NEWLINE          -> NL
 %ignore WS
+%ignore COMMENT
