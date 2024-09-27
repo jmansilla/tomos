@@ -20,9 +20,9 @@ UnkownValue = _UnkownSingleton()
 class State:
     def __init__(self):
         self.allocator = MemoryAllocator()
-        self.memory_cells = {}
-        self.cell_by_names = {}
-        self.heap = {}
+        self.memory_cells = dict()
+        self.cell_by_names = dict()
+        self.heap = dict()
 
     def declare_static_variable(self, name, var_type):
         if name in self.cell_by_names:
@@ -111,11 +111,11 @@ class MemoryAddress:
 
     def __init__(self, partition, address):
         assert partition in MemoryAddress.PARTITIONS
-        self._partition = partition
-        self._address = address
+        self.partition = partition
+        self.address = address
 
     def __str__(self):
-        return f"{self._partition}{self._address:08x}"
+        return f"{self.partition}{self.address:08x}"
 
 
 class MemoryCell:
