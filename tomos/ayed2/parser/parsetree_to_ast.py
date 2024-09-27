@@ -51,10 +51,6 @@ class TreeToAST(Transformer):
         name, *call_args = args
         return BuiltinCall(name=name, args=call_args)
 
-    # def function_call(self, args):
-    #     name, args = args
-    #     return FunctionCall(name=name, args=args)
-
     def assignment(self, args):
         dest, expr = args
         return Assignment(dest=dest, expr=expr)
