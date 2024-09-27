@@ -12,6 +12,7 @@
 # [-]               | ⟨variable⟩.⟨fname⟩
 #                   | *⟨variable⟩
 
+from lark.lexer import Token
 from tomos.ayed2.ast.types import *
 
 
@@ -21,11 +22,12 @@ class Expr:
 
 class _Constant(Expr):
     def __init__(self, token):
-        self._token = token
+        assert isinstance(token, Token)
+        self.token = token
 
     @property
     def value_str(self):
-        return self._token.value
+        return self.token.value
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
@@ -49,41 +51,24 @@ class CharConstant(_Constant):
 
 
 class Variable(Expr):
-    def __init__(self, name, address_of=False, dereferenced=False):
-        self._name_token = name
-        self._address_of = address_of
-        self._dereferenced = dereferenced
+    def __init__(self, name_token, address_of=False, dereferenced=False):
+        self.name_token = name_token
+        self.address_of = address_of
+        self.dereferenced = dereferenced
 
     @property
     def name(self):
-        return self._name_token.value
+        return self.name_token.value
 
     @property
     def line_number(self):
-        return self._name_token.line
+        return self.name_token.line
 
     @property
     def symbols_name(self):
-        address = "&" if self._address_of else ""
-        star = "*" if self._dereferenced else ""
+        address = "&" if self.address_of else ""
+        star = "*" if self.dereferenced else ""
         return f"{address}{star}{self.name}"
 
     def __repr__(self) -> str:
         return f"Variable({self.symbols_name})"
-
-
-class FunctionCall(Expr):
-    def __init__(self, name, args):
-        self._name_token = name
-        self._args = args
-
-    @property
-    def name(self):
-        return self._name_token.value
-
-    @property
-    def args(self):
-        return self._args
-
-    def __repr__(self) -> str:
-        return f"FunctionCall({self.name}, {self.args})"

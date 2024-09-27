@@ -29,8 +29,6 @@ class Ayed2TypeError(Exception):
 
 
 class BasicType:
-    def __init__(self, token):
-        self._token = token
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -79,8 +77,7 @@ class PointerOf(BasicType):
     NAMED_CONSTANTS = {"null": None}
     SIZE = 2
 
-    def __init__(self, token, of):
-        super().__init__(token)
+    def __init__(self, of):
         self._of = of
 
     def __repr__(self) -> str:

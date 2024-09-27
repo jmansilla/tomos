@@ -1,4 +1,4 @@
-from lark import Transformer
+from lark import Transformer, Token
 from lark.exceptions import UnexpectedInput
 
 from tomos.ayed2.ast.types import *
@@ -25,20 +25,20 @@ class TreeToAST(Transformer):
 
     def var_declaration(self, args):
         var, declared_type = args
-        return VarDeclaration(var=var, declared_type=declared_type)
+        return VarDeclaration(variable=var, declared_type=declared_type)
 
     def pointer(self, args):
         assert len(args) == 1
         token = args[0]
         pointed_type = self.type(args)
-        return PointerOf(token=token, of=pointed_type)
+        return PointerOf(of=pointed_type)
 
     def type(self, args):
         assert len(args) == 1
         token = args[0]
         if token.value not in type_map:
             raise UnexpectedInput(f"Unknown type: {token.value}")
-        return type_map[token.value](token=token)
+        return type_map[token.value]()
 
     def destination(self, args):
         return args[0]
@@ -61,11 +61,11 @@ class TreeToAST(Transformer):
             return args[0]
         elif len(args) == 3:
             left, op, right = args
-            return BinaryOp(left=left, op=op, right=right)
+            return BinaryOp(left_expr=left, op_token=op, right_expr=right)
         elif len(args) > 3:
             # here we need to solve associativity
             left, op, right, *rest = args
-            sub_expr = BinaryOp(left=left, op=op, right=right)
+            sub_expr = BinaryOp(left_expr=left, op_token=op, right_expr=right)
             return self.expr_binary([sub_expr] + rest)
         else:
             raise UnexpectedInput(f"Invalid binary expression: {args}")
@@ -83,20 +83,20 @@ class TreeToAST(Transformer):
             return args[0]
         elif len(args) == 2:
             op, expr = args
-            return UnaryOp(op=op, expr=expr)
+            return UnaryOp(op_token=op, expr=expr)
         return args
 
     def variable(self, args):
-        return Variable(name=args[0])
+        return Variable(name_token=args[0])
 
     def address_of(self, args):
         var = args[0]
-        var._address_of = True
+        var.address_of = True
         return var
 
     def dereferenced_variable(self, args):
         var = args[0]
-        var._dereferenced = True
+        var.dereferenced = True
         return var
 
     def expr(self, args):

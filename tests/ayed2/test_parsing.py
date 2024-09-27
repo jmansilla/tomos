@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from tomos.ayed2.parser import parser
-from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant
-from tomos.ayed2.ast.operators import UnaryOp, BinaryOp
+from tomos.ayed2.ast.expressions import Expr, _Constant, Variable
+from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Assignment
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType
@@ -119,7 +119,7 @@ class TestParseExpressions(TestCase):
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
         self.assertEqual(expr.name, "y")
-        self.assertEqual(expr._dereferenced, True)
+        self.assertEqual(expr.dereferenced, True)
 
     def test_parse_dereferenced_negated(self):
         source = "-*y"
@@ -128,7 +128,7 @@ class TestParseExpressions(TestCase):
         self.assertEqual(expr.op, "-")
         self.assertIsInstance(expr.expr, Variable)
         self.assertEqual(expr.expr.name, "y")
-        self.assertEqual(expr.expr._dereferenced, True)
+        self.assertEqual(expr.expr.dereferenced, True)
 
     # Testing Operators Associativity and Precedence
 

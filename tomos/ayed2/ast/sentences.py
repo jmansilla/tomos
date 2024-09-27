@@ -19,11 +19,11 @@ class Sentence:
 
 class Skip(Sentence):
     def __init__(self, token):
-        self._token = token
+        self.token = token
 
     @property
     def line_number(self):
-        return self._token.line
+        return self.token.line
 
     def __repr__(self) -> str:
         return "Skip()"
@@ -36,59 +36,55 @@ class ProcedureCall(Sentence):
 
 class BuiltinCall(ProcedureCall):
     def __init__(self, name, args):
-        self._name = name
-        self._args = args
+        self.name = name
+        self.args = args
 
     @property
     def line_number(self):
-        return self._name.line
+        return self.name.line
 
     def __repr__(self) -> str:
-        return f"BuiltinCall(name={self._name}, args={self._args})"
+        return f"BuiltinCall(name={self.name}, args={self.args})"
 
 
 class If(Sentence):
     def __init__(self, guard, then_body, else_body):
-        self._guard = guard
-        self._then_body = then_body
-        self._else_body = else_body
+        self.guard = guard
+        self.then_body = then_body
+        self.else_body = else_body
 
 
 class While(Sentence):
     def __init__(self, guard, body):
-        self._guard = guard
-        self._body = body
+        self.guard = guard
+        self.body = body
 
 
 class For(Sentence):
     def __init__(self, name, start, end, body):
-        self._name_token = name
-        self._start = start
-        self._end = end
-        self._body = body
+        self.name_token = name
+        self.start = start
+        self.end = end
+        self.body = body
 
 
 class Assignment(Sentence):
     def __init__(self, dest, expr):
-        self._dest_variable = dest
-        self._expr = expr
+        self.dest_variable = dest
+        self.expr = expr
 
     @property
     def name(self):
-        return self._dest_variable.name
+        return self.dest_variable.name
 
     @property
     def line_number(self):
-        return self._dest_variable.line_number
+        return self.dest_variable.line_number
 
     @property
-    def _dereferenced(self):
-        return self._dest_variable._dereferenced
-
-    @property
-    def expr(self):
-        return self._expr
+    def dereferenced(self):
+        return self.dest_variable.dereferenced
 
     def __repr__(self) -> str:
-        full_name = self._dest_variable.symbols_name
+        full_name = self.dest_variable.symbols_name
         return f"Assignment(dest={full_name}, expr={self.expr})"
