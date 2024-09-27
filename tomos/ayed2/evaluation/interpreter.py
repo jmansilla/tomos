@@ -7,12 +7,37 @@ from tomos.ayed2.evaluation.state import State
 class Interpreter:
     """
     Interpreter for sentences.
+    Exposes the public interface of interpreter.
     """
     def __init__(self, ast, pre_hooks=None, post_hooks=None):
         self.ast = ast
         self.state = State()
         self.pre_hooks = pre_hooks or []
         self.post_hooks = post_hooks or []
+
+    def run(self):
+        self.actual_interpreter = SentenceEvaluator()
+        for name, section in [
+            ('typedef', self.ast.typedef_section),
+            ('funprocdef', self.ast.funprocdef_section),
+            ('body', self.ast.body)
+        ]:
+            for sentence in section:
+                self._run_sentence(name, sentence)
+
+        return self.state
+
+    def _run_sentence(self, kind, sentence_to_run):
+        if not hasattr(self, 'previous_sentence'):
+            self.previous_sentence = None
+
+        self._run_pre_hooks(sentence_to_run)
+        if kind == 'body':
+            self.state = self.actual_interpreter.eval(sentence_to_run, state=self.state)
+        else:
+            print('running', kind)
+        self.previous_sentence = sentence_to_run
+        self._run_post_hooks()
 
     def _run_pre_hooks(self, next_sentence):
         if not self.pre_hooks:
@@ -26,34 +51,10 @@ class Interpreter:
         for hook in self.post_hooks:
             hook(self.previous_sentence, self.state)
 
-    def _run_sentence(self, kind, sentence_to_run):
-        if not hasattr(self, 'previous_sentence'):
-            self.previous_sentence = None
 
-        self._run_pre_hooks(sentence_to_run)
-        if kind == 'body':
-            self.state = self.main_interpreter.eval(sentence_to_run, state=self.state)
-        else:
-            print('running', kind)
-        self.previous_sentence = sentence_to_run
-        self._run_post_hooks()
-
-    def run(self):
-        self.main_interpreter = _Interpreter()
-        for name, section in [
-            ('typedef', self.ast.typedef_section),
-            ('funprocdef', self.ast.funprocdef_section),
-            ('body', self.ast.body)
-        ]:
-            for sentence in section:
-                self._run_sentence(name, sentence)
-
-        return self.state
-
-
-class _Interpreter(NodeVisitor):
+class SentenceEvaluator(NodeVisitor):
     """
-    Interpreter for sentences.
+    Evaluates sentences
     """
     def eval(self, sentence, state):
         return self.visit(sentence, state=state)
