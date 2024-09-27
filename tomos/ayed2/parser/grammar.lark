@@ -30,15 +30,27 @@ SKIP: "skip"
 builtin_call: builtin_name "(" variable ")"
 !builtin_name: "alloc" | "free"
 
-expr: _constant
-    | unary_op
-    | binary_op
-    | address_of
-    | dereferenced_variable
-    | variable
-    | "(" expr ")"
+expr                : expr_junction
+expr_junction       : expr_equality ( JUNCTION_SYMBOL expr_equality)*
+expr_equality       : expr_comparison ( EQUALITY_SYMBOL expr_comparison )*
+expr_comparison     : expr_term ( COMPARISON_SYMBOL expr_term )*
+expr_term           : expr_factor ( TERM_SYMBOL expr_factor )*
+expr_factor         : expr_unary ( FACTOR_SYMBOL  expr_unary )*
+expr_unary          : UNARY_SYMBOL expr_unary
+                    | _expr_primary
+_expr_primary       : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | "null" | "inf"
+                    | address_of | dereferenced_variable | variable
+                    | "(" expr ")"
 
-_constant: INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
+JUNCTION_SYMBOL : ( "&&" | "||" )
+EQUALITY_SYMBOL : ( "!=" | "==" )
+COMPARISON_SYMBOL : ( ">" | ">=" | "<" | "<=" )
+TERM_SYMBOL : ( "-" | "+" )
+FACTOR_SYMBOL : ( "/" | "*" | "%" )
+UNARY_SYMBOL : ( "!" | "-" )
+binary_op: expr BIN_OP expr
+BIN_OP: {binary_symbols}
+
 !bool_literal: "true" | "false"
 CHAR_LITERAL:  /./
 
@@ -53,11 +65,6 @@ dereferenced_variable: "*" variable
 
 type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
 BASIC_TYPE: "int" | "bool" | "real" | "char"
-
-unary_op: UNARY_OP expr
-binary_op: expr BIN_OP expr
-UNARY_OP: {unary_symbols}
-BIN_OP: {binary_symbols}
 
 COMMENT: "//" /[^\n]*/
 
