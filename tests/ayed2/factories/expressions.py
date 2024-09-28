@@ -1,4 +1,3 @@
-from typing import Any
 import factory
 
 from lark.lexer import Token
@@ -9,7 +8,6 @@ from tomos.ayed2.ast.expressions import (
     Variable,
 )
 from tomos.ayed2.ast.operators import UnaryOp, BinaryOp, UnaryOpTable, BinaryOpTable
-from tomos.ayed2.evaluation.state import State
 
 
 def get_tkn_faker_value(ob, faker_attr_name="token_faker_value"):
@@ -23,11 +21,6 @@ class TokenFactory(factory.Factory):
 
     type = factory.Faker("word")
     value = factory.Faker("word")
-
-
-class StateFactory(factory.Factory):
-    class Meta:
-        model = State
 
 
 class AbstractConstantFactory(factory.Factory):

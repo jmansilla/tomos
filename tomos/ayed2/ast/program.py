@@ -21,6 +21,7 @@
 # [-]  ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
 # [-]  ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩
 
+from tomos.ayed2.ast.sentences import Sentence
 
 class ProgramExpression:
     pass
@@ -48,7 +49,9 @@ class Program(ProgramExpression):
 
 class Body(ProgramExpression):
     def __init__(self, var_declarations, sentences):
+        assert all(isinstance(v, VarDeclaration) for v in var_declarations)
         self.var_declarations = var_declarations
+        assert all(isinstance(s, Sentence) for s in sentences)
         self.sentences = sentences
 
     def __iter__(self):
@@ -57,9 +60,9 @@ class Body(ProgramExpression):
 
 
 class VarDeclaration(ProgramExpression):
-    def __init__(self, variable, declared_type):
+    def __init__(self, variable, var_type):
         self.variable = variable
-        self._type = declared_type
+        self.var_type = var_type
 
     @property
     def name(self):
@@ -68,10 +71,6 @@ class VarDeclaration(ProgramExpression):
     @property
     def line_number(self):
         return self.variable.line_number
-
-    @property
-    def var_type(self):
-        return self._type
 
     def __repr__(self) -> str:
         return f"VarDeclaration(name={self.name}, type={self.var_type})"

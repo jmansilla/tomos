@@ -4,16 +4,8 @@ from tomos.ayed2.parser import parser
 from tomos.ayed2.ast.expressions import Expr, _Constant, Variable
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
-from tomos.ayed2.ast.sentences import Assignment
+from tomos.ayed2.ast.sentences import Sentence, Assignment, If
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType
-
-
-class TestParseProgram(TestCase):
-
-    def test_parse_returns_program_object(self):
-        source = "var x: int;"
-        ast = parser.parse(source)
-        self.assertIsInstance(ast, Program)
 
 
 def get_parsed_sentences(source, single_sentence=False):
@@ -23,6 +15,14 @@ def get_parsed_sentences(source, single_sentence=False):
     if single_sentence:
         return next(iter(program.body))  # type: ignore
     return [s for s in program.body]     # type: ignore
+
+
+class TestParseProgram(TestCase):
+
+    def test_parse_returns_program_object(self):
+        source = "var x: int;"
+        ast = parser.parse(source)
+        self.assertIsInstance(ast, Program)
 
 
 class TestParseBasicTypeSentences(TestCase):
@@ -169,3 +169,97 @@ class TestParseExpressions(TestCase):
             expr = self.parsed_expr(source)
             expected = self.parsed_expr(parenthesed)
             self.assertExpressionEquals(expr, expected)
+
+class TestParseIfSentences(TestCase):
+
+    def parse(self, source):
+        program = parser.parse(source)
+        return next(iter(program.body))  # type: ignore
+
+    def test_parse_if(self):
+        source = """
+        if true then
+          x := 1
+          else
+          x := 2
+          fi
+        """
+        sent = self.parse(source)
+        self.assertIsInstance(sent, If)
+        self.assertIsInstance(sent.guard, Expr)
+        self.assertIsInstance(sent.then_sentences, list)
+        for sub_sent in sent.then_sentences:
+            self.assertIsInstance(sub_sent, Sentence)
+        self.assertIsInstance(sent.else_sentences, list)
+        for sub_sent in sent.else_sentences:
+            self.assertIsInstance(sub_sent, Sentence)
+
+    def test_parse_if_without_else(self):
+        source = """
+        if true then
+          x := 1
+          fi
+        """
+        sent = self.parse(source)
+        self.assertIsInstance(sent, If)
+        self.assertIsInstance(sent.guard, Expr)
+        self.assertIsInstance(sent.then_sentences, list)
+        for sub_sent in sent.then_sentences:
+            self.assertIsInstance(sub_sent, Sentence)
+        self.assertEqual(sent.else_sentences, [])
+
+    def test_parse_several_sentences_in_if(self):
+        source = """
+        if true then
+          x := 1
+          y := 2
+          z := 3
+          fi
+        """
+        sent = self.parse(source)
+        self.assertIsInstance(sent, If)
+        self.assertIsInstance(sent.guard, Expr)
+        self.assertIsInstance(sent.then_sentences, list)
+        self.assertEqual(len(sent.then_sentences), 3)
+        self.assertEqual(len(sent.else_sentences), 0)
+
+    def test_parse_nested_ifs(self):
+        source = """
+        if x >= 0 then
+            if x == 0 then
+                y := 1
+            else
+                y := 2
+            fi
+        else  // x < 0
+            if x >= -10 then
+                y := 3
+            else
+                y := 4
+            fi
+        fi
+        """
+        sent = self.parse(source)
+        self.assertIsInstance(sent, If)
+        self.assertIsInstance(sent.guard, Expr)
+        self.assertEqual(len(sent.then_sentences), 1)
+        self.assertIsInstance(sent.then_sentences[0], If)
+        self.assertEqual(len(sent.else_sentences), 1)
+        self.assertIsInstance(sent.else_sentences[0], If)
+
+    def test_parse_nested_ifs_parent_without_else(self):
+        source = """
+        if x >= 0 then
+            if x == 0 then
+                y := 1
+            else
+                y := 2
+            fi
+        fi
+        """
+        sent = self.parse(source)
+        self.assertIsInstance(sent, If)
+        self.assertIsInstance(sent.guard, Expr)
+        self.assertEqual(len(sent.then_sentences), 1)
+        self.assertIsInstance(sent.then_sentences[0], If)
+        self.assertEqual(len(sent.else_sentences), 0)

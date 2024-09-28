@@ -1,63 +1,55 @@
 // Everything that's defined like <<TYPEDECLARATION>> means to be done later
 // Everything in the shape of {some_name} will be replaced in python code
 
-?program: typedef_section funprocdef_section body
+?program           : typedef_section funprocdef_section body
+typedef_section    : typedef*
+typedef            : "<<TYPEDECLARATION>>"
+funprocdef_section : funprocdef*
+funprocdef         : "<<FUNPROCDECLARATION>>"
+body               : vardef_section sentences
+vardef_section     : (var_declaration _SEP)*
+var_declaration    : "var" variable ":" type
 
-_SEP: (";" | NL)  // separator
+sentences : (_sentence _SEP)*
 
-typedef_section: typedef*
+_sentence : SKIP
+          | if_sent
+          | builtin_call
+          | assignment
 
-typedef: "<<TYPEDECLARATION>>"
+SKIP          : "skip"
+if_sent       : "if" expr "then" sentences ("else" sentences)? "fi"
+while         : "while" expr "do" sentences "od"
+assignment    : destination ":=" expr
+builtin_call  : builtin_name "(" variable ")"
 
-funprocdef_section: funprocdef*
+!builtin_name : "alloc" | "free"
 
-funprocdef: "<<FUNPROCDECLARATION>>"
+expr            : expr_junction
+expr_junction   : expr_equality ( JUNCTION_SYMBOL expr_equality)*
+expr_equality   : expr_comparison ( EQUALITY_SYMBOL expr_comparison )*
+expr_comparison : expr_term ( COMPARISON_SYMBOL expr_term )*
+expr_term       : expr_factor ( TERM_SYMBOL expr_factor )*
+expr_factor     : expr_unary ( FACTOR_SYMBOL  expr_unary )*
+expr_unary      : UNARY_SYMBOL expr_unary
+                | _expr_primary
+_expr_primary   : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | "null" | "inf"
+                | address_of | dereferenced_variable | variable
+                | "(" expr ")"
 
-body: vardef_section sentences
 
-vardef_section: (var_declaration _SEP)*
-
-var_declaration: "var" variable ":" type
-
-sentences: (_sentence _SEP)*
-
-_sentence: SKIP
-    | builtin_call
-    | assignment
-
-SKIP: "skip"
-
-builtin_call: builtin_name "(" variable ")"
-!builtin_name: "alloc" | "free"
-
-expr                : expr_junction
-expr_junction       : expr_equality ( JUNCTION_SYMBOL expr_equality)*
-expr_equality       : expr_comparison ( EQUALITY_SYMBOL expr_comparison )*
-expr_comparison     : expr_term ( COMPARISON_SYMBOL expr_term )*
-expr_term           : expr_factor ( TERM_SYMBOL expr_factor )*
-expr_factor         : expr_unary ( FACTOR_SYMBOL  expr_unary )*
-expr_unary          : UNARY_SYMBOL expr_unary
-                    | _expr_primary
-_expr_primary       : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | "null" | "inf"
-                    | address_of | dereferenced_variable | variable
-                    | "(" expr ")"
-
-JUNCTION_SYMBOL : ( "&&" | "||" )
-EQUALITY_SYMBOL : ( "!=" | "==" )
+JUNCTION_SYMBOL   : ( "&&" | "||" )
+EQUALITY_SYMBOL   : ( "!=" | "==" )
 COMPARISON_SYMBOL : ( ">" | ">=" | "<" | "<=" )
-TERM_SYMBOL : ( "-" | "+" )
-FACTOR_SYMBOL : ( "/" | "*" | "%" )
-UNARY_SYMBOL : ( "!" | "-" )
-binary_op: expr BIN_OP expr
-BIN_OP: {binary_symbols}
+TERM_SYMBOL       : ( "-" | "+" )
+FACTOR_SYMBOL     : ( "/" | "*" | "%" )
+UNARY_SYMBOL      : ( "!" | "-" )
 
 !bool_literal: "true" | "false"
 CHAR_LITERAL:  /./
 
 variable: NAME
 address_of: "&" variable
-
-assignment: destination ":=" expr
 
 destination: variable
     | dereferenced_variable
@@ -67,6 +59,7 @@ type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
 BASIC_TYPE: "int" | "bool" | "real" | "char"
 
 COMMENT: "//" /[^\n]*/
+_SEP: (";" | NL)  // separator
 
 %import common.CNAME            -> NAME
 %import common.INT              -> INT

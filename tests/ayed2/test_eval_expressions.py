@@ -3,8 +3,9 @@ from unittest import TestCase
 from tomos.ayed2.ast.types import IntType, BoolType, PointerOf
 from tomos.ayed2.evaluation.state import UnkownValue, MemoryAddress
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
-from .factories import (
-    StateFactory,
+
+from .factories.state import StateFactory
+from .factories.expressions import (
     IntegerConstantFactory,
     BooleanConstantFactory,
     RealConstantFactory,

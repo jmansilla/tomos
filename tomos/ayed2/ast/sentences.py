@@ -34,7 +34,7 @@ class ProcedureCall(Sentence):
     pass
 
 
-class BuiltinCall(ProcedureCall):
+class BuiltinCall(Sentence):
     def __init__(self, name, args):
         self.name = name
         self.args = args
@@ -48,29 +48,29 @@ class BuiltinCall(ProcedureCall):
 
 
 class If(Sentence):
-    def __init__(self, guard, then_body, else_body):
+    def __init__(self, guard, then_sentences, else_sentences):
         self.guard = guard
-        self.then_body = then_body
-        self.else_body = else_body
+        self.then_sentences = then_sentences
+        self.else_sentences = else_sentences
 
 
 class While(Sentence):
-    def __init__(self, guard, body):
+    def __init__(self, guard, sentences):
         self.guard = guard
-        self.body = body
+        self.sentences = sentences
 
 
 class For(Sentence):
-    def __init__(self, name, start, end, body):
+    def __init__(self, name, start, end, sentences):
         self.name_token = name
         self.start = start
         self.end = end
-        self.body = body
+        self.sentences = sentences
 
 
 class Assignment(Sentence):
-    def __init__(self, dest, expr):
-        self.dest_variable = dest
+    def __init__(self, dest_variable, expr):
+        self.dest_variable = dest_variable
         self.expr = expr
 
     @property
