@@ -101,9 +101,9 @@ class SentenceEvaluator(NodeVisitor):
     def visit_builtin_call(self, sentence, **kw):
         state = kw["state"]
         if sentence.name == 'alloc':
-            variable = sentence._args[0]
+            variable = sentence.args[0]
             state.alloc(variable.name)
         elif sentence.name == 'free':
-            variable = sentence._args[0]
+            variable = sentence.args[0]
             state.free(variable.name)
         return state
