@@ -16,16 +16,26 @@ class TreeToAST(Transformer):
         tdef, fdef, body = args
         return Program(typedef_section=tdef.children, funprocdef_section=fdef.children, body=body)
 
+    sentences = list
+
     def body(self, args):
         vardef, sentences = args
-        return Body(var_declarations=vardef.children, sentences=sentences.children)
+        return Body(var_declarations=vardef.children, sentences=sentences)
+
+    def if_sent(self, args):
+        if len(args) == 2:
+            guard, then_sentences = args
+            else_sentences = []
+        else:
+            guard, then_sentences, else_sentences = args
+        return If(guard=guard, then_sentences=then_sentences, else_sentences=else_sentences)
 
     def SKIP(self, token):
         return Skip(token)
 
     def var_declaration(self, args):
-        var, declared_type = args
-        return VarDeclaration(variable=var, declared_type=declared_type)
+        var, var_type = args
+        return VarDeclaration(variable=var, var_type=var_type)
 
     def pointer(self, args):
         assert len(args) == 1
@@ -53,7 +63,7 @@ class TreeToAST(Transformer):
 
     def assignment(self, args):
         dest, expr = args
-        return Assignment(dest=dest, expr=expr)
+        return Assignment(dest_variable=dest, expr=expr)
 
     def expr_binary(self, args):
         # Encapsulates BinaryExpressions or higher in precedence
@@ -128,5 +138,3 @@ class TreeToAST(Transformer):
 
     def CHAR_LITERAL(self, token):
         return self.parse_literal(CharConstant, token)
-
-    args = list

@@ -66,6 +66,19 @@ class SentenceEvaluator(NodeVisitor):
         result = super().get_visit_name_from_type(_type)
         return result
 
+    def visit_if(self, sentence, **kw):
+        state = kw["state"]
+        if self.visit_expr(sentence.guard, state=state):
+            return self.visit(sentence.then_sentences, state=state)
+        else:
+            return self.visit(sentence.else_sentences, state=state)
+
+    def visit_list(self, sentence_list, **kw):
+        state = kw["state"]
+        for sentence in sentence_list:
+            state = self.visit(sentence, state=state)
+        return state
+
     def visit_expr(self, expr, **kw):
         state = kw["state"]
         return ExpressionEvaluator().eval(expr, state)
