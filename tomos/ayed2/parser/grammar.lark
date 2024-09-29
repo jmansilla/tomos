@@ -14,12 +14,13 @@ sentences : (_sentence _SEP)*
 
 _sentence : SKIP
           | if_sent
+          | while_sent
           | builtin_call
           | assignment
 
 SKIP          : "skip"
 if_sent       : "if" expr "then" sentences ("else" sentences)? "fi"
-while         : "while" expr "do" sentences "od"
+while_sent    : "while" expr "do" sentences "od"
 assignment    : destination ":=" expr
 builtin_call  : builtin_name "(" variable ")"
 
