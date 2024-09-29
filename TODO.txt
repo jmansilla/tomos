@@ -18,6 +18,7 @@ f)  [x] Agregar otros tipos básicos (char, bool, real)
         [x] al graficador
 g)  [ ] Pulir parsing
         [x] precedencia de operadores
+        [ ] mensajes de error apropiados
 h)  [ ] Agregar Arrays
         [ ] al parser
         [ ] al Evaluador
@@ -37,7 +38,7 @@ l)  [ ] Completar sentencias (if, for, while)
         [ ] al graficador
 m)  [ ] Mejorar la UI del graficador / reemplazarlo
         [ ] syntax highlight
-
+n)  [ ] Agregar logging
 
 Para hacer más adelante (extras)
 ex.1) [ ] Agregar procedimientos y funciones
