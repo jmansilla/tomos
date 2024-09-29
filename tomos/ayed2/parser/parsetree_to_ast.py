@@ -30,6 +30,10 @@ class TreeToAST(Transformer):
             guard, then_sentences, else_sentences = args
         return If(guard=guard, then_sentences=then_sentences, else_sentences=else_sentences)
 
+    def while_sent(self, args):
+        guard, sentences = args
+        return While(guard=guard, sentences=sentences)
+
     def SKIP(self, token):
         return Skip(token)
 

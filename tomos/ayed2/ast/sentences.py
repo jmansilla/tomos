@@ -53,11 +53,19 @@ class If(Sentence):
         self.then_sentences = then_sentences
         self.else_sentences = else_sentences
 
+    @property
+    def line_number(self):
+        return self.guard.line_number
+
 
 class While(Sentence):
     def __init__(self, guard, sentences):
         self.guard = guard
         self.sentences = sentences
+
+    @property
+    def line_number(self):
+        return self.guard.line_number
 
 
 class For(Sentence):

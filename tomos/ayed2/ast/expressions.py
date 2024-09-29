@@ -17,7 +17,10 @@ from tomos.ayed2.ast.types import *
 
 
 class Expr:
-    pass
+
+    @property
+    def line_number(self):
+        raise NotImplementedError
 
 
 class _Constant(Expr):

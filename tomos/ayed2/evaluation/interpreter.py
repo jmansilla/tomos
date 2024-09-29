@@ -1,8 +1,12 @@
+import logging
+
 from tomos.visit import NodeVisitor
 from tomos.ayed2.ast.expressions import Expr
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from tomos.ayed2.evaluation.state import State
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class Interpreter:
     """
@@ -11,53 +15,70 @@ class Interpreter:
     """
     def __init__(self, ast, pre_hooks=None, post_hooks=None):
         self.ast = ast
-        self.state = State()
         self.pre_hooks = pre_hooks or []
         self.post_hooks = post_hooks or []
 
     def run(self):
-        self.actual_interpreter = SentenceEvaluator()
+        self.sent_evaluator = SentenceEvaluator()
+        self.last_executed_sentece = None  # For hooks
+        state = State()
         for name, section in [
             ('typedef', self.ast.typedef_section),
             ('funprocdef', self.ast.funprocdef_section),
             ('body', self.ast.body)
         ]:
-            for sentence in section:
-                self._run_sentence(name, sentence)
+            logger.info('Running section %s', name)
+            state = self.run_sequence_of_sentences(section, state)
 
-        return self.state
+        return state
 
-    def _run_sentence(self, kind, sentence_to_run):
-        if not hasattr(self, 'previous_sentence'):
-            self.previous_sentence = None
+    def run_sequence_of_sentences(self, sentences, state):
+        self.buffer_of_sentences = list(sentences)
+        while self.buffer_of_sentences:
+            # Caution. This buffer can be modified in the middle of the loop
+            sentence = self.buffer_of_sentences.pop(0)
+            state, extra_sentences = self._run_sentence(sentence, state)
+            if extra_sentences:
+                self.buffer_of_sentences = extra_sentences + self.buffer_of_sentences
 
-        self._run_pre_hooks(sentence_to_run)
-        if kind == 'body':
-            self.state = self.actual_interpreter.eval(sentence_to_run, state=self.state)
-        else:
-            print('running', kind)
-        self.previous_sentence = sentence_to_run
-        self._run_post_hooks()
+        return state
 
-    def _run_pre_hooks(self, next_sentence):
-        if not self.pre_hooks:
-            return
+    def _run_sentence(self, sentence_to_run, state):
+        self._run_pre_hooks(sentence_to_run, state)
+
+        new_state, injected_block = self.sent_evaluator.eval(sentence_to_run, state=state)
+
+        self.last_executed_sentece = sentence_to_run
+        self._run_post_hooks(state)
+        return new_state, injected_block
+
+    def _run_pre_hooks(self, next_sentence, state):
         for hook in self.pre_hooks:
-            hook(self.previous_sentence, self.state, next_sentence)
+            hook(self.last_executed_sentece, state, next_sentence)
 
-    def _run_post_hooks(self):
-        if not self.post_hooks:
-            return
+    def _run_post_hooks(self, state):
         for hook in self.post_hooks:
-            hook(self.previous_sentence, self.state)
+            hook(self.last_executed_sentece, state)
 
 
 class SentenceEvaluator(NodeVisitor):
     """
     Evaluates sentences
     """
+    def __init__(self) -> None:
+        super().__init__()
+        self.expression_evaluator = ExpressionEvaluator()
+
     def eval(self, sentence, state):
-        return self.visit(sentence, state=state)
+        # Evaluate the sentence in a given state.
+        # Returns (new_state, extra_sentences)
+        result = self.visit(sentence, state=state)
+        if isinstance(result, State):
+            return result, []
+        elif isinstance(result, tuple) and len(result) == 2:
+            return result
+        else:
+            raise ValueError(f"Unexpected result {result}")
 
     def get_visit_name_from_type(self, _type):
         # Transforms CammelCase to snake_case, and preppends "visit_"
@@ -69,19 +90,22 @@ class SentenceEvaluator(NodeVisitor):
     def visit_if(self, sentence, **kw):
         state = kw["state"]
         if self.visit_expr(sentence.guard, state=state):
-            return self.visit(sentence.then_sentences, state=state)
+            injected_block = sentence.then_sentences
         else:
-            return self.visit(sentence.else_sentences, state=state)
+            injected_block = sentence.else_sentences
+        return state, injected_block
 
-    def visit_list(self, sentence_list, **kw):
+    def visit_while(self, sentence, **kw):
         state = kw["state"]
-        for sentence in sentence_list:
-            state = self.visit(sentence, state=state)
-        return state
+        if self.visit_expr(sentence.guard, state=state):
+            injected_block = list(sentence.sentences) + [sentence]
+        else:
+            injected_block = []
+        return state, injected_block
 
     def visit_expr(self, expr, **kw):
         state = kw["state"]
-        return ExpressionEvaluator().eval(expr, state)
+        return self.expression_evaluator.eval(expr, state)
 
     def visit_skip(self, sentence, **kw):
         state = kw["state"]
