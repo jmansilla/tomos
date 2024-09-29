@@ -61,6 +61,10 @@ class BinaryOp(Expr):
     def right(self):
         return self.right_expr
 
+    @property
+    def line_number(self):
+        return self.left_expr.line_number
+
     def __repr__(self) -> str:
         return f"BinaryOp({self.left}, {self.op}, {self.right})"
 
