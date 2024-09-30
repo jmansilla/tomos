@@ -35,7 +35,7 @@ expr_unary      : UNARY_SYMBOL expr_unary
                 | _expr_primary
 _expr_primary   : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
                 | INF | NULL
-                | address_of | dereferenced_variable | variable
+                | dereferenced_variable | variable
                 | "(" expr ")"
 
 // Literals missing from expressions sub-grammar
@@ -51,7 +51,6 @@ FACTOR_SYMBOL     : ( "/" | "*" | "%" )
 UNARY_SYMBOL      : ( "!" | "-" )
 
 variable              : NAME
-address_of            : "&" variable
 destination           : variable
                       | dereferenced_variable
 dereferenced_variable : "*" variable

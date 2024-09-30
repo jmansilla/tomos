@@ -58,9 +58,8 @@ class NullConstant(_Constant):
 
 
 class Variable(Expr):
-    def __init__(self, name_token, address_of=False, dereferenced=False):
+    def __init__(self, name_token, dereferenced=False):
         self.name_token = name_token
-        self.address_of = address_of
         self.dereferenced = dereferenced
 
     @property
@@ -73,9 +72,8 @@ class Variable(Expr):
 
     @property
     def symbols_name(self):
-        address = "&" if self.address_of else ""
         star = "*" if self.dereferenced else ""
-        return f"{address}{star}{self.name}"
+        return f"{star}{self.name}"
 
     def __repr__(self) -> str:
         return f"Variable({self.symbols_name})"
