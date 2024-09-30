@@ -121,7 +121,7 @@ class TreeToAST(Transformer):
     # LITERALS
     def parse_literal(self, _class, token):
         literal = _class(token=token)
-        if self.do_eval_literals:
+        if self.do_eval_literals and not isinstance(literal, NullConstant):
             evaluator = ExpressionEvaluator()
             try:
                 evaluator.eval(literal, state=None)
@@ -132,6 +132,12 @@ class TreeToAST(Transformer):
 
     def INT(self, token):
         return self.parse_literal(IntegerConstant, token)
+
+    def INF(self, token):
+        return self.parse_literal(IntegerConstant, token)
+
+    def NULL(self, token):
+        return self.parse_literal(NullConstant, token)
 
     def REAL(self, token):
         return self.parse_literal(RealConstant, token)
