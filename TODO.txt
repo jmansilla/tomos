@@ -20,7 +20,7 @@ g)  [ ] Pulir parsing
         [x] precedencia de operadores
         [ ] mensajes de error apropiados
 h)  [ ] Agregar Arrays
-        [ ] al parser
+        [x] al parser
         [ ] al Evaluador
         [ ] al graficador
 i)  [ ] Agregar Enums
@@ -31,14 +31,15 @@ j)  [ ] Agregar records/strucs
         [ ] al parser
         [ ] al Evaluador
         [ ] al graficador
-k)  [ ] Agregar sinonimos
-l)  [ ] Completar sentencias (if, for, while)
-        [ ] al parser
-        [ ] al evaluador
-        [ ] al graficador
-m)  [ ] Mejorar la UI del graficador / reemplazarlo
+k)  [ ] Agregar sinonimos de tipos
+l)  [x] Agregar sentencias (if, while)
+        [x] al parser
+        [x] al evaluador
+        [x] al graficador
+m)  [ ] Completar sentences: for
+n)  [ ] Mejorar la UI del graficador / reemplazarlo
         [ ] syntax highlight
-n)  [ ] Agregar logging
+o)  [ ] Agregar logging
 
 Para hacer más adelante (extras)
 ex.1) [ ] Agregar procedimientos y funciones
