@@ -39,9 +39,15 @@ l)  [x] Agregar sentencias (if, while)
 m)  [ ] Completar sentences: for
 n)  [ ] Mejorar la UI del graficador / reemplazarlo
         [ ] syntax highlight
-o)  [ ] Agregar logging
+o)  [ ] Constants as input
+p)  [ ] Execution-Modes: unkownvalue, random, others
 
-Para hacer más adelante (extras)
+
+Tech debt:
+t1)  [ ] Agregar logging
+
+
+Not-gonna-happen in this verion:
 ex.1) [ ] Agregar procedimientos y funciones
 ex.2) [ ] Cambiar la noción de entry-point
 ex.3) [ ] Type Checking estático
