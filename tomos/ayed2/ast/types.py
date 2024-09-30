@@ -78,15 +78,31 @@ class PointerOf(BasicType):
     SIZE = 2
 
     def __init__(self, of):
-        self._of = of
+        self.of = of
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self._of})"
+        return f"PointerOf({self.of})"
 
     @classmethod
     def is_valid_value(cls, value):
         from tomos.ayed2.evaluation.state import MemoryAddress
         return value in cls.NAMED_CONSTANTS.values() or isinstance(value, MemoryAddress)
+
+
+class ArrayOf(BasicType):
+    def __init__(self, of, axes):
+        assert all(isinstance(axis, ArrayAxis) for axis in axes)
+        self.of = of
+        self.axes = axes
+
+
+class ArrayAxis:
+    def __init__(self, from_value, to_value):
+        self.from_value = from_value
+        self.to_value = to_value
+
+    def __repr__(self):
+        return f"Axis({self.from_value}, {self.to_value})"
 
 
 type_map = {

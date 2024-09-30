@@ -37,7 +37,7 @@ class State:
         cell = self.cell_by_names[name]
         if not isinstance(cell.var_type, PointerOf):
             raise Ayed2TypeError(f"Cannot allocate. Variable {name} is not a pointer.")
-        new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type._of)
+        new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type.of)
         self.memory_cells[new_cell.address] = new_cell
         self.heap[new_cell.address] = new_cell
         self.cell_by_names[name].value = new_cell.address

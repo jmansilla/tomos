@@ -12,12 +12,11 @@ var_declaration    : "var" variable ":" type
 
 sentences : (_sentence _SEP)*
 
-_sentence : SKIP
-          | if_sent
-          | while_sent
-          | builtin_call
-          | assignment
-
+_sentence     : SKIP
+              | if_sent
+              | while_sent
+              | builtin_call
+              | assignment
 SKIP          : "skip"
 if_sent       : "if" expr "then" sentences ("else" sentences)? "fi"
 while_sent    : "while" expr "do" sentences "od"
@@ -34,11 +33,13 @@ expr_term       : expr_factor ( TERM_SYMBOL expr_factor )*
 expr_factor     : expr_unary ( FACTOR_SYMBOL  expr_unary )*
 expr_unary      : UNARY_SYMBOL expr_unary
                 | _expr_primary
-_expr_primary   : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | "null" | "inf"
+_expr_primary   : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
                 | address_of | dereferenced_variable | variable
                 | "(" expr ")"
 
-
+// Literals missing from expressions sub-grammar
+!bool_literal     : "true" | "false"
+CHAR_LITERAL      :  /./
 JUNCTION_SYMBOL   : ( "&&" | "||" )
 EQUALITY_SYMBOL   : ( "!=" | "==" )
 COMPARISON_SYMBOL : ( ">" | ">=" | "<" | "<=" )
@@ -46,21 +47,25 @@ TERM_SYMBOL       : ( "-" | "+" )
 FACTOR_SYMBOL     : ( "/" | "*" | "%" )
 UNARY_SYMBOL      : ( "!" | "-" )
 
-!bool_literal: "true" | "false"
-CHAR_LITERAL:  /./
+variable              : NAME
+address_of            : "&" variable
+destination           : variable
+                      | dereferenced_variable
+dereferenced_variable : "*" variable
 
-variable: NAME
-address_of: "&" variable
 
-destination: variable
-    | dereferenced_variable
-dereferenced_variable: "*" variable
+type : BASIC_TYPE
+     | "pointer of" type -> pointer
+     | "array" array_axes "of" type -> array_of
 
-type: BASIC_TYPE | "pointer of" BASIC_TYPE -> pointer
-BASIC_TYPE: "int" | "bool" | "real" | "char"
+BASIC_TYPE      : "int" | "bool" | "real" | "char"
+array_axes      : ("[" array_axis ("," array_axis)* "]")
+array_axis      : (array_axis_from "..")? array_axis_to
+array_axis_from : INT | variable
+array_axis_to   : INT | variable
 
-COMMENT: "//" /[^\n]*/
-_SEP: (";" | NL)  // separator
+COMMENT : "//" /[^\n]*/
+_SEP    : (";" | NL)  // separator
 
 %import common.CNAME            -> NAME
 %import common.INT              -> INT
