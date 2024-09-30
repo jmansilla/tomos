@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.parser import parser
-from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant
+from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant, NullConstant
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
@@ -62,6 +62,20 @@ class TestParseBasicTypeSentences(TestCase):
             self.assertIsInstance(sent, Assignment)
             self.assertIsInstance(sent.expr, _Constant)  # type: ignore
             self.assertEqual(sent.expr._type, var_type)  # type: ignore
+
+    def test_parse_infinity(self):
+        source = "x := inf"
+        sent = get_parsed_sentences(source, single_sentence=True)
+        self.assertIsInstance(sent, Assignment)
+        self.assertIsInstance(sent.expr, IntegerConstant)  # type: ignore
+        self.assertEqual(sent.expr.value_str, "inf")  # type: ignore
+
+    def test_parse_null(self):
+        source = "x := null"
+        sent = get_parsed_sentences(source, single_sentence=True)
+        self.assertIsInstance(sent, Assignment)
+        self.assertIsInstance(sent.expr, NullConstant)  # type: ignore
+        self.assertEqual(sent.expr.value_str, "null")  # type: ignore
 
 
 class TestParseExpressions(TestCase):

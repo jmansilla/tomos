@@ -53,6 +53,10 @@ class CharConstant(_Constant):
     _type = CharType
 
 
+class NullConstant(_Constant):
+    _type = None
+
+
 class Variable(Expr):
     def __init__(self, name_token, address_of=False, dereferenced=False):
         self.name_token = name_token

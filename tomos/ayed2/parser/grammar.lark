@@ -34,11 +34,14 @@ expr_factor     : expr_unary ( FACTOR_SYMBOL  expr_unary )*
 expr_unary      : UNARY_SYMBOL expr_unary
                 | _expr_primary
 _expr_primary   : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
+                | INF | NULL
                 | address_of | dereferenced_variable | variable
                 | "(" expr ")"
 
 // Literals missing from expressions sub-grammar
 !bool_literal     : "true" | "false"
+INF               : "inf"
+NULL              : "null"
 CHAR_LITERAL      :  /./
 JUNCTION_SYMBOL   : ( "&&" | "||" )
 EQUALITY_SYMBOL   : ( "!=" | "==" )
