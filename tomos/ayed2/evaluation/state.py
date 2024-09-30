@@ -71,21 +71,18 @@ class State:
             )
         cell.value = value
 
-    def get_static_variable_value(self, name, address_of=False, dereferenced=False):
+    def get_static_variable_value(self, name, dereferenced=False):
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
-        if address_of:
-            return cell.address
+        if dereferenced:
+            assert isinstance(cell.var_type, PointerOf)
+            if cell.value not in self.memory_cells:
+                raise MemoryInfrigementError()
+            referenced_cell = self.memory_cells[cell.value]
+            return referenced_cell.value
         else:
-            if dereferenced:
-                assert isinstance(cell.var_type, PointerOf)
-                if cell.value not in self.memory_cells:
-                    raise MemoryInfrigementError()
-                referenced_cell = self.memory_cells[cell.value]
-                return referenced_cell.value
-            else:
-                return cell.value
+            return cell.value
 
     def list_declared_variables(self):
         return {name: cell.var_type for name, cell in self.cell_by_names.items()}

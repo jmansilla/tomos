@@ -103,11 +103,6 @@ class TreeToAST(Transformer):
     def variable(self, args):
         return Variable(name_token=args[0])
 
-    def address_of(self, args):
-        var = args[0]
-        var.address_of = True
-        return var
-
     def dereferenced_variable(self, args):
         var = args[0]
         var.dereferenced = True

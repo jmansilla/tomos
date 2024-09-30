@@ -86,29 +86,14 @@ class TestEvalVariableExpressions(TestCase):
         state.declare_static_variable(var_expr.name, IntType)
         self.assertEqual(run_eval(var_expr, state), UnkownValue)
 
-    def test_eval_variable_address(self):
-        var_expr = VariableFactory()
-        var_expr.address_of = True
-        state = StateFactory()
-        state.declare_static_variable(var_expr.name, IntType)
-        state.set_static_variable_value(var_expr.name, 5)
-        value = run_eval(var_expr, state)
-        self.assertIsInstance(value, MemoryAddress)
-
     def test_eval_pointer_variable(self):
-        var_a = VariableFactory()
-        var_pointer_to_a = VariableFactory()
+        var_pointer = VariableFactory()
         state = StateFactory()
-        state.declare_static_variable(var_a.name, IntType)
-        some_value = 9
-        state.set_static_variable_value(var_a.name, some_value)
-        var_a_address = state.get_static_variable_value(var_a.name, address_of=True)
-
-        state.declare_static_variable(var_pointer_to_a.name, PointerOf(of=IntType))
-        state.set_static_variable_value(var_pointer_to_a.name, var_a_address)
-        self.assertEqual(run_eval(var_pointer_to_a, state), var_a_address)
-        var_pointer_to_a.dereferenced = True
-        self.assertEqual(run_eval(var_pointer_to_a, state), some_value)
+        state.declare_static_variable(var_pointer.name, PointerOf(of=IntType))
+        state.alloc(var_pointer.name)
+        self.assertIsInstance(run_eval(var_pointer, state), MemoryAddress)
+        var_pointer.dereferenced = True
+        self.assertNotIsInstance(run_eval(var_pointer, state), MemoryAddress)
 
 class TestEvalUnaryExpressions(TestCase):
     def test_eval_negative_integer(self):

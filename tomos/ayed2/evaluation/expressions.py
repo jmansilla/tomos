@@ -91,4 +91,4 @@ class ExpressionEvaluator(NodeVisitor):
 
     def visit_variable(self, expr, **kw):
         state = kw["state"]
-        return state.get_static_variable_value(expr.name, expr.address_of, expr.dereferenced)
+        return state.get_static_variable_value(expr.name, expr.dereferenced)
