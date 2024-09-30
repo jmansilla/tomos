@@ -142,3 +142,32 @@ class TreeToAST(Transformer):
 
     def CHAR_LITERAL(self, token):
         return self.parse_literal(CharConstant, token)
+
+    # array definition parsing
+    def array_of(self, args):
+        if len(args) == 2:
+            return ArrayOf(of=args[1], axes=args[0])
+
+    def array_axes(self, args):
+        return tuple(args)
+
+    def array_axis(self, args):
+        if len(args) == 1:
+            return ArrayAxis(0, args[0])
+        elif len(args) == 2:
+            return ArrayAxis(args[0], args[1])
+        else:
+            raise UnexpectedInput(f"Invalid array size. Axis {args}")
+
+    def array_axis_from(self, args):
+        if len(args) == 1:
+            return args[0]
+        else:
+            raise UnexpectedInput(f"Invalid array size. Axis from {args}")
+
+    def array_axis_to(self, args):
+        if len(args) == 1:
+            return args[0]
+        else:
+            raise UnexpectedInput(f"Invalid array size. Axis to {args}")
+

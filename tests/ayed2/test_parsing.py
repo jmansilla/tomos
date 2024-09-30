@@ -1,11 +1,13 @@
 from unittest import TestCase
 
 from tomos.ayed2.parser import parser
-from tomos.ayed2.ast.expressions import Expr, _Constant, Variable
+from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf
+
+from .factories.expressions import IntegerConstantFactory
 
 
 def get_parsed_sentences(source, single_sentence=False):
@@ -170,6 +172,7 @@ class TestParseExpressions(TestCase):
             expected = self.parsed_expr(parenthesed)
             self.assertExpressionEquals(expr, expected)
 
+
 class TestParseIfSentences(TestCase):
 
     def parse(self, source):
@@ -263,3 +266,59 @@ class TestParseIfSentences(TestCase):
         self.assertEqual(len(sent.then_sentences), 1)
         self.assertIsInstance(sent.then_sentences[0], If)
         self.assertEqual(len(sent.else_sentences), 0)
+
+
+class TestParseArrayVarDeclarations(TestCase):
+
+    def test_parse_array_axes(self):
+        IC = lambda x: IntegerConstantFactory(token__value=str(x))
+        IC10 = IC(10)
+        IC4 = IC(4)
+        for declaration, expectation in [
+            ["array [10] of int", (ArrayAxis(0, IC10), )],
+            ["array [4..10] of int", (ArrayAxis(IC4, IC10), )],
+            ["array [4] of int", (ArrayAxis(0, IC4), )],
+            ["array [4, 10] of int", (ArrayAxis(0, IC4), ArrayAxis(0, IC10), )],
+            ["array [4, 10, 4, 10] of int",
+                (ArrayAxis(0, IC4), ArrayAxis(0, IC10), ArrayAxis(0, IC4), ArrayAxis(0, IC10),)],
+        ]:
+            source = f"var x: {declaration}"
+            sent = get_parsed_sentences(source, single_sentence=True)
+            self.assertIsInstance(sent, VarDeclaration)
+            self.assertIsInstance(sent.var_type, ArrayOf)  # type: ignore
+            self.assertEqual(str(sent.var_type.axes), str(expectation))  # type: ignore
+
+    def test_parse_var_declarations(self):
+        for name, var_type in [
+            ("int", IntType),
+            ("bool", BoolType),
+            ("real", RealType),
+            ("char", CharType),
+        ]:
+            limit = 10
+            source = f"var x: array [{limit}] of {name}"
+            sentences = get_parsed_sentences(source)
+            self.assertEqual(len(sentences), 1)
+            sent = sentences[0]
+            self.assertIsInstance(sent, VarDeclaration)
+            self.assertEqual(sent.name, "x")
+            self.assertIsInstance(sent.var_type.of, var_type)
+
+    def test_array_of_array(self):
+        source = "var x: array [10] of array [4] of int"
+        sentences = get_parsed_sentences(source)
+        self.assertEqual(len(sentences), 1)
+        sent = sentences[0]
+        self.assertIsInstance(sent, VarDeclaration)
+        self.assertIsInstance(sent.var_type, ArrayOf)
+        self.assertIsInstance(sent.var_type.of, ArrayOf)  # type: ignore
+        self.assertIsInstance(sent.var_type.of.of, IntType)  # type: ignore
+
+    def test_array_of_variable(self):
+        source = "var x: array [N] of int"
+        sentences = get_parsed_sentences(source)
+        self.assertEqual(len(sentences), 1)
+        sent = sentences[0]
+        self.assertIsInstance(sent, VarDeclaration)
+        self.assertIsInstance(sent.var_type, ArrayOf)
+        self.assertEqual(str(sent.var_type.axes[0]), 'Axis(0, Variable(N))')
