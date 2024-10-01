@@ -54,7 +54,7 @@ class State:
         del self.heap[cell.value]
         cell.value = UnkownValue
 
-    def set_static_variable_value(self, name, value, dereferenced=False):
+    def set_variable_value(self, name, value, dereferenced=False):
         if name not in self.cell_by_names:
             raise Ayed2TypeError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
@@ -71,7 +71,7 @@ class State:
             )
         cell.value = value
 
-    def get_static_variable_value(self, name, dereferenced=False):
+    def get_variable_value(self, name, dereferenced=False):
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]

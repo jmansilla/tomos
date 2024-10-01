@@ -33,7 +33,7 @@ class TestEvalVarDeclarationsAndAssignments(BaseSentEval):
         state = StateFactory()
         with patch.object(self.evaluator, "visit_expr") as mock_eval_expr:
             mock_eval_expr.return_value = some_value = 9
-            with patch.object(state, "set_static_variable_value") as mock_set:
+            with patch.object(state, "set_variable_value") as mock_set:
                 self.run_eval(sentence, state)
                 mock_set.assert_called_once_with(sentence.name, some_value, sentence.dereferenced)
 
