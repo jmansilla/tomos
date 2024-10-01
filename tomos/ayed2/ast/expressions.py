@@ -44,10 +44,11 @@ class NullLiteral(_Literal):
 
 
 class Variable(Expr):
-    def __init__(self, name_token, dereferenced=False):
+    def __init__(self, name_token, dereferenced=False, array_indexing=None):
         assert isinstance(name_token, Token)
         self.name_token = name_token
         self.dereferenced = dereferenced
+        self.array_indexing = array_indexing
 
     @property
     def name(self):
@@ -64,3 +65,4 @@ class Variable(Expr):
 
     def __repr__(self) -> str:
         return f"Variable({self.symbols_name})"
+

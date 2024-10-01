@@ -107,6 +107,12 @@ class TreeToAST(Transformer):
         var.dereferenced = True
         return var
 
+    def variable_indexed(self, args):
+        var = args[0]
+        indexing = args[1:]
+        var.array_indexing = indexing
+        return var
+
     def expr(self, args):
         if len(args) != 1:
             raise UnexpectedInput(f"Invalid expression: {args}")
