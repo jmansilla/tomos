@@ -6,9 +6,9 @@ from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 
 from .factories.state import StateFactory
 from .factories.expressions import (
-    IntegerConstantFactory,
-    BooleanConstantFactory,
-    RealConstantFactory,
+    IntegerLiteralFactory,
+    BooleanLiteralFactory,
+    RealLiteralFactory,
     VariableFactory,
     UnaryOpFactory,
     BinaryOpFactory,
@@ -22,45 +22,45 @@ def run_eval(expr, state=None):
     return evaluator.eval(expr, state)
 
 
-class TestEvalConstantExpressions(TestCase):
+class TestEvalLiteralExpressions(TestCase):
 
-    def test_eval_integer_constant(self):
-        expr = IntegerConstantFactory(token__value="5")
+    def test_eval_integer_literal(self):
+        expr = IntegerLiteralFactory(token__value="5")
         self.assertEqual(run_eval(expr), 5)
 
     def test_eval_integer_inf(self):
-        expr = IntegerConstantFactory(token__value="inf")
+        expr = IntegerLiteralFactory(token__value="inf")
         self.assertEqual(run_eval(expr), float("inf"))
 
-    def test_invalid_integer_constant_raises_exception(self):
+    def test_invalid_integer_literal_raises_exception(self):
         for value in ["5.5", "one", "null", "true", "false"]:
-            expr = IntegerConstantFactory(token__value=value)
+            expr = IntegerLiteralFactory(token__value=value)
             with self.assertRaises(Exception):
                 run_eval(expr)
 
-    def test_eval_boolean_constant(self):
-        expr = BooleanConstantFactory(token__value="true")
+    def test_eval_boolean_literal(self):
+        expr = BooleanLiteralFactory(token__value="true")
         self.assertEqual(run_eval(expr), True)
-        expr = BooleanConstantFactory(token__value="false")
+        expr = BooleanLiteralFactory(token__value="false")
         self.assertEqual(run_eval(expr), False)
 
-    def test_invalid_boolean_constant_raises_exception(self):
+    def test_invalid_boolean_literal_raises_exception(self):
         for value in ["5", "5.5", "one", "null"]:
-            expr = BooleanConstantFactory(token__value=value)
+            expr = BooleanLiteralFactory(token__value=value)
             with self.assertRaises(Exception):
                 run_eval(expr)
 
-    def test_eval_real_constant(self):
-        expr = RealConstantFactory(token__value="5.5")
+    def test_eval_real_literal(self):
+        expr = RealLiteralFactory(token__value="5.5")
         self.assertEqual(run_eval(expr), 5.5)
 
     def test_eval_real_inf(self):
-        expr = RealConstantFactory(token__value="inf")
+        expr = RealLiteralFactory(token__value="inf")
         self.assertEqual(run_eval(expr), float("inf"))
 
-    def test_invalid_real_constant_raises_exception(self):
+    def test_invalid_real_literal_raises_exception(self):
         for value in [" ", "one", "null", "true", "false"]:
-            expr = RealConstantFactory(token__value=value)
+            expr = RealLiteralFactory(token__value=value)
             with self.assertRaises(Exception):
                 run_eval(expr)
 
@@ -97,32 +97,32 @@ class TestEvalVariableExpressions(TestCase):
 
 class TestEvalUnaryExpressions(TestCase):
     def test_eval_negative_integer(self):
-        sub_expr = IntegerConstantFactory()
+        sub_expr = IntegerLiteralFactory()
         expr = UnaryOpFactory(op_token__value="-", expr=sub_expr)
         sub_val = run_eval(sub_expr)
         self.assertEqual(run_eval(expr), -1 * sub_val)
 
     def test_eval_positive_integer(self):
-        sub_expr = IntegerConstantFactory()
+        sub_expr = IntegerLiteralFactory()
         expr = UnaryOpFactory(op_token__value="+", expr=sub_expr)
         sub_val = run_eval(sub_expr)
         self.assertEqual(run_eval(expr), sub_val)
 
     def test_eval_negative_real(self):
-        sub_expr = RealConstantFactory()
+        sub_expr = RealLiteralFactory()
         expr = UnaryOpFactory(op_token__value="-", expr=sub_expr)
         sub_val = run_eval(sub_expr)
         self.assertEqual(run_eval(expr), -1 * sub_val)
 
     def test_eval_positive_real(self):
-        sub_expr = RealConstantFactory()
+        sub_expr = RealLiteralFactory()
         expr = UnaryOpFactory(op_token__value="+", expr=sub_expr)
         sub_val = run_eval(sub_expr)
         self.assertEqual(run_eval(expr), sub_val)
 
     def test_eval_not_boolean(self):
-        for value in BoolType.NAMED_CONSTANTS.keys():
-            sub_expr = BooleanConstantFactory(token__value=value)
+        for value in BoolType.NAMED_LITERALS.keys():
+            sub_expr = BooleanLiteralFactory(token__value=value)
             expr = UnaryOpFactory(op_token__value="!", expr=sub_expr)
             sub_val = run_eval(sub_expr)
             self.assertEqual(run_eval(expr), not sub_val)
@@ -130,7 +130,7 @@ class TestEvalUnaryExpressions(TestCase):
 
 class TestEvalBinaryExpressions(TestCase):
     def test_adding_integers(self):
-        a = IntegerConstantFactory(token__value="5")
-        b = IntegerConstantFactory(token__value="5")
+        a = IntegerLiteralFactory(token__value="5")
+        b = IntegerLiteralFactory(token__value="5")
         expr = BinaryOpFactory(op_token__value="+", left_expr=a, right_expr=b)
         self.assertEqual(run_eval(expr), 10)

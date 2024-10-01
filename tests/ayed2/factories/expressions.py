@@ -2,9 +2,9 @@ import factory
 
 from lark.lexer import Token
 from tomos.ayed2.ast.expressions import (
-    IntegerConstant,
-    BooleanConstant,
-    RealConstant,
+    IntegerLiteral,
+    BooleanLiteral,
+    RealLiteral,
     Variable,
 )
 from tomos.ayed2.ast.operators import UnaryOp, BinaryOp, UnaryOpTable, BinaryOpTable
@@ -23,7 +23,7 @@ class TokenFactory(factory.Factory):
     value = factory.Faker("word")
 
 
-class AbstractConstantFactory(factory.Factory):
+class AbstractLiteralFactory(factory.Factory):
     class Meta:
         abstract = True
 
@@ -35,25 +35,25 @@ class AbstractConstantFactory(factory.Factory):
     )
 
 
-class IntegerConstantFactory(AbstractConstantFactory):
+class IntegerLiteralFactory(AbstractLiteralFactory):
     class Meta:
-        model = IntegerConstant
+        model = IntegerLiteral
 
     class Params:
         faker_value = factory.Faker("pyint", min_value=0)
 
 
-class RealConstantFactory(AbstractConstantFactory):
+class RealLiteralFactory(AbstractLiteralFactory):
     class Meta:
-        model = RealConstant
+        model = RealLiteral
 
     class Params:
         faker_value = factory.Faker("pyfloat", min_value=0)
 
 
-class BooleanConstantFactory(AbstractConstantFactory):
+class BooleanLiteralFactory(AbstractLiteralFactory):
     class Meta:
-        model = BooleanConstant
+        model = BooleanLiteral
 
     class Params:
         faker_value = factory.Faker("pybool")
@@ -78,7 +78,7 @@ class UnaryOpFactory(factory.Factory):
         TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
-    expr = factory.SubFactory(IntegerConstantFactory)
+    expr = factory.SubFactory(IntegerLiteralFactory)
 
 
 class BinaryOpFactory(factory.Factory):
@@ -94,5 +94,5 @@ class BinaryOpFactory(factory.Factory):
         TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
     )
 
-    left_expr = factory.SubFactory(IntegerConstantFactory)
-    right_expr = factory.SubFactory(IntegerConstantFactory)
+    left_expr = factory.SubFactory(IntegerLiteralFactory)
+    right_expr = factory.SubFactory(IntegerLiteralFactory)

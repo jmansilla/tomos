@@ -93,7 +93,7 @@ class TreeToAST(Transformer):
     def expr_unary(self, args):
         # Unary encapsulates UnaryExpressions or higher in precedence
         if len(args) == 1:
-            # it may be a constant or variable alone
+            # it may be a literal or variable alone
             return args[0]
         elif len(args) == 2:
             op, expr = args
@@ -116,7 +116,7 @@ class TreeToAST(Transformer):
     # LITERALS
     def parse_literal(self, _class, token):
         literal = _class(token=token)
-        if self.do_eval_literals and not isinstance(literal, NullConstant):
+        if self.do_eval_literals and not isinstance(literal, NullLiteral):
             evaluator = ExpressionEvaluator()
             try:
                 evaluator.eval(literal, state=None)
@@ -126,23 +126,23 @@ class TreeToAST(Transformer):
         return literal
 
     def INT(self, token):
-        return self.parse_literal(IntegerConstant, token)
+        return self.parse_literal(IntegerLiteral, token)
 
     def INF(self, token):
-        return self.parse_literal(IntegerConstant, token)
+        return self.parse_literal(IntegerLiteral, token)
 
     def NULL(self, token):
-        return self.parse_literal(NullConstant, token)
+        return self.parse_literal(NullLiteral, token)
 
     def REAL(self, token):
-        return self.parse_literal(RealConstant, token)
+        return self.parse_literal(RealLiteral, token)
 
     def bool_literal(self, args):
         token = args[0]
-        return self.parse_literal(BooleanConstant, token)
+        return self.parse_literal(BooleanLiteral, token)
 
     def CHAR_LITERAL(self, token):
-        return self.parse_literal(CharConstant, token)
+        return self.parse_literal(CharLiteral, token)
 
     # array definition parsing
     def array_of(self, args):

@@ -11,33 +11,33 @@ class ExpressionEvaluator(NodeVisitor):
     def eval(self, expr, state):
         return self.visit(expr, state=state)
 
-    def visit_boolean_constant(self, expr, **kw):
-        if expr.value_str in BoolType.NAMED_CONSTANTS:
-            return BoolType.NAMED_CONSTANTS[expr.value_str]
+    def visit_boolean_literal(self, expr, **kw):
+        if expr.value_str in BoolType.NAMED_LITERALS:
+            return BoolType.NAMED_LITERALS[expr.value_str]
         else:
             raise ExpressionEvaluationError(f"Invalid boolean value {expr.value_str}")
 
-    def visit_char_constant(self, expr, **kw):
+    def visit_char_literal(self, expr, **kw):
         raw = expr.value_str
-        if raw in CharType.NAMED_CONSTANTS:
-            return CharType.NAMED_CONSTANTS[raw]
+        if raw in CharType.NAMED_LITERALS:
+            return CharType.NAMED_LITERALS[raw]
         if CharType.is_valid_value(raw):
             return raw
         raise ExpressionEvaluationError(f"Invalid char value \"{expr.value_str}\"")
 
-    def visit_integer_constant(self, expr, **kw):
+    def visit_integer_literal(self, expr, **kw):
         raw = expr.value_str
-        if raw in IntType.NAMED_CONSTANTS:
-            return IntType.NAMED_CONSTANTS[raw]
+        if raw in IntType.NAMED_LITERALS:
+            return IntType.NAMED_LITERALS[raw]
         try:
             return int(raw)
         except ValueError:
             raise ExpressionEvaluationError(f"Invalid integer value {expr.value_str}")
 
-    def visit_real_constant(self, expr, **kw):
+    def visit_real_literal(self, expr, **kw):
         raw = expr.value_str
-        if raw in RealType.NAMED_CONSTANTS:
-            return RealType.NAMED_CONSTANTS[raw]
+        if raw in RealType.NAMED_LITERALS:
+            return RealType.NAMED_LITERALS[raw]
         try:
             return float(raw)
         except ValueError:

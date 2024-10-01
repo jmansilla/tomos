@@ -1,18 +1,3 @@
-#  Sentences
-#  =========
-#      ⟨sentence⟩ ::= skip | ⟨assignment⟩ | ⟨procedurecall⟩ | ⟨if⟩ | ⟨while⟩ | ⟨for⟩
-#      ⟨assignment⟩ ::= ⟨variable⟩ := ⟨expression⟩
-#      ⟨while⟩ ::= while ⟨expression⟩ do ⟨sentences⟩
-#      ⟨sentences⟩ ::= ⟨sentence⟩ ... ⟨sentence⟩
-# [-]  ⟨procedurecall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
-# [-]                    | alloc ( ⟨variable⟩ )
-# [-]                    | free  ( ⟨variable⟩ )
-
-#      ⟨if⟩ ::= if ⟨expression⟩ then ⟨sentences⟩ else ⟨sentences⟩
-#      ⟨for⟩ ::= for ⟨id⟩ := ⟨expression⟩ to ⟨expression⟩ do ⟨sentences⟩
-#              | for ⟨id⟩ := ⟨expression⟩ downto ⟨expression⟩ do ⟨sentences⟩
-
-
 class Sentence:
     pass
 

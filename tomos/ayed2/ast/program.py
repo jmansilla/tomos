@@ -1,27 +1,5 @@
-#  Program
-#  =======
-# [-]  ⟨program⟩ ::= ⟨import_module⟩ ... ⟨import_module⟩ ⟨module⟩
-#      ⟨module⟩ ::= ⟨typedecl⟩ ... ⟨typedecl⟩ ⟨funprocdecl⟩ ... ⟨funprocdecl⟩ ⟨body⟩
-# [-]  ⟨funprocdecl⟩ ::= ⟨function⟩ | ⟨procedure⟩
-#
-#      ⟨body⟩ ::= ⟨variabledecl⟩ ... ⟨variabledecl⟩ ⟨sentences⟩
-#      ⟨variabledecl⟩ ::= var ⟨id⟩ ... ⟨id⟩ : ⟨type⟩
-#
-# [-]  ⟨function⟩ ::= fun ⟨id⟩ ( ⟨funargument⟩ ... ⟨funargument⟩ ) ret ⟨funreturn⟩
-# [-]                 where ⟨constraints⟩
-# [-]                 in ⟨body⟩
-# [-]  ⟨funargument⟩ ::= ⟨id⟩ : ⟨type⟩
-# [-]  ⟨funreturn⟩ ::= ⟨id⟩ : ⟨type⟩
-#
-# [-]  ⟨procedure⟩ ::= proc ⟨id⟩ ( ⟨procargument⟩ ... ⟨procargument⟩ )
-# [-]                  where ⟨constraints⟩
-# [-]                  in ⟨body⟩
-# [-]  ⟨procargument⟩ ::= ⟨io⟩ ⟨id⟩ : ⟨type⟩
-#
-# [-]  ⟨constraints⟩ ::= ⟨constraint⟩ ... ⟨constraint⟩
-# [-]  ⟨constraint⟩ ::= ⟨typevariable⟩ : ⟨class⟩ ... ⟨class⟩
-
 from tomos.ayed2.ast.sentences import Sentence
+
 
 class ProgramExpression:
     pass

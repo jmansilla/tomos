@@ -10,7 +10,7 @@ class AssignmentFactory(factory.Factory):
         model = Assignment
 
     dest_variable = factory.SubFactory("tests.ayed2.factories.expressions.VariableFactory")
-    expr = factory.SubFactory("tests.ayed2.factories.expressions.IntegerConstantFactory")
+    expr = factory.SubFactory("tests.ayed2.factories.expressions.IntegerLiteralFactory")
 
 
 class VarDeclarationFactory(factory.Factory):
@@ -30,7 +30,7 @@ class IfFactory(factory.Factory):
     class Meta:
         model = If
 
-    guard = factory.SubFactory("tests.ayed2.factories.expressions.BooleanConstantFactory")
+    guard = factory.SubFactory("tests.ayed2.factories.expressions.BooleanLiteralFactory")
     then_sentences = factory.List([
         factory.SubFactory(AssignmentFactory) for _ in range(3)
     ])
@@ -43,7 +43,7 @@ class WhileFactory(factory.Factory):
     class Meta:
         model = While
 
-    guard = factory.SubFactory("tests.ayed2.factories.expressions.BooleanConstantFactory")
+    guard = factory.SubFactory("tests.ayed2.factories.expressions.BooleanLiteralFactory")
     sentences = factory.List([
         factory.SubFactory(AssignmentFactory) for _ in range(3)
     ])
