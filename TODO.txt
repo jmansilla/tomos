@@ -39,7 +39,7 @@ l)  [x] Agregar sentencias (if, while)
 m)  [ ] Completar sentences: for
 n)  [ ] Mejorar la UI del graficador / reemplazarlo
         [ ] syntax highlight
-o)  [ ] Literals as input
+o)  [ ] Constants as input
 p)  [ ] Execution-Modes: unkownvalue, random, others
 
 
