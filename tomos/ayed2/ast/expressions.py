@@ -1,17 +1,3 @@
-#  Expressions
-#  ===========
-#      ⟨expression⟩ ::= ⟨constant⟩ | ⟨functioncall⟩ | ⟨operation⟩ | ⟨variable〉
-#      ⟨constant⟩ ::= ⟨integer⟩ | ⟨real⟩ | ⟨bool⟩ | inf | null
-# [-]                 | ⟨character⟩ | ⟨enum_name⟩
-# [-]  ⟨functioncall⟩ ::= ⟨id⟩ ( ⟨expression⟩ ... ⟨expression⟩ )
-#      ⟨operation⟩ ::= ⟨expression⟩ ⟨binary⟩ ⟨expression⟩ | ⟨unary⟩ ⟨expression⟩
-#      ⟨binary⟩ ::= + | − | * | / | % | || | && | <= | >= | < | > | == | !=
-#      ⟨unary⟩ ::= - | !
-#      ⟨variable⟩ ::= ⟨id⟩
-# [-]               | ⟨variable⟩[⟨expression⟩ ... ⟨expression⟩ ]
-# [-]               | ⟨variable⟩.⟨fname⟩
-#                   | *⟨variable⟩
-
 from lark.lexer import Token
 from tomos.ayed2.ast.types import *
 
@@ -23,7 +9,7 @@ class Expr:
         raise NotImplementedError
 
 
-class _Constant(Expr):
+class _Literal(Expr):
     def __init__(self, token):
         assert isinstance(token, Token)
         self.token = token
@@ -37,23 +23,23 @@ class _Constant(Expr):
         return f"{class_name}({self.value_str})"
 
 
-class BooleanConstant(_Constant):
+class BooleanLiteral(_Literal):
     _type = BoolType
 
 
-class IntegerConstant(_Constant):
+class IntegerLiteral(_Literal):
     _type = IntType
 
 
-class RealConstant(_Constant):
+class RealLiteral(_Literal):
     _type = RealType
 
 
-class CharConstant(_Constant):
+class CharLiteral(_Literal):
     _type = CharType
 
 
-class NullConstant(_Constant):
+class NullLiteral(_Literal):
     _type = None
 
 

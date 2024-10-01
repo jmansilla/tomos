@@ -1,13 +1,13 @@
 from unittest import TestCase
 
 from tomos.ayed2.parser import parser
-from tomos.ayed2.ast.expressions import Expr, _Constant, Variable, IntegerConstant, NullConstant
+from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf
 
-from .factories.expressions import IntegerConstantFactory
+from .factories.expressions import IntegerLiteralFactory
 
 
 def get_parsed_sentences(source, single_sentence=False):
@@ -60,21 +60,21 @@ class TestParseBasicTypeSentences(TestCase):
             source = f"x := {value}"
             sent = get_parsed_sentences(source, single_sentence=True)
             self.assertIsInstance(sent, Assignment)
-            self.assertIsInstance(sent.expr, _Constant)  # type: ignore
+            self.assertIsInstance(sent.expr, _Literal)  # type: ignore
             self.assertEqual(sent.expr._type, var_type)  # type: ignore
 
     def test_parse_infinity(self):
         source = "x := inf"
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
-        self.assertIsInstance(sent.expr, IntegerConstant)  # type: ignore
+        self.assertIsInstance(sent.expr, IntegerLiteral)  # type: ignore
         self.assertEqual(sent.expr.value_str, "inf")  # type: ignore
 
     def test_parse_null(self):
         source = "x := null"
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
-        self.assertIsInstance(sent.expr, NullConstant)  # type: ignore
+        self.assertIsInstance(sent.expr, NullLiteral)  # type: ignore
         self.assertEqual(sent.expr.value_str, "null")  # type: ignore
 
 
@@ -101,19 +101,19 @@ class TestParseExpressions(TestCase):
     def test_parse_unary_ops_neg(self):
         source = "-1"
         expr = self.parsed_expr(source)
-        self.assertExpressionIs(expr, "UnaryOp(-, IntegerConstant(1))")
+        self.assertExpressionIs(expr, "UnaryOp(-, IntegerLiteral(1))")
 
     def test_parse_unary_ops_not(self):
         source = "!true"
         expr = self.parsed_expr(source)
-        self.assertExpressionIs(expr, "UnaryOp(!, BooleanConstant(true))")
+        self.assertExpressionIs(expr, "UnaryOp(!, BooleanLiteral(true))")
 
     def test_parse_numeric_binary_ops(self):
         for symbol in ["+", "*", "/", "%", "-", "<", "<=", ">", ">=", "==", "!="]:
             source = f"1 {symbol} 2"
             expr = self.parsed_expr(source)
             self.assertExpressionIs(
-                expr, f"BinaryOp(IntegerConstant(1), {symbol}, IntegerConstant(2))")
+                expr, f"BinaryOp(IntegerLiteral(1), {symbol}, IntegerLiteral(2))")
 
     def test_parse_boolean_binary_ops(self):
         for symbol in ["||", "&&", "==", "!="]:
@@ -121,7 +121,7 @@ class TestParseExpressions(TestCase):
             expr = self.parsed_expr(source)
             self.assertExpressionIs(
                 expr,
-                f"BinaryOp(BooleanConstant(true), {symbol}, BooleanConstant(false))",
+                f"BinaryOp(BooleanLiteral(true), {symbol}, BooleanLiteral(false))",
             )
 
     def test_parse_variable_expression(self):
@@ -285,7 +285,7 @@ class TestParseIfSentences(TestCase):
 class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
-        IC = lambda x: IntegerConstantFactory(token__value=str(x))
+        IC = lambda x: IntegerLiteralFactory(token__value=str(x))
         IC10 = IC(10)
         IC4 = IC(4)
         for declaration, expectation in [

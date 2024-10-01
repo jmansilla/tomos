@@ -1,29 +1,3 @@
-#  Types
-#  =====
-#      ⟨type⟩ ::= int | real | bool | char
-#               | ⟨array⟩
-#               | ⟨pointer⟩
-#               | ⟨defined_type⟩
-#               | ⟨typevariable⟩
-#
-# [-]  ⟨array⟩ ::= array ⟨arraysize⟩ ... ⟨arraysize⟩ of ⟨type⟩
-# [-]  ⟨arraysize⟩ ::= ⟨natural⟩ | ⟨sname⟩
-#      ⟨pointer⟩ ::= pointer ⟨type⟩
-#
-# [-]  ⟨typevariable⟩ ::= ⟨typeid⟩
-# [-]  ⟨defined_type⟩ ::= ⟨tname⟩ of ⟨type⟩ ... ⟨type⟩
-#
-# [-]  ⟨io⟩ ::= in | out | in/out
-#
-# [-]  ⟨class⟩ ::= Eq | Ord
-#
-# [-]  ⟨typedecl⟩ ::= enum ⟨tname⟩ = ⟨cname⟩ ... ⟨cname⟩
-# [-]               | syn ⟨tname⟩ of ⟨typearguments⟩ = ⟨type⟩
-# [-]               | tuple ⟨tname⟩ of ⟨typearguments⟩ = ⟨field⟩ ... ⟨field⟩
-# [-]  ⟨typearguments⟩ ::= ⟨typevariable⟩ ... ⟨typevariable⟩
-# [-]  ⟨field⟩ ::= ⟨fname⟩ : ⟨type⟩
-
-
 class Ayed2TypeError(Exception):
     pass
 
@@ -35,7 +9,7 @@ class BasicType:
 
 
 class IntType(BasicType):
-    NAMED_CONSTANTS = {"inf": float("inf")}
+    NAMED_LITERALS = {"inf": float("inf")}
     SIZE = 1
 
     @classmethod
@@ -43,11 +17,11 @@ class IntType(BasicType):
         # dear python says that True and False are instances of int
         if isinstance(value, bool):
             return False
-        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, int)
+        return value in cls.NAMED_LITERALS.values() or isinstance(value, int)
 
 
 class BoolType(BasicType):
-    NAMED_CONSTANTS = {"true": True, "false": False}
+    NAMED_LITERALS = {"true": True, "false": False}
     SIZE = 1
 
     @classmethod
@@ -56,16 +30,16 @@ class BoolType(BasicType):
 
 
 class RealType(BasicType):
-    NAMED_CONSTANTS = {"inf": float("inf")}
+    NAMED_LITERALS = {"inf": float("inf")}
     SIZE = 2
 
     @classmethod
     def is_valid_value(cls, value):
-        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, float)
+        return value in cls.NAMED_LITERALS.values() or isinstance(value, float)
 
 
 class CharType(BasicType):
-    NAMED_CONSTANTS = dict()
+    NAMED_LITERALS = dict()
     SIZE = 1
 
     @classmethod
@@ -74,7 +48,7 @@ class CharType(BasicType):
 
 
 class PointerOf(BasicType):
-    NAMED_CONSTANTS = {"null": None}
+    NAMED_LITERALS = {"null": None}
     SIZE = 2
 
     def __init__(self, of):
@@ -86,7 +60,7 @@ class PointerOf(BasicType):
     @classmethod
     def is_valid_value(cls, value):
         from tomos.ayed2.evaluation.state import MemoryAddress
-        return value in cls.NAMED_CONSTANTS.values() or isinstance(value, MemoryAddress)
+        return value in cls.NAMED_LITERALS.values() or isinstance(value, MemoryAddress)
 
 
 class ArrayOf(BasicType):
