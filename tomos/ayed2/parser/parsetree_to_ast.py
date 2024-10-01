@@ -54,9 +54,6 @@ class TreeToAST(Transformer):
             raise UnexpectedInput(f"Unknown type: {token.value}")
         return type_map[token.value]()
 
-    def destination(self, args):
-        return args[0]
-
     def builtin_name(self, args):
         token = args[0]
         return token
@@ -101,9 +98,11 @@ class TreeToAST(Transformer):
         return args
 
     def variable(self, args):
+        if len(args) == 1 and isinstance(args[0], Variable):
+            return args[0]
         return Variable(name_token=args[0])
 
-    def dereferenced_variable(self, args):
+    def variable_dereferenced(self, args):
         var = args[0]
         var.dereferenced = True
         return var

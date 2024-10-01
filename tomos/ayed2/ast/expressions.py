@@ -45,6 +45,7 @@ class NullLiteral(_Literal):
 
 class Variable(Expr):
     def __init__(self, name_token, dereferenced=False):
+        assert isinstance(name_token, Token)
         self.name_token = name_token
         self.dereferenced = dereferenced
 
