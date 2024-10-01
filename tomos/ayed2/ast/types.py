@@ -76,7 +76,7 @@ class ArrayAxis:
         self.to_value = to_value
 
     def __repr__(self):
-        return f"Axis({self.from_value}, {self.to_value})"
+        return f"ArrayAxis({self.from_value}, {self.to_value})"
 
 
 type_map = {
