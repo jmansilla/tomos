@@ -45,6 +45,10 @@ p)  [ ] Execution-Modes: unkownvalue, random, others
 
 Tech debt:
 t1)  [ ] Agregar logging
+t2)  [ ] runtime type checking
+        [ ] Unary and Binary Operations
+        [ ] Assigments
+        [ ] tricky array indexing (valid number of axes and within boundaries)
 
 
 Not-gonna-happen in this verion:
