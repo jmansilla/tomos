@@ -2,6 +2,7 @@ import logging
 
 from tomos.visit import NodeVisitor
 from tomos.ayed2.ast.expressions import Expr
+from tomos.ayed2.ast.types import ArrayOf
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from tomos.ayed2.evaluation.state import State
 
@@ -113,6 +114,8 @@ class SentenceEvaluator(NodeVisitor):
 
     def visit_var_declaration(self, sentence, **kw):
         state = kw["state"]
+        if isinstance(sentence.var_type, ArrayOf):
+            sentence.var_type.eval_axes_expressions(self.expression_evaluator, state)
         state.declare_static_variable(sentence.name, sentence.var_type)
         return state
 
