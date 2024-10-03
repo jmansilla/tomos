@@ -75,21 +75,27 @@ class State:
             )
         if array_indexing:
             assert isinstance(cell.var_type, ArrayOf)
-            print('need to do something here!!')
+            cell[array_indexing] = value
         else:
+            assert not isinstance(cell.var_type, ArrayOf)
             cell.value = value
 
     def get_variable_value(self, name, dereferenced=False, array_indexing=None):
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
-        cell = self.cell_by_names[name]
+        root_cell = self.cell_by_names[name]
         if dereferenced:
-            assert isinstance(cell.var_type, PointerOf)
-            if cell.value not in self.memory_cells:
+            assert isinstance(root_cell.var_type, PointerOf)
+            if root_cell.value not in self.memory_cells:
                 raise MemoryInfrigementError()
-            referenced_cell = self.memory_cells[cell.value]
-            return referenced_cell.value
+            cell = self.memory_cells[root_cell.value]
         else:
+            cell = root_cell
+        if array_indexing:
+            assert isinstance(cell.var_type, ArrayOf)
+            return cell[array_indexing]
+        else:
+            assert not isinstance(cell.var_type, ArrayOf)
             return cell.value
 
     def list_declared_variables(self):
@@ -153,13 +159,21 @@ class ArrayCellCluster:
     def address(self):
         return self.elements[0].address
 
-    def get_value(self, indexing):
-        idx = self.array_type.flatten_index(indexing)
+    def __setitem__(self, key, value):
+        idx = self.array_type.flatten_index(key)
+        self.elements[idx].value = value
+
+    def __getitem__(self, key):
+        idx = self.array_type.flatten_index(key)
         return self.elements[idx].value
 
-    def set_value(self, indexing, value):
-        idx = self.array_type.flatten_index(indexing)
-        self.elements[idx].value = value
+    # def get_value(self, indexing):
+    #     idx = self.array_type.flatten_index(indexing)
+    #     return self.elements[idx].value
+
+    # def set_value(self, indexing, value):
+    #     idx = self.array_type.flatten_index(indexing)
+    #     self.elements[idx].value = value
 
 
 class RecordCellCluster:
