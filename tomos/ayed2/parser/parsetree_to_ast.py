@@ -42,9 +42,8 @@ class TreeToAST(Transformer):
         return VarDeclaration(variable=var, var_type=var_type)
 
     def pointer(self, args):
-        assert len(args) == 1
-        token = args[0]
-        pointed_type = self.type(args)
+        assert len(args) == 1 and isinstance(args[0], Ayed2Type)
+        pointed_type = args[0]
         return PointerOf(of=pointed_type)
 
     def type(self, args):

@@ -6,10 +6,14 @@ class Ayed2TypeError(Exception):
     pass
 
 
-class BasicType:
+class Ayed2Type:
 
     def __repr__(self) -> str:
         return self.__class__.__name__
+
+
+class BasicType(Ayed2Type):
+    pass
 
 
 class IntType(BasicType):
@@ -67,7 +71,7 @@ class PointerOf(BasicType):
         return value in cls.NAMED_LITERALS.values() or isinstance(value, MemoryAddress)
 
 
-class ArrayOf(BasicType):
+class ArrayOf(Ayed2Type):
     def __init__(self, of, axes):
         assert all(isinstance(axis, ArrayAxis) for axis in axes)
         self.of = of
