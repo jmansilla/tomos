@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
-from tomos.ayed2.evaluation.state import State, UnkownValue, Ayed2TypeError, MemoryAddress, MemoryInfrigementError
+from tomos.ayed2.evaluation.state import State, UnkownValue, UndeclaredVariableError, AlreadyDeclaredVariableError, Ayed2TypeError, MemoryAddress, MemoryInfrigementError
 
 
 class TestEvalState(TestCase):
@@ -20,7 +20,7 @@ class TestEvalState(TestCase):
     def test_redeclare_variable_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(AlreadyDeclaredVariableError):
             state.declare_static_variable("x", BoolType)
 
     def test_set_variable(self):
@@ -37,7 +37,7 @@ class TestEvalState(TestCase):
 
     def test_set_variable_before_declaration_raises_exception(self):
         state = State()
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(UndeclaredVariableError):
             state.set_variable_value("x", 5)
 
     def test_get_variable_after_declaration_returns_unkown(self):
@@ -91,7 +91,7 @@ class TestEvalStateAllocFree(TestCase):
 
     def test_alloc_free_for_not_declared_variable_raises_exception(self):
         state = State()
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(UndeclaredVariableError):
             state.alloc("y")
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(UndeclaredVariableError):
             state.free("y")
