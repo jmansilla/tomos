@@ -63,6 +63,12 @@ class Variable(Expr):
         star = "*" if self.dereferenced else ""
         return f"{star}{self.name}"
 
+    def __str__(self):
+        indexing = ""
+        if self.array_indexing is not None:
+            indexing = [str(i) for i in self.array_indexing]
+        return f"{self.symbols_name}{indexing}"
+
     def __repr__(self) -> str:
-        return f"Variable({self.symbols_name})"
+        return f"Variable({str(self)})"
 
