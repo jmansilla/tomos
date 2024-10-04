@@ -119,10 +119,16 @@ class SentenceEvaluator(NodeVisitor):
         state.declare_static_variable(sentence.name, sentence.var_type)
         return state
 
-    def visit_assignment(self, sentence, **kw):
+    def visit_assignment(self, assignment, **kw):
         state = kw["state"]
-        value = self.visit_expr(sentence.expr, state=state)
-        state.set_variable_value(sentence.name, value, sentence.dereferenced)
+        value = self.visit_expr(assignment.expr, state=state)
+        modifiers = assignment.modifiers
+        if modifiers.array_indexing:
+            for i, index_expr in enumerate(modifiers.array_indexing):
+                assert isinstance(index_expr, Expr)
+                index_value = self.visit_expr(index_expr, state=state)
+                modifiers.array_indexing[i] = index_value
+        state.set_variable_value(assignment.name, value, modifiers)
         return state
 
     def visit_builtin_call(self, sentence, **kw):
