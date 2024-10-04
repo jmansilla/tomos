@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from copy import copy
+
+
 class Sentence:
     pass
 
@@ -54,6 +56,9 @@ class While(Sentence):
     def line_number(self):
         return self.guard.line_number
 
+    def __repr__(self) -> str:
+        return f"While(guard={self.guard}, sentences={self.sentences})"
+
 
 class For(Sentence):
     def __init__(self, name, start, end, sentences):
@@ -90,4 +95,5 @@ class Assignment(Sentence):
 
     def __repr__(self) -> str:
         full_name = self.dest_variable.symbols_name
+        full_name = str(self.dest_variable)
         return f"Assignment(dest={full_name}, expr={self.expr})"
