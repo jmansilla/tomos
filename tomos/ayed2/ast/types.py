@@ -92,6 +92,15 @@ class ArrayOf(Ayed2Type):
             lengths.append(max(0, axis.to_value - axis.from_value))
         return math.prod(lengths)
 
+    @property
+    def SIZE(self):
+        return self.number_of_elements() * self.element_size()
+
+    def is_valid_value(self, value):
+        # In arrays, values are assigned to the elements of the array, not to
+        # the array itself
+        return self.of.is_valid_value(value)
+
     def element_size(self):
         if hasattr(self.of, 'SIZE'):
             return self.of.SIZE
