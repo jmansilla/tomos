@@ -124,31 +124,49 @@ class ArrayOf(Ayed2Type):
 
 
 class ArrayAxis:
-    def __init__(self, from_expr, to_expr):
-        self.from_expr = from_expr  # this is an expression, not a value
-        self.to_expr = to_expr      # this is an expression, not a value
+
+    class Limit:
+        def __init__(self, data):
+            from tomos.ayed2.ast.expressions import Expr  # avoid circular import
+            if isinstance(data, int):
+                self.value = data
+            else:
+                assert isinstance(data, Expr)
+                self.expr = data
+        def __repr__(self):
+            if hasattr(self, "value"):
+                return repr(self.value)
+            return repr(self.expr)
+        def eval(self, expr_evaluator, state):
+            if hasattr(self, "value"):
+                return
+            self.value = expr_evaluator.eval(self.expr, state)
+
+    def __init__(self, from_expr_or_val, to_expr):
+        self._from = self.Limit(from_expr_or_val)
+        self._to = self.Limit(to_expr)
 
     def __repr__(self):
-        return f"ArrayAxis({self.from_expr}, {self.to_expr})"
+        return f"ArrayAxis({self._from}, {self._to})"
 
     def eval_expressions(self, expr_evaluator, state):
-        self._cached_from_value = expr_evaluator.eval(self.from_expr, state)
-        self._cached_to_value = expr_evaluator.eval(self.to_expr, state)
+        self._from.eval(expr_evaluator, state)
+        self._to.eval(expr_evaluator, state)
 
     def index_in_range(self, index):
-        return self.from_value <= index < self.to_value
+        return self.from_value <= index and index < self.to_value
 
     @property
     def from_value(self):
-        if not hasattr(self, "_cached_from_value"):
+        if not hasattr(self._from, "value"):
             raise Ayed2TypeError(f"Need to evaluate axis expressions first")
-        return self._cached_from_value
+        return self._from.value
 
     @property
     def to_value(self):
-        if not hasattr(self, "_cached_to_value"):
+        if not hasattr(self._to, "value"):
             raise Ayed2TypeError(f"Need to evaluate axis expressions first")
-        return self._cached_to_value
+        return self._to.value
 
 
 type_map = {
