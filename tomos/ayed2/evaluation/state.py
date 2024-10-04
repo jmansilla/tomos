@@ -58,7 +58,10 @@ class State:
         del self.heap[cell.value]
         cell.value = UnkownValue
 
-    def set_variable_value(self, name, value, dereferenced=False, array_indexing=None):
+    def set_variable_value(self, name, value, modifiers=None):
+        dereferenced = getattr(modifiers, "dereferenced", False)
+        array_indexing = getattr(modifiers, "array_indexing", None)
+
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
