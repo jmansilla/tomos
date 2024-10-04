@@ -49,6 +49,7 @@ t2)  [ ] runtime type checking
         [ ] Unary and Binary Operations
         [ ] Assigments
         [ ] tricky array indexing (valid number of axes and within boundaries)
+t3)  [ ] Show gracefull error messages instead of python tracebacks
 
 
 Not-gonna-happen in this verion:
