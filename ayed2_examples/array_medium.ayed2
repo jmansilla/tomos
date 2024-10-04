@@ -1,0 +1,14 @@
+var i: int
+var j: int
+var a: array [3, 6] of int
+
+i := 0
+while i < 3 do
+    j := 0
+    while j < 6 do
+        a[i, j] := i + j
+        j := j + 1
+    od
+    i := i + 1
+od
+

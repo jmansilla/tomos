@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
-from tomos.ayed2.evaluation.state import State, UnkownValue, Ayed2TypeError, MemoryAddress, MemoryInfrigementError
+from tomos.ayed2.evaluation.state import State, UnkownValue, UndeclaredVariableError, AlreadyDeclaredVariableError, Ayed2TypeError, MemoryAddress, MemoryInfrigementError
 
 
 class TestEvalState(TestCase):
@@ -20,30 +20,30 @@ class TestEvalState(TestCase):
     def test_redeclare_variable_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(AlreadyDeclaredVariableError):
             state.declare_static_variable("x", BoolType)
 
     def test_set_variable(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        state.set_static_variable_value("x", 5)
-        self.assertEqual(state.get_static_variable_value("x"), 5)
+        state.set_variable_value("x", 5)
+        self.assertEqual(state.get_variable_value("x"), 5)
 
     def test_set_variable_of_wrong_type_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
         with self.assertRaises(Ayed2TypeError):
-            state.set_static_variable_value("x", True)
+            state.set_variable_value("x", True)
 
     def test_set_variable_before_declaration_raises_exception(self):
         state = State()
-        with self.assertRaises(Ayed2TypeError):
-            state.set_static_variable_value("x", 5)
+        with self.assertRaises(UndeclaredVariableError):
+            state.set_variable_value("x", 5)
 
     def test_get_variable_after_declaration_returns_unkown(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        self.assertEqual(state.get_static_variable_value("x"), UnkownValue)
+        self.assertEqual(state.get_variable_value("x"), UnkownValue)
 
 
 class TestEvalStateAllocFree(TestCase):
@@ -52,10 +52,10 @@ class TestEvalStateAllocFree(TestCase):
         for base_type in [IntType, BoolType, RealType, CharType]:
             state = State()
             state.declare_static_variable("x", PointerOf(base_type))
-            self.assertEqual(state.get_static_variable_value("x"), UnkownValue)
+            self.assertEqual(state.get_variable_value("x"), UnkownValue)
             state.alloc("x")
             # now shall have an address as value
-            value = state.get_static_variable_value("x")
+            value = state.get_variable_value("x")
             self.assertNotEqual(value, UnkownValue)
             self.assertIsInstance(value, MemoryAddress)
             self.assertEqual(state.heap[value].var_type, base_type)
@@ -76,9 +76,9 @@ class TestEvalStateAllocFree(TestCase):
         state = State()
         state.declare_static_variable("x", PointerOf(IntType))
         state.alloc("x")
-        value = state.get_static_variable_value("x")
+        value = state.get_variable_value("x")
         state.free("x")
-        self.assertEqual(state.get_static_variable_value("x"), UnkownValue)
+        self.assertEqual(state.get_variable_value("x"), UnkownValue)
         self.assertNotIn(value, state.heap)
 
     def test_free_twice_raises_exception(self):
@@ -91,7 +91,7 @@ class TestEvalStateAllocFree(TestCase):
 
     def test_alloc_free_for_not_declared_variable_raises_exception(self):
         state = State()
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(UndeclaredVariableError):
             state.alloc("y")
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(UndeclaredVariableError):
             state.free("y")

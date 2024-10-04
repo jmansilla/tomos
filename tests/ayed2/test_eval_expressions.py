@@ -71,7 +71,7 @@ class TestEvalVariableExpressions(TestCase):
         expr = VariableFactory(name_token__value=name)
         state = StateFactory()
         state.declare_static_variable(name, IntType)
-        state.set_static_variable_value(name, 5)
+        state.set_variable_value(name, 5)
         self.assertEqual(run_eval(expr, state), 5)
 
     def test_undeclared_variable_raises_exception(self):

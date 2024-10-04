@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from tomos.ayed2.parser import parser
 from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral
@@ -8,6 +9,14 @@ from tomos.ayed2.ast.sentences import Sentence, Assignment, If
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf
 
 from .factories.expressions import IntegerLiteralFactory
+
+
+def compare_literals_for_testing(lit1, lit2):
+    # Ignores the fact that they are different objects
+    # and that the actual tokens may differ
+    if type(lit1) != type(lit2):
+        return False
+    return lit1.value_str == lit2.value_str
 
 
 def get_parsed_sentences(source, single_sentence=False):
@@ -78,6 +87,7 @@ class TestParseBasicTypeSentences(TestCase):
         self.assertEqual(sent.expr.value_str, "null")  # type: ignore
 
 
+@patch("tomos.ayed2.ast.expressions._Literal.__eq__", new=compare_literals_for_testing)
 class TestParseExpressions(TestCase):
     # Syntax does not permit an expression to be defined with no usage.
     # Thus, tests will do assignments, and we'll check properties on
@@ -145,6 +155,25 @@ class TestParseExpressions(TestCase):
         self.assertIsInstance(expr.expr, Variable)
         self.assertEqual(expr.expr.name, "y")
         self.assertEqual(expr.expr.dereferenced, True)
+
+    def test_parse_array_indexing_simple(self):
+        IL = lambda x: IntegerLiteralFactory(token__value=str(x))
+        source = "x[1]"
+        expr = self.parsed_expr(source)
+        self.assertIsInstance(expr, Variable)
+        self.assertEqual(expr.name, "x")
+        self.assertListEqual(expr.array_indexing, [IL(1)])
+
+    def test_parse_array_indexing_multiple(self):
+        IL = lambda x: IntegerLiteralFactory(token__value=str(x))
+        source = "x[1, 5, 18, 6, 0]"
+        expr = self.parsed_expr(source)
+        self.assertIsInstance(expr, Variable)
+        self.assertEqual(expr.name, "x")
+        self.assertListEqual(
+            expr.array_indexing,
+            [IL(1), IL(5), IL(18), IL(6), IL(0)]
+        )
 
     # Testing Operators Associativity and Precedence
 
@@ -285,16 +314,16 @@ class TestParseIfSentences(TestCase):
 class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
-        IC = lambda x: IntegerLiteralFactory(token__value=str(x))
-        IC10 = IC(10)
-        IC4 = IC(4)
+        IL = lambda x: IntegerLiteralFactory(token__value=str(x))
+        IL10 = IL(10)
+        IL4 = IL(4)
         for declaration, expectation in [
-            ["array [10] of int", (ArrayAxis(0, IC10), )],
-            ["array [4..10] of int", (ArrayAxis(IC4, IC10), )],
-            ["array [4] of int", (ArrayAxis(0, IC4), )],
-            ["array [4, 10] of int", (ArrayAxis(0, IC4), ArrayAxis(0, IC10), )],
+            ["array [10] of int", (ArrayAxis(0, IL10), )],
+            ["array [4..10] of int", (ArrayAxis(IL4, IL10), )],
+            ["array [4] of int", (ArrayAxis(0, IL4), )],
+            ["array [4, 10] of int", (ArrayAxis(0, IL4), ArrayAxis(0, IL10), )],
             ["array [4, 10, 4, 10] of int",
-                (ArrayAxis(0, IC4), ArrayAxis(0, IC10), ArrayAxis(0, IC4), ArrayAxis(0, IC10),)],
+                (ArrayAxis(0, IL4), ArrayAxis(0, IL10), ArrayAxis(0, IL4), ArrayAxis(0, IL10),)],
         ]:
             source = f"var x: {declaration}"
             sent = get_parsed_sentences(source, single_sentence=True)
@@ -335,4 +364,4 @@ class TestParseArrayVarDeclarations(TestCase):
         sent = sentences[0]
         self.assertIsInstance(sent, VarDeclaration)
         self.assertIsInstance(sent.var_type, ArrayOf)
-        self.assertEqual(str(sent.var_type.axes[0]), 'Axis(0, Variable(N))')
+        self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(N))')

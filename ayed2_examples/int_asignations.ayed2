@@ -12,7 +12,8 @@ two := 10
 three := 3 + one
 
 skip
-arrow_one := &one
+alloc(arrow_one)
+*arrow_one := one + two
 one := one + one
 arrow_two := arrow_one
 alloc(arrow_three)

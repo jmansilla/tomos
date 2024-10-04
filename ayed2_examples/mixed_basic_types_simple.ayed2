@@ -14,9 +14,11 @@ two := 10
 three := true
 four := 4.0
 
-arrow_one := &one
+alloc(arrow_one)
+*arrow_one := one
 one := 'a'
-arrow_two := &two
+alloc(arrow_two)
+*arrow_two := two
 *arrow_two := *arrow_two + 10
 alloc(arrow_three)
 alloc(arrow_four)

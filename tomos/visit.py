@@ -31,4 +31,4 @@ class NodeVisitor:
         return method(node, *args, **kwargs)
 
     def generic_visit(self, node, *args, **kwargs):
-        raise VisitError(f"No behaviour defined for {node}")
+        raise VisitError(f"No behaviour defined for {node} ({type(node)})")
