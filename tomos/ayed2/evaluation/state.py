@@ -159,6 +159,10 @@ class ArrayCellCluster:
         self.elements = elements
 
     @property
+    def var_type(self):
+        return self.array_type
+
+    @property
     def address(self):
         return self.elements[0].address
 
