@@ -1,0 +1,9 @@
+var i: int
+var a: array [5] of int
+
+i := 0
+while i < 5 do
+    a[i] := i
+    i := i + 1
+od
+
