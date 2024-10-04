@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from copy import copy
 class Sentence:
     pass
 
@@ -62,6 +64,11 @@ class For(Sentence):
 
 
 class Assignment(Sentence):
+    @dataclass
+    class Modifiers:
+        dereferenced: bool
+        array_indexing: list
+
     def __init__(self, dest_variable, expr):
         self.dest_variable = dest_variable
         self.expr = expr
@@ -75,8 +82,11 @@ class Assignment(Sentence):
         return self.dest_variable.line_number
 
     @property
-    def dereferenced(self):
-        return self.dest_variable.dereferenced
+    def modifiers(self):
+        return self.Modifiers(
+            dereferenced=self.dest_variable.dereferenced,
+            array_indexing=copy(self.dest_variable.array_indexing),
+        )
 
     def __repr__(self) -> str:
         full_name = self.dest_variable.symbols_name
