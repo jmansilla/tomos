@@ -1,4 +1,5 @@
 from os import system
+from tomos.ayed2.parser.syntax_highlight import highlight
 
 
 def _clear_screen():
@@ -21,7 +22,8 @@ class ShowSentence:
     def __init__(self, filename, full=False):
         self.filename = filename
         self.full = full
-        self.source_lines = open(filename).read().split('\n')
+        source_hl = highlight(open(filename).read())
+        self.source_lines = source_hl.split('\n')
 
     def __call__(self, last_sentence, state, sentence_to_run):
         if self.full:
