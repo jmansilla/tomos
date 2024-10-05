@@ -1,50 +1,50 @@
 
-a)  [x] Hacer Evaluador de expresiones
+a)  [x] Evaluate expresions
         [x] testing
-b)  [x] Hacer evaluador de sentencias básicas (no if, no for, no while)
+b)  [x] Evaluador basic sentences (no if, no for, no while)
         [ ] testing
-c)  [x] Hacer evaluador de programas
-        [x] entry-point es el código del archivo
-        [.] type checking dinámico
-d)  [x] Extender parser y evaluador con alloc y free como builtins (no procedimientos)
-e)  [x] Hacer POC de graficar paso a paso:
-        [x] mostrar el estado del Stack
-        [x] mostrar estado del Heap
-        [x] generar posibilidad de ver un snippet de código donde se muestra qué linea se acaba de ejecutar,
-            y cuál sigue
-f)  [x] Agregar otros tipos básicos (char, bool, real)
-        [x] al parser
-        [x] al Evaluador
-        [x] al graficador
-g)  [ ] Pulir parsing
+c)  [x] Make Programs Evaluator / Interpreter
+        [x] entry-point is the file body
+d)  [x] Extend parser & eval with alloc and free as builtins (no procs)
+e)  [x] Build ascii POC of ui showing state step by step
+        [x] show the stack status
+        [x] show the heap status
+        [x] show code snippet where can be seen what's the line of code just executed, and the next one
+f)  [x] Add other basic types (char, bool, real)
+        [x] to parser
+        [x] to Eval
+        [x] to ui
+g)  [ ] Details to parsing
         [x] precedencia de operadores
         [ ] mensajes de error apropiados
-h)  [ ] Agregar Arrays
-        [x] al parser
-        [ ] al Evaluador
-        [ ] al graficador
-i)  [ ] Agregar Enums
-        [ ] al parser
-        [ ] al Evaluador
-        [ ] al graficador
-j)  [ ] Agregar records/strucs
-        [ ] al parser
-        [ ] al Evaluador
-        [ ] al graficador
-k)  [ ] Agregar sinonimos de tipos
-l)  [x] Agregar sentencias (if, while)
-        [x] al parser
-        [x] al evaluador
-        [x] al graficador
-m)  [ ] Completar sentences: for
-n)  [ ] Mejorar la UI del graficador / reemplazarlo
+h)  [x] Agregar Arrays
+        [x] to parser
+        [x] to Eval
+        [.] to ui
+i)  [ ] Enums
+        [ ] parser
+        [ ] Eval
+        [ ] ui
+j)  [ ] Records/structs
+        [ ] parser
+        [ ] Eval
+        [ ] ui
+k)  [ ] types synonims
+l)  [x] Expand sentences (if, while)
+        [x] parser
+        [x] eval
+        [x] ui
+m)  [ ] For loops
+n)  [ ] Better UI
+        [ ] Prototype with manim
         [ ] syntax highlight
+o)  [ ] Distribution... pypi? website? others?
 o)  [ ] Constants as input
-p)  [ ] Execution-Modes: unkownvalue, random, others
+p)  [ ] Execution-Modes: unkownvalue, random, others ?
 
 
 Tech debt:
-t1)  [ ] Agregar logging
+t1)  [ ] add logging
 t2)  [ ] runtime type checking
         [ ] Unary and Binary Operations
         [ ] Assigments
@@ -52,14 +52,14 @@ t2)  [ ] runtime type checking
 t3)  [ ] Show gracefull error messages instead of python tracebacks
 
 
-Not-gonna-happen in this verion:
-ex.1) [ ] Agregar procedimientos y funciones
-ex.2) [ ] Cambiar la noción de entry-point
-ex.3) [ ] Type Checking estático
-ex.4) [ ] Coercion de tipos
-ex.5) [ ] Clases Ord y Eq
-ex.6) [ ] Agregar programas multi-módulo (imports)
-ex.7) [ ] Intérprete interactivo?
+Not-gonna-happen in this verison:
+ex.1) [ ] Add support for procs and functions
+ex.2) [ ] Change the definition of entry-point
+ex.3) [ ] Static Type Checking
+ex.4) [ ] Type Coercion
+ex.5) [ ] Classes Ord & Eq
+ex.6) [ ] Add support for multi-module programs (imports)
+ex.7) [ ] Interactive interpreter
 
 
 misc:
