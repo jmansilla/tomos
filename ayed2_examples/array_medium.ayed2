@@ -1,14 +1,14 @@
-var i: int
-var j: int
-var a: array [3, 6] of int
+var row_number: int
+var col_number: int
+var matrix: array [3, 6] of int
 
-i := 0
-while i < 3 do
-    j := 0
-    while j < 6 do
-        a[i, j] := i * 10 + j
-        j := j + 1
+row_number := 0
+while row_number < 3 do
+    col_number := 0
+    while col_number < 6 do
+        matrix[row_number, col_number] := row_number * 10 + col_number
+        col_number := col_number + 1
     od
-    i := i + 1
+    row_number := row_number + 1
 od
 
