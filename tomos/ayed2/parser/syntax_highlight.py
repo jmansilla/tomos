@@ -1,8 +1,9 @@
 from pygments import highlight as pyg_highlight
-from pygments.formatters import TerminalFormatter, TerminalTrueColorFormatter, Terminal256Formatter
+from pygments.formatters import TerminalTrueColorFormatter
 
 from pygments.lexer import RegexLexer
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, Number, Punctuation, Other
+from pygments.style import Style
+from pygments.token import Text, Comment, Operator, Keyword, Name, String, Number, Punctuation, Token
 
 
 class Ayed2Lexer(RegexLexer):
@@ -17,26 +18,19 @@ class Ayed2Lexer(RegexLexer):
             (r'if|then|else|fi|while|do|od', Keyword),  # control flow keywords
             (r'alloc|free', Name.Builtin),  # built-in functions
             (r'==|!=|<|<=|>|>=', Operator),  # comparison operators
-            (r'\+\+|--|\+|-|\*|/|%', Operator),  # arithmetic operators
+            (r'\+\+|--|\+|-|\*|/|%|!', Operator),  # arithmetic operators
             (r'\&\&|\|\|', Operator),  # logical operators
-            (r'null|true|false|inf', Name.Builtin),  # literals
+            (r'null|true|false|inf', Name.NamedLiteral),  # literals
             (r'"\w+"', String),  # string literals
             (r'\d+\.\d+', Number.Float),  # floating point
             (r'\d+', Number.Integer),  # integers
             (r'\w+', Name),  # identifiers
-            (r'\(', Punctuation),  # parentheses
-            (r'\)', Punctuation),  # parentheses
-            (r'\[', Punctuation),  # brackets
-            (r'\]', Punctuation),  # brackets
-            (r'\{', Punctuation),  # braces
-            (r'\}', Punctuation),  # braces
+            (r'\(|\)', Punctuation),  # parentheses
+            (r'\[|\]', Punctuation),  # brackets
             (r';', Punctuation),  # statement terminator
         ],
     }
 
-
-from pygments.style import Style
-from pygments.token import Token
 
 class MyStyle(Style):
         styles = {
@@ -48,6 +42,8 @@ class MyStyle(Style):
             Token.Name:             'ansiwhite',
             Token.Punctuation:      'ansicyan',
             Punctuation.Assignment: 'ansibrightyellow',
+            Name.NamedLiteral:      'ansimagenta',
+            Name.Builtin:           'ansibrightmagenta',
         }
 
 
