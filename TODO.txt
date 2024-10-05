@@ -19,9 +19,9 @@ f)  [x] Agregar otros tipos básicos (char, bool, real)
 g)  [ ] Pulir parsing
         [x] precedencia de operadores
         [ ] mensajes de error apropiados
-h)  [ ] Agregar Arrays
+h)  [x] Agregar Arrays
         [x] al parser
-        [ ] al Evaluador
+        [x] al Evaluador
         [ ] al graficador
 i)  [ ] Agregar Enums
         [ ] al parser
@@ -38,6 +38,7 @@ l)  [x] Agregar sentencias (if, while)
         [x] al graficador
 m)  [ ] Completar sentences: for
 n)  [ ] Mejorar la UI del graficador / reemplazarlo
+        [ ] Prototipar con manim
         [ ] syntax highlight
 o)  [ ] Constants as input
 p)  [ ] Execution-Modes: unkownvalue, random, others
