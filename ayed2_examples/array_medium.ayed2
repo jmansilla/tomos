@@ -6,7 +6,7 @@ i := 0
 while i < 3 do
     j := 0
     while j < 6 do
-        a[i, j] := i + j
+        a[i, j] := i * 10 + j
         j := j + 1
     od
     i := i + 1
