@@ -15,6 +15,7 @@ from docopt import docopt
 from tomos.ayed2.parser import parser
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ui.interpreter_hooks import ShowSentence, ShowState, Sleeper, wait_for_input
+from tomos.ui.interpreter_hooks.show_ast import ASTPrettyFormatter
 
 
 if __name__ == "__main__":
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     ast = parser.parse(open(source).read())
 
     if opts["--showast"]:
-        print(ast.pretty())
+        print(ASTPrettyFormatter().format(ast))
 
     if opts["--run"]:
         delay = opts["--delay"]

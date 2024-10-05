@@ -46,6 +46,9 @@ class If(Sentence):
     def line_number(self):
         return self.guard.line_number
 
+    def __repr__(self) -> str:
+        return f"If(guard={self.guard})"
+
 
 class While(Sentence):
     def __init__(self, guard, sentences):
@@ -57,7 +60,7 @@ class While(Sentence):
         return self.guard.line_number
 
     def __repr__(self) -> str:
-        return f"While(guard={self.guard}, sentences={self.sentences})"
+        return f"While(guard={self.guard})"
 
 
 class For(Sentence):

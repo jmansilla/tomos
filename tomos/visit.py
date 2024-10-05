@@ -15,7 +15,6 @@ class NodeVisitor:
         return "visit_" + pattern.sub("_", name).lower()
 
     def visit(self, node, *args, **kwargs):
-        state = kwargs["state"]
         if self.provide_initializer_node:
             if not hasattr(self, "initializer"):
                 self.initializer = node
