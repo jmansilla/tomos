@@ -1,13 +1,11 @@
 from lark.lexer import Token
+
+from tomos.ayed2.ast.base import ASTNode
 from tomos.ayed2.ast.types import *
 
 
-class Expr:
-
-    @property
-    def line_number(self):
-        raise NotImplementedError
-
+class Expr(ASTNode):
+    pass
 
 class _Literal(Expr):
     def __init__(self, token):
