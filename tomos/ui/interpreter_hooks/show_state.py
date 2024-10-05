@@ -1,4 +1,5 @@
 from prettytable import PrettyTable
+import pprint
 
 from tomos.ayed2.ast.types import ArrayOf, PointerOf, CharType
 from tomos.ayed2.evaluation.state import UnkownValue
@@ -51,4 +52,14 @@ class ShowState:
             self.formated_cell_value(sub_cell)
             for sub_cell in cell.elements
         ]
+        if len(cell.var_type.axes) == 2:
+           # Matrix. Plot it accordling
+           len_1 = cell.var_type.axes[0].length
+           len_2 = cell.var_type.axes[1].length
+           matrix = [
+               value[i * len_2:(i + 1) * len_2]
+               for i in range(len_1)
+           ]
+           value = pprint.pformat(matrix, width=40)
+
         return value

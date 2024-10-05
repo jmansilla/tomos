@@ -168,6 +168,11 @@ class ArrayAxis:
             raise Ayed2TypeError(f"Need to evaluate axis expressions first")
         return self._to.value
 
+    @property
+    def length(self):
+        if not hasattr(self._to, "value") or not hasattr(self._from, "value"):
+            raise Ayed2TypeError(f"Need to evaluate axis expressions first")
+        return self.to_value - self.from_value
 
 type_map = {
     "int": IntType,
