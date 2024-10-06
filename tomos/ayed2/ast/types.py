@@ -78,6 +78,10 @@ class ArrayOf(Ayed2Type):
         self.axes = axes
         self._size = None
 
+    def __repr__(self) -> str:
+        axes_str = [f'{x._from}..{x._to}' for x in self.axes]
+        return f"ArrayOf({self.of}, [{', '.join(axes_str)}])"
+
     def eval_axes_expressions(self, expr_evaluator, state):
         # In order to calculate the number of elements in an array,
         # and index-accessing, we need to know the number of elements
