@@ -1,30 +1,36 @@
-from prettytable import PrettyTable
 import pprint
+from prettytable import PrettyTable
 
 from tomos.ayed2.ast.types import ArrayOf, PointerOf, CharType
 from tomos.ayed2.evaluation.state import UnkownValue
+from tomos.ui.colors import bcolors
 
 
 class ShowState:
 
-    def __init__(self, filename):
+    def __init__(self, filename, show_diff=True):
         self.filename = filename
+        self.show_diff = show_diff
+        self.differ = MemoryDiffer()
 
     def __call__(self, last_sentence, state):
+        table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
+        table.align['Name'] = 'l'
+        table.align['Type'] = 'l'
+        table.align['Value'] = 'r'
+        table.align['Pointed value'] = 'r'
+        for name, _ in state.list_declared_variables().items():
+            cell = state.cell_by_names[name]
+            table.add_row(self.build_cell_row(name, cell, state))
+
+        table._dividers[-1] = True
+
+        for cell in state.heap.values():
+            table.add_row(self.build_cell_row(name='', cell=cell, state=state))
+        self.dump_to_file(table)
+
+    def dump_to_file(self, table):
         with open(self.filename, 'w') as f:
-            table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
-            table.align['Name'] = 'l'
-            table.align['Type'] = 'l'
-            table.align['Value'] = 'r'
-            table.align['Pointed value'] = 'r'
-            for name, _ in state.list_declared_variables().items():
-                cell = state.cell_by_names[name]
-                table.add_row(self.build_cell_row(name, cell, state))
-
-            table._dividers[-1] = True
-
-            for cell in state.heap.values():
-                table.add_row(self.build_cell_row(name='', cell=cell, state=state))
             print(table, file=f)
 
     def build_cell_row(self, name, cell, state):
@@ -45,6 +51,8 @@ class ShowState:
             value = cell.value
             if isinstance(cell.var_type, CharType) and not value == UnkownValue:
                 value = f"'{value}'"
+            if self.show_diff:
+                value = self.differ(cell.address, value)
         return value
 
     def format_array(self, cell):
@@ -63,3 +71,26 @@ class ShowState:
            value = pprint.pformat(matrix, width=40)
 
         return value
+
+
+class MemoryDiffer:
+    class Changed:
+        def __init__(self, value):
+            self.value = value
+        def __repr__(self):
+            return f"{bcolors.OKGREEN}{self.value}{bcolors.ENDC}"
+
+    def __init__(self):
+        self._previous_values = {}
+
+    def __call__(self, key, value):
+        if key in self._previous_values:
+            previous_value = self._previous_values[key]
+        else:
+            previous_value = None
+        self._previous_values[key] = value
+
+        if previous_value is not None and previous_value != value:
+            return self.Changed(value)
+        else:
+            return value
