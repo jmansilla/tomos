@@ -7,7 +7,9 @@ from pygments.token import Text, Comment, Operator, Keyword, Name, String, Numbe
 
 
 class Ayed2Lexer(RegexLexer):
-    name = 'Ayed2'
+    name = 'AyED2'
+    aliases = ['ayed2', 'ayed']
+    filenames = ['*.ayed2', '*.ayed']
     tokens = {
         'root': [
             (r'\s+', Text),  # whitespace
@@ -21,7 +23,7 @@ class Ayed2Lexer(RegexLexer):
             (r'\+\+|--|\+|-|\*|/|%|!', Operator),  # arithmetic operators
             (r'\&\&|\|\|', Operator),  # logical operators
             (r'null|true|false|inf', Name.NamedLiteral),  # literals
-            (r'"\w+"', String),  # string literals
+            (r'\'.\'', String),  # Char literals
             (r'\d+\.\d+', Number.Float),  # floating point
             (r'\d+', Number.Integer),  # integers
             (r'\w+', Name),  # identifiers
