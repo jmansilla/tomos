@@ -23,7 +23,7 @@ class CodeFromString(Scene):
         self.wait()
 
 
-def build_video(source_code_path, timeline):
+def build_movie(source_code_path, timeline):
     scene = CodeFromString(filename=source_code_path, timeline=timeline)
     print("Rendering video")
     print(len(scene.timeline.timeline))
@@ -34,4 +34,4 @@ def build_video(source_code_path, timeline):
 
 if __name__ == '__main__':
     import sys
-    build_video(sys.argv[1], None)
+    build_movie(sys.argv[1], None)

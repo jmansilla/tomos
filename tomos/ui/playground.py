@@ -75,8 +75,8 @@ if __name__ == "__main__":
         final_state = interpreter.run()
         if opts["--movie"]:
             print("Generating movie...")
-            from tomos.ui.movie.builder import build_video
-            build_video(source_path, timeline)
+            from tomos.ui.movie.builder import build_movie
+            build_movie(source_path, timeline)
 
         print(final_state)
 
