@@ -9,6 +9,7 @@ from tomos.ayed2.evaluation.state import State
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class Interpreter:
     """
     Interpreter for sentences.
@@ -30,7 +31,6 @@ class Interpreter:
         ]:
             logger.info('Running section %s', name)
             state = self.run_sequence_of_sentences(section, state)
-
         return state
 
     def run_sequence_of_sentences(self, sentences, state):
@@ -58,8 +58,9 @@ class Interpreter:
             hook(self.last_executed_sentece, state, next_sentence)
 
     def _run_post_hooks(self, state):
+        expr_cache = self.sent_evaluator.flush_intermediate_evaluated_expressions()
         for hook in self.post_hooks:
-            hook(self.last_executed_sentece, state)
+            hook(self.last_executed_sentece, state, expr_cache)
 
 
 class SentenceEvaluator(NodeVisitor):
@@ -69,6 +70,12 @@ class SentenceEvaluator(NodeVisitor):
     def __init__(self) -> None:
         super().__init__()
         self.expression_evaluator = ExpressionEvaluator()
+        self.intermediate_evaluated_expressions = {}
+
+    def flush_intermediate_evaluated_expressions(self):
+        result = self.intermediate_evaluated_expressions
+        self.intermediate_evaluated_expressions = {}
+        return result
 
     def eval(self, sentence, state):
         # Evaluate the sentence in a given state.
@@ -106,7 +113,9 @@ class SentenceEvaluator(NodeVisitor):
 
     def visit_expr(self, expr, **kw):
         state = kw["state"]
-        return self.expression_evaluator.eval(expr, state)
+        value = self.expression_evaluator.eval(expr, state)
+        self.intermediate_evaluated_expressions[expr] = value
+        return value
 
     def visit_skip(self, sentence, **kw):
         state = kw["state"]
