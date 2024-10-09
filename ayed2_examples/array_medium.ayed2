@@ -1,12 +1,14 @@
 var row_number: int
 var col_number: int
+var aux: int
 var matrix: array [3, 6] of int
 
 row_number := 0
 while row_number < 3 do
     col_number := 0
     while col_number < 6 do
-        matrix[row_number, col_number] := row_number * 10 + col_number
+        aux := row_number * 10 + col_number
+        matrix[row_number, col_number] := aux
         col_number := col_number + 1
     od
     row_number := row_number + 1
