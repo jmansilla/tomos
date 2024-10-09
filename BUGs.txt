@@ -1,0 +1,4 @@
+ - alloc de a[i] explota
+    - probar hacer array de array de punteros y volvera a explotar
+    - llevar el expr-evaluator adentro del state?
+ - ugly handling of interpreter of jumps (if, while, and in the future for)
