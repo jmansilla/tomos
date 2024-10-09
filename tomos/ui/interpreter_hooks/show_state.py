@@ -13,7 +13,7 @@ class ShowState:
         self.show_diff = show_diff
         self.differ = MemoryDiffer()
 
-    def __call__(self, last_sentence, state):
+    def __call__(self, last_sentence, state, expression_values):
         table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
         table.align['Name'] = 'l'
         table.align['Type'] = 'l'
