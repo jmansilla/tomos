@@ -25,13 +25,15 @@ class RememberState:
     @dataclass
     class Frame:
         line_number: int
+        last_sentence: object
         state: object
+        expression_values: dict
 
     def __init__(self):
         self.timeline = []
 
-    def __call__(self, last_sentence, state):
-        f = self.Frame(last_sentence.line_number, state)
+    def __call__(self, last_sentence, state, expression_values):
+        f = self.Frame(last_sentence.line_number, last_sentence, state, expression_values)
         self.timeline.append(f)
 
 
@@ -48,17 +50,19 @@ if __name__ == "__main__":
         opts["--run"] = True
 
     if opts["--run"]:
+
+        delay = opts["--delay"]
+        try:
+            delay = float(delay)
+        except ValueError:
+            print(f"Invalid delay: {delay}")
+            exit(1)
+
         if opts["--movie"]:
             timeline = RememberState()
             pre_hooks = []
             post_hooks = [timeline]
         else:
-            delay = opts["--delay"]
-            try:
-                delay = float(delay)
-            except ValueError:
-                print(f"Invalid delay: {delay}")
-                exit(1)
             pre_hooks = [
                 ShowSentence(source_path, full=True),
                 Sleeper(delay)
@@ -76,7 +80,7 @@ if __name__ == "__main__":
         if opts["--movie"]:
             print("Generating movie...")
             from tomos.ui.movie.builder import build_movie
-            build_movie(source_path, timeline)
+            build_movie(source_path, timeline, delay=delay)
 
         print(final_state)
 
