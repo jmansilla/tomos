@@ -17,24 +17,10 @@ from docopt import docopt
 from tomos.ayed2.parser import parser
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ui.interpreter_hooks import ShowSentence, ShowState, Sleeper, wait_for_input
-from tomos.ui.interpreter_hooks.show_ast import ASTPrettyFormatter
+from tomos.ui.interpreter_hooks import ASTPrettyFormatter
+from tomos.ui.interpreter_hooks import RememberState
 
-
-from dataclasses import dataclass
-class RememberState:
-    @dataclass
-    class Frame:
-        line_number: int
-        last_sentence: object
-        state: object
-        expression_values: dict
-
-    def __init__(self):
-        self.timeline = []
-
-    def __call__(self, last_sentence, state, expression_values):
-        f = self.Frame(last_sentence.line_number, last_sentence, state, expression_values)
-        self.timeline.append(f)
+from tomos.ui.movie.builder import build_movie
 
 
 if __name__ == "__main__":
@@ -79,7 +65,6 @@ if __name__ == "__main__":
         final_state = interpreter.run()
         if opts["--movie"]:
             print("Generating movie...")
-            from tomos.ui.movie.builder import build_movie
             build_movie(source_path, timeline, delay=delay)
 
         print(final_state)
