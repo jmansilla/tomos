@@ -166,6 +166,11 @@ class ArrayCellCluster:
     def address(self):
         return self.elements[0].address
 
+    @property
+    def value(self):
+        # used by the UIs
+        return [cell.value for cell in self.elements]
+
     def __setitem__(self, key, value):
         idx = self.array_type.flatten_index(key)
         self.elements[idx].value = value
@@ -174,22 +179,6 @@ class ArrayCellCluster:
         idx = self.array_type.flatten_index(key)
         return self.elements[idx].value
 
-    # def get_value(self, indexing):
-    #     idx = self.array_type.flatten_index(indexing)
-    #     return self.elements[idx].value
-
-    # def set_value(self, indexing, value):
-    #     idx = self.array_type.flatten_index(indexing)
-    #     self.elements[idx].value = value
-
 
 class RecordCellCluster:
     pass
-
-    # this bellow will probably be the initial implementation.
-    # Inspired by ArrayCellCluster
-
-    # def __init__(self, record_type, fields):
-    #     assert isinstance(record_type, RecordOf)
-    #     self.record_type = record_type
-    #     self.fields = fields
