@@ -1,4 +1,5 @@
 from manim import Scene, LEFT, RIGHT, FadeIn, FadeOut
+from manim import constants, config
 from manim.utils.file_ops import open_file as open_media_file
 
 from tomos.ayed2.ast.program import VarDeclaration
@@ -65,6 +66,10 @@ class TomosScene(Scene):
 
 
 def build_movie(source_code_path, timeline, delay=0.5):
+    lq = constants.QUALITIES["low_quality"]
+    config.frame_rate = lq["frame_rate"]
+    config.pixel_height = lq["pixel_height"]
+    config.pixel_width = lq["pixel_width"]
     scene = TomosScene(filename=source_code_path, timeline=timeline, delay=delay)
     print("Rendering video")
     print(len(scene.timeline.timeline))
