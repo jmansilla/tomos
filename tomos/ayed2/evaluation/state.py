@@ -17,6 +17,14 @@ class _UnkownSingleton:
     def __repr__(self):
         return "<?>"
 
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, _UnkownSingleton):
+            return True
+        return False
+
+    def __hash__(self) -> int:
+        return str(self).__hash__()
+
 
 UnkownValue = _UnkownSingleton()
 
@@ -138,7 +146,16 @@ class MemoryAddress:
         self.address = address
 
     def __str__(self):
-        return f"{self.partition}{self.address:08x}"
+        return f"{self.partition}{self.address:05x}"
+
+    def __repr__(self) -> str:
+        return f"MemoryAddress({self.partition}, {self.address})"
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash((self.partition, self.address))
 
 
 class MemoryCell:
