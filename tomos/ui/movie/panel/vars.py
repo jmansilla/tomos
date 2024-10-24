@@ -58,7 +58,7 @@ class Variable(VGroup):
         h *= configs.SCALE
         rect = FlexWidthRoundedRectangle(
             width=w, height=h,
-            fill_color=self.color, fill_opacity=0.25,
+            fill_color=self.color, fill_opacity=0.45,
             stroke_width=1, stroke_color=self.color,
             corner_radius=0.1)
         return rect
@@ -104,9 +104,9 @@ class PointerVar(Variable):
     def build_dead_arrow(self):
         sp = self.arrow_start_point()
         half_height = self.rect.height / 2
-        end_point = sp + (DOWN * half_height)
+        end_point = sp + (DOWN * half_height * 1.1)
         end_point += (RIGHT * half_height)
         self.arrow = CurvedArrow(sp, end_point, tip_shape=StealthTip,
-                                 color=self.arrow_color(), radius=-half_height)
+                                 color=self.arrow_color(), radius=-half_height*1.2)
         self.arrow.tip.scale(0.5)
         self.add(self.arrow)
