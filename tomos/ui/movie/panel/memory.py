@@ -44,35 +44,29 @@ class MemoryBlock(VGroup):
                 self.set_value(thing, cell.value)
 
     def add_var(self, name, _type, value, in_heap=False):
+        # Create the correct var sprite
         if isinstance(_type, PointerOf):
             var = PointerVar(name, _type, value, in_heap=in_heap)
         else:
             var = Variable(name, _type, value, in_heap=in_heap)
+
+        # Select the correct blackboard and add&align the var
         if in_heap:
             blackboard = self.heap_blackboard
         else:
             blackboard = self.stack_blackboard
         var.align_to(blackboard, LEFT)
+
         last_block = self.last_block.get(id(blackboard), None)
         if last_block is None:
             var.align_to(blackboard, UP)
         else:
             var.align_to(last_block, DOWN)
             var.shift(DOWN * var.rect.height * 2)
-        blackboard.add(var)
         self.last_block[id(blackboard)] = var
         self.vars_by_name[name] = var
+        blackboard.add(var)
 
-    def set_value(self, name, value, animator=None):
+    def set_value(self, name, value, transition_animator=None):
         var = self.vars_by_name[name]
-        new_value = var.build_value_text(value)
-        if animator is None:
-            if hasattr(var, 'value'):
-                var.remove(var.value)
-            var.value = new_value
-            var.add(var.value)
-        else:
-            animator(var, var.value, new_value)
-            var.remove(var.value)
-            var.value = new_value
-            var.add(var.value)
+        var.set_value(value, transition_animator)

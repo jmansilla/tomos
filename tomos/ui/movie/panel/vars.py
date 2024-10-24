@@ -31,25 +31,26 @@ class Variable(VGroup):
 
     def __init__(self, name, _type, value, in_heap=False, **kwargs):
         super().__init__(**kwargs)
-        self.name = name
+        self.raw_name = name    # for debugging. Raw for opposite of the sprite name
+        self.raw_value = value  # for debugging. Raw for opposite of the sprite value
         self._type = _type
         self.in_heap = in_heap
         self.color = self.get_color_by_type(_type)
         self.rect = self.build_box()
         self.add(self.rect)
+        self.set_name(name)
+        self.set_value(value)
 
+    def set_name(self, name):
         # cant change the weight of the text after creation, thats why the if
-        if in_heap:
-            self.name = build_text(name, weight=BOLD)
+        if self.in_heap:
+            self.name_sprite = build_text(name, weight=BOLD)
         else:
-            self.name = build_text(name)
-        self.name.align_to(self.rect, LEFT)
-        self.name.align_to(self.rect, UP)
-        self.name.shift(UP * 0.2 * configs.SCALE)
-
-        self.add(self.name)
-        self.value = self.build_value_text(value)
-        self.add(self.value)
+            self.name_sprite = build_text(name)
+        self.name_sprite.align_to(self.rect, LEFT)
+        self.name_sprite.align_to(self.rect, UP)
+        self.name_sprite.shift(UP * 0.2 * configs.SCALE)
+        self.add(self.name_sprite)
 
     def build_box(self):
         w, h = configs.VAR_BOX_MIN_CHAR_RATIO
@@ -62,18 +63,27 @@ class Variable(VGroup):
             corner_radius=0.1)
         return rect
 
-    def build_value_text(self, value):
-        new_value = build_text(str(value))
-        # self.animate(self.rect.set_width(self.rect.suggested_width(str(value))))
+    def set_value(self, value, transition_animator=None):
+        new_value_sprite = self.build_value_sprite(value)
+        old_value_sprite = getattr(self, 'value_sprite', None)  # shall be None only for the first time
+        if transition_animator is not None and old_value_sprite is not None:
+            transition_animator(self, old_value_sprite, new_value_sprite)
 
-        # moves value to be in the center of the box
+        if old_value_sprite is not None:
+            self.remove(self.value_sprite)
+        self.value_sprite = new_value_sprite
+        self.add(self.value_sprite)
+
+    def build_value_sprite(self, value):
+        value_sprite = build_text(str(value))
+        # move it to be in the center of the box
         rect_h, rect_w = self.rect.height, self.rect.width
-        val_h, val_w = new_value.height, new_value.width
-        new_value.align_to(self.rect, LEFT)
-        new_value.align_to(self.rect, UP)
-        new_value.shift(DOWN * (rect_h/2 - val_h/2))
-        new_value.shift(RIGHT * (rect_w/2 - val_w/2))
-        return new_value
+        val_h, val_w = value_sprite.height, value_sprite.width
+        value_sprite.align_to(self.rect, LEFT)
+        value_sprite.align_to(self.rect, UP)
+        value_sprite.shift(DOWN * (rect_h/2 - val_h/2))
+        value_sprite.shift(RIGHT * (rect_w/2 - val_w/2))
+        return value_sprite
 
 
 class PointerVar(Variable):
