@@ -10,21 +10,22 @@ from tomos.ui.movie.panel.memory import MemoryBlock
 
 
 class TomosBaseScene(Scene):
-    def value_change_animation_factory(self):
-        def animation(var, old, new):
-            prev_color = var.color
-            new_width = var.rect.suggested_width(new)
-            half_delta = max(0, (new_width - var.rect.width) / 2)
+    def animate_value_change(self, var, old, new):
+        prev_color = var.color
+        # need rectangle-box resizing?
+        new_width = var.rect.suggested_width(new)
+        expand_width = max(0, (new_width - var.rect.width) / 2)
 
-            rect_animations = var.rect.animate.set_color("PURE_GREEN")
-            if half_delta > 0:
-                new.shift(RIGHT * half_delta)
-                rect_animations = rect_animations.stretch_to_fit_width(new_width).shift(RIGHT * half_delta)
-            self.play(Transform(old, new),
-                      rect_animations)
-            self.play(var.rect.animate.set_color(prev_color))
+        rect_animations = var.rect.animate.set_color("PURE_GREEN")
+        if expand_width > 0:
+            new.shift(RIGHT * expand_width)
+            rect_animations = rect_animations.stretch_to_fit_width(new_width).shift(RIGHT * expand_width)
+        self.play(Transform(old, new),
+                    rect_animations)
+        self.play(var.rect.animate.set_color(prev_color))
 
-        return animation
+    def animate_arrow_change(self, var, old_arrow, new_arrow):
+        self.play(Transform(old_arrow, new_arrow))
 
 
 class TomosScene(TomosBaseScene):
@@ -53,7 +54,6 @@ class TomosScene(TomosBaseScene):
                 memory_block.process_snapshot(snapshot)
                 continue
             code_block.highlight_line(snapshot.line_number)
-            self.wait(self.delay)
 
             if isinstance(snapshot.last_sentence, (If, While)):
                 guard = snapshot.last_sentence.guard
@@ -76,18 +76,13 @@ class TomosScene(TomosBaseScene):
 
         self.wait()
 
-    def fade_out(self, obj):
-        self.play(FadeOut(obj), delay=self.delay)
-
-    def fade_in(self, obj):
-        self.play(FadeIn(obj), delay=self.delay)
 
 
 def build_movie(source_code_path, timeline, delay=0.5):
-    lq = constants.QUALITIES["low_quality"]
-    config.frame_rate = lq["frame_rate"]
-    config.pixel_height = lq["pixel_height"]
-    config.pixel_width = lq["pixel_width"]
+    quality = constants.QUALITIES["medium_quality"]
+    config.frame_rate = quality["frame_rate"]
+    config.pixel_height = quality["pixel_height"]
+    config.pixel_width = quality["pixel_width"]
     scene = TomosScene(filename=source_code_path, timeline=timeline, delay=delay)
     print("Rendering video")
     print(len(scene.timeline.timeline))

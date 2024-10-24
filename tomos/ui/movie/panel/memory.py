@@ -1,7 +1,9 @@
-from manim import VGroup, Rectangle, BOLD
+from manim import VGroup, Write, Rectangle, BOLD
 from manim import LEFT, RIGHT, DOWN, UP
 
 from tomos.ayed2.ast.types import PointerOf
+from tomos.ayed2.evaluation.state import MemoryAddress
+
 from tomos.ui.movie.texts import build_text
 from tomos.ui.movie.panel.vars import Variable, PointerVar
 
@@ -27,26 +29,32 @@ class MemoryBlock(VGroup):
         stack_title.next_to(self.stack_blackboard, UP * .5)
         heap_title.next_to(self.heap_blackboard, UP * .5)
 
-        self.vars_by_name = {}
+        self.vars_by_name = {}  # the index of the vars in the memory
         self.last_block = {}
 
     def process_snapshot(self, snapshot):
         print('PROCESSING SNAP')
-        for thing in snapshot.diff.new_cells:
-            print("Adding", thing)
-            if isinstance(thing, str):
-                cell = snapshot.state.cell_by_names[thing]
-                self.add_var(thing, cell.var_type, cell.value)
-        for thing in snapshot.diff.changed_cells:
-            print("Changing", thing)
-            if isinstance(thing, str):
-                cell = snapshot.state.cell_by_names[thing]
-                self.set_value(thing, cell.value)
+        for name_or_addr in snapshot.diff.new_cells:
+            print("Adding", name_or_addr)
+            if isinstance(name_or_addr, MemoryAddress):
+                cell = snapshot.state.heap[name_or_addr]
+                self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=True)
+            else:
+                cell = snapshot.state.cell_by_names[name_or_addr]
+                self.add_var(name_or_addr, cell.var_type, cell.value)
+        for name_or_addr in snapshot.diff.changed_cells:
+            print("Changing", name_or_addr)
+            if isinstance(name_or_addr, MemoryAddress):
+                cell = snapshot.state.heap[name_or_addr]
+            else:
+                cell = snapshot.state.cell_by_names[name_or_addr]
+            self.set_value(name_or_addr, cell.value)
 
     def add_var(self, name, _type, value, in_heap=False):
         # Create the correct var sprite
         if isinstance(_type, PointerOf):
-            var = PointerVar(name, _type, value, in_heap=in_heap)
+            vars_index = self.vars_by_name
+            var = PointerVar(vars_index, name, _type, value, in_heap=in_heap)
         else:
             var = Variable(name, _type, value, in_heap=in_heap)
 
@@ -65,8 +73,12 @@ class MemoryBlock(VGroup):
             var.shift(DOWN * var.rect.height * 2)
         self.last_block[id(blackboard)] = var
         self.vars_by_name[name] = var
+
+        if in_heap:
+            self.scene.play(Write(var))
         blackboard.add(var)
 
-    def set_value(self, name, value, transition_animator=None):
+    def set_value(self, name, value):
         var = self.vars_by_name[name]
-        var.set_value(value, transition_animator)
+        var.set_value(value, transition_animator=self.scene)
+
