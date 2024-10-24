@@ -1,4 +1,4 @@
-from manim import Scene, LEFT, RIGHT, FadeIn, FadeOut
+from manim import Scene, LEFT, RIGHT, Transform, FadeIn, FadeOut
 from manim import constants, config
 from manim.utils.file_ops import open_file as open_media_file
 
@@ -9,7 +9,25 @@ from tomos.ui.movie.panel.code import TomosCode
 from tomos.ui.movie.panel.memory import MemoryBlock
 
 
-class TomosScene(Scene):
+class TomosBaseScene(Scene):
+    def value_change_animation_factory(self):
+        def animation(var, old, new):
+            prev_color = var.color
+            new_width = var.rect.suggested_width(new)
+            half_delta = max(0, (new_width - var.rect.width) / 2)
+
+            rect_animations = var.rect.animate.set_color("PURE_GREEN")
+            if half_delta > 0:
+                new.shift(RIGHT * half_delta)
+                rect_animations = rect_animations.stretch_to_fit_width(new_width).shift(RIGHT * half_delta)
+            self.play(Transform(old, new),
+                      rect_animations)
+            self.play(var.rect.animate.set_color(prev_color))
+
+        return animation
+
+
+class TomosScene(TomosBaseScene):
 
     def __init__(self, filename, timeline, delay, *args, **kwargs):
         self.filename = filename
