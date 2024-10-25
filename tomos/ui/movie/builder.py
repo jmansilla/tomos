@@ -58,14 +58,17 @@ class TomosScene(TomosBaseScene):
             if isinstance(snapshot.last_sentence, (If, While)):
                 guard = snapshot.last_sentence.guard
                 guard_value = snapshot.expression_values[guard]
-                for action in code_block.show_info_in_line(guard_value):
-                    self.play(action, delay=self.delay)
+                guard_hint = code_block.build_hint(guard_value)
+                self.play(FadeIn(guard_hint), delay=self.delay)
+                self.play(FadeOut(guard_hint), delay=self.delay)
 
             if isinstance(snapshot.last_sentence, Assignment):
                 expr = snapshot.last_sentence.expr
                 expr_value = snapshot.expression_values[expr]
-                for action in code_block.show_info_in_line(expr_value):
-                    self.play(action, delay=self.delay)
+                expr_hint = code_block.build_hint(expr_value)
+                self.play(FadeIn(expr_hint), delay=self.delay)
+                self.play(expr_hint.animate.shift(RIGHT * 4), delay=self.delay)
+                self.play(FadeOut(expr_hint), delay=self.delay)
 
             memory_block.process_snapshot(snapshot)
 

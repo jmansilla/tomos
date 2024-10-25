@@ -1,5 +1,6 @@
 from manim import NORMAL
 SCALE = 0.8
+# SCALE = 2
 
 # TEXTs
 BASE_FONT_SIZE = 12
