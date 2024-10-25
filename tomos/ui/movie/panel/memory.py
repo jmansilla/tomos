@@ -1,4 +1,4 @@
-from manim import VGroup, Write, Rectangle, BOLD
+from manim import VGroup, Write, Unwrite, Rectangle, BOLD
 from manim import LEFT, RIGHT, DOWN, UP
 
 from tomos.ayed2.ast.types import PointerOf
@@ -49,6 +49,10 @@ class MemoryBlock(VGroup):
             else:
                 cell = snapshot.state.cell_by_names[name_or_addr]
             self.set_value(name_or_addr, cell.value)
+        for name_or_addr in snapshot.diff.deleted_cells:
+            print("Deleting", name_or_addr)
+            in_heap = isinstance(name_or_addr, MemoryAddress)
+            self.delete_var(name_or_addr, in_heap=in_heap)
 
     def add_var(self, name, _type, value, in_heap=False):
         # Create the correct var sprite
@@ -77,6 +81,15 @@ class MemoryBlock(VGroup):
         if in_heap:
             self.scene.play(Write(var))
         blackboard.add(var)
+
+    def delete_var(self, name, in_heap):
+        if not in_heap:
+            raise NotImplementedError()
+        var = self.vars_by_name[name]
+        self.vars_by_name.pop(name)
+
+        self.heap_blackboard.remove(var)
+        self.scene.play(Unwrite(var))
 
     def set_value(self, name, value):
         var = self.vars_by_name[name]
