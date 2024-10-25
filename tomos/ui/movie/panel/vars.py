@@ -1,5 +1,5 @@
 from manim import LEFT, RIGHT, DOWN, UP, BOLD
-from manim import VGroup, RoundedRectangle, Arrow, CurvedArrow, StealthTip
+from manim import VGroup, RoundedRectangle, Arrow, Elbow
 
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
@@ -16,6 +16,20 @@ class FlexWidthRoundedRectangle(RoundedRectangle):
         extra_chars = max(0, len(value_txt) - configs.VAR_MAX_CHARS_MIN_BOX)
         w = base_w + extra_chars * configs.VAR_BOX_EXTRA_CHAR_RATIO[0]
         return w * configs.SCALE
+
+
+class DeadArrow(Elbow):
+    def __init__(self, start_point, elbow_point, end_point, tip_scale,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.put_start_and_end_on(start_point, end_point)
+        self.arrow = Arrow(
+            elbow_point, end_point,
+            # tip_shape=StealthTip,
+            color=self.color, stroke_width=2, buff=0,
+        )
+        self.arrow.tip.scale_to_fit_height(tip_scale)
+        self.add(self.arrow)
 
 
 class Variable(VGroup):
@@ -98,6 +112,7 @@ class PointerVar(Variable):
         self.vars_index = vars_index
         super().__init__(*args, **kwargs)
 
+    @property
     def arrow_start_point(self):
         # returns x, y, z where arrows shall start
         center = self.rect.get_center()
@@ -108,21 +123,26 @@ class PointerVar(Variable):
         # ideally shall return a color based on the cell it points to
         return self.get_color_by_type(self._type.of)
 
+    @property
+    def tip_scale(self):
+        return 0.125 * configs.SCALE
+
     def build_dead_arrow(self):
-        sp = self.arrow_start_point()
+        sp = self.arrow_start_point
         half_height = self.rect.height / 2
-        end_point = sp + (DOWN * half_height * 1.5)
-        end_point += (RIGHT * half_height)
-        arrow = CurvedArrow(sp, end_point, tip_shape=StealthTip,
-                            color=self.arrow_color, radius=-half_height*1.2)
-        arrow.tip.scale(0.125 * configs.SCALE)
-        return arrow
+        elbow_point = sp + (RIGHT * half_height)
+        end_point = elbow_point + (DOWN * half_height)
+
+        return DeadArrow(sp, elbow_point, end_point, self.tip_scale,
+                         color=self.arrow_color, stroke_width=2)
 
     def build_arrow_to_var(self, var):
-        sp = self.arrow_start_point()
+        sp = self.arrow_start_point
         end_point = var.point_to_receive_arrow()
-        arrow = Arrow(sp, end_point, tip_shape=StealthTip, color=self.arrow_color)
-        arrow.tip.scale(0.125 * configs.SCALE)
+        arrow = Arrow(sp, end_point, color=self.arrow_color,
+                      stroke_width=2, max_stroke_width_to_length_ratio=5,
+                      buff=0, max_tip_length_to_length_ratio=0.5)
+        arrow.tip.scale_to_fit_height(self.tip_scale)
         return arrow
 
     def set_value(self, value, transition_animator=None):
