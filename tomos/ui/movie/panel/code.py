@@ -1,8 +1,9 @@
+from tomos.ui.movie.texts import build_text
 from manim import (
     Code as ManimCode,
     UP, DOWN, LEFT, RIGHT,
     YELLOW,
-    FadeIn, FadeOut, Text, SurroundingRectangle, VGroup)
+    Text, SurroundingRectangle, VGroup)
 
 
 class Highlighter(VGroup):
@@ -12,11 +13,11 @@ class Highlighter(VGroup):
         self.line_number = line_number
 
     def show_info(self, msg, color=None):
-        hint = Text(str(msg), font="Monospace")
+        hint = build_text(str(msg), font="Monospace")
         hint.set_color(YELLOW)
-        hint.scale(0.2)
+        # hint.scale(0.2)
         hint.next_to(self, RIGHT)
-        return [FadeIn(hint), FadeOut(hint)]
+        return hint
 
 
 class TomosCode(ManimCode):
@@ -54,5 +55,5 @@ class TomosCode(ManimCode):
         self.main_highlighter.shift(0.025 * DOWN) # to make the line centered respect text
         self.main_highlighter.line_number = line_number
 
-    def show_info_in_line(self, msg):
+    def build_hint(self, msg):
         return self.main_highlighter.show_info(msg)

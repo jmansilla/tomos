@@ -1,4 +1,4 @@
-from manim import Scene, LEFT, RIGHT, FadeIn, FadeOut
+from manim import Scene, LEFT, RIGHT, Transform, FadeIn, FadeOut
 from manim import constants, config
 from manim.utils.file_ops import open_file as open_media_file
 
@@ -9,7 +9,26 @@ from tomos.ui.movie.panel.code import TomosCode
 from tomos.ui.movie.panel.memory import MemoryBlock
 
 
-class TomosScene(Scene):
+class TomosBaseScene(Scene):
+    def animate_value_change(self, var, old, new):
+        prev_color = var.color
+        # need rectangle-box resizing?
+        new_width = var.rect.suggested_width(new)
+        expand_width = max(0, (new_width - var.rect.width) / 2)
+
+        rect_animations = var.rect.animate.set_color("PURE_GREEN")
+        if expand_width > 0:
+            new.shift(RIGHT * expand_width)
+            rect_animations = rect_animations.stretch_to_fit_width(new_width).shift(RIGHT * expand_width)
+        self.play(Transform(old, new),
+                    rect_animations)
+        self.play(var.rect.animate.set_color(prev_color))
+
+    def animate_arrow_change(self, var, old_arrow, new_arrow):
+        self.play(Transform(old_arrow, new_arrow))
+
+
+class TomosScene(TomosBaseScene):
 
     def __init__(self, filename, timeline, delay, *args, **kwargs):
         self.filename = filename
@@ -35,19 +54,21 @@ class TomosScene(Scene):
                 memory_block.process_snapshot(snapshot)
                 continue
             code_block.highlight_line(snapshot.line_number)
-            self.wait(self.delay)
 
             if isinstance(snapshot.last_sentence, (If, While)):
                 guard = snapshot.last_sentence.guard
                 guard_value = snapshot.expression_values[guard]
-                for action in code_block.show_info_in_line(guard_value):
-                    self.play(action, delay=self.delay)
+                guard_hint = code_block.build_hint(guard_value)
+                self.play(FadeIn(guard_hint), delay=self.delay)
+                self.play(FadeOut(guard_hint), delay=self.delay)
 
             if isinstance(snapshot.last_sentence, Assignment):
                 expr = snapshot.last_sentence.expr
                 expr_value = snapshot.expression_values[expr]
-                for action in code_block.show_info_in_line(expr_value):
-                    self.play(action, delay=self.delay)
+                expr_hint = code_block.build_hint(expr_value)
+                self.play(FadeIn(expr_hint), delay=self.delay)
+                self.play(expr_hint.animate.shift(RIGHT * 4), delay=self.delay)
+                self.play(FadeOut(expr_hint), delay=self.delay)
 
             memory_block.process_snapshot(snapshot)
 
@@ -58,18 +79,13 @@ class TomosScene(Scene):
 
         self.wait()
 
-    def fade_out(self, obj):
-        self.play(FadeOut(obj), delay=self.delay)
-
-    def fade_in(self, obj):
-        self.play(FadeIn(obj), delay=self.delay)
 
 
 def build_movie(source_code_path, timeline, delay=0.5):
-    lq = constants.QUALITIES["low_quality"]
-    config.frame_rate = lq["frame_rate"]
-    config.pixel_height = lq["pixel_height"]
-    config.pixel_width = lq["pixel_width"]
+    quality = constants.QUALITIES["medium_quality"]
+    config.frame_rate = quality["frame_rate"]
+    config.pixel_height = quality["pixel_height"]
+    config.pixel_width = quality["pixel_width"]
     scene = TomosScene(filename=source_code_path, timeline=timeline, delay=delay)
     print("Rendering video")
     print(len(scene.timeline.timeline))

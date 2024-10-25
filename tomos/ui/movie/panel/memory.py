@@ -1,87 +1,97 @@
-from manim import VGroup, Rectangle, Text
+from manim import VGroup, Write, Unwrite, Rectangle, BOLD
 from manim import LEFT, RIGHT, DOWN, UP
 
-colors = {
-    "": "#000000",
-    "white": "#ffffff",
-    "red": "#ff0000",
-    "blue": "#0000ff",
-    "IntType": "#00ff00",
-    "orange": "#ffa500",
-    "purple": "#800080"}
+from tomos.ayed2.ast.types import PointerOf
+from tomos.ayed2.evaluation.state import MemoryAddress
 
-
-unamed_colors = ["red", "blue", "orange", "purple", "white"]
-
-
-class Variable(VGroup):
-
-    def __init__(self, name, _type, value, **kwargs):
-        super().__init__(**kwargs)
-        self.name = name
-        if str(_type) in colors:
-            self.color = colors[str(_type)]
-        else:
-            self.color = unamed_colors.pop()
-        self.rect = Rectangle(width=1, height=0.25, fill_color=self.color, fill_opacity=0.5)
-        self.name = Text(name, font="Monospace").scale(0.2)
-        self.add(self.rect)
-        self.name.align_to(self.rect, LEFT)
-        self.name.align_to(self.rect, UP)
-        self.add(self.name)
-        self.name.shift(UP * 0.15)
-        self.set_value(value)
-        self.add(self.value)
-
-    def set_value(self, value):
-        self.value = Text(str(value), font="Monospace").scale(0.2)
-        self.value.align_to(self.rect, LEFT)
-        self.value.align_to(self.rect, UP)
-        self.value.shift(DOWN * self.rect.height * 0.4)
-        self.value.shift(RIGHT * 0.2)
+from tomos.ui.movie.texts import build_text
+from tomos.ui.movie.panel.vars import Variable, PointerVar
 
 
 class MemoryBlock(VGroup):
 
     def __init__(self, scene, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.space = Rectangle(width=7, height=4, color="black", fill_color="white", fill_opacity=0)
-        self.add(self.space)
-        self.space.next_to(self, RIGHT)
-        self.vars_by_name = {}
-        self.last_block = None
-        self.animator = scene
+        self.scene = scene
+        self.stack_blackboard = Rectangle(width=3, height=7, color="black",
+                                          fill_color="white", fill_opacity=0.1)
+        self.heap_blackboard = Rectangle(width=3, height=7, color="black",
+                                         fill_color="YELLOW_D", fill_opacity=0.1)
+        assert self.stack_blackboard.width == 3
+        self.stack_blackboard.move_to((1.5, 0, 0))
+
+        self.add(self.stack_blackboard)
+        self.add(self.heap_blackboard)
+        self.heap_blackboard.next_to(self.stack_blackboard, RIGHT)
+        stack_title = build_text("STACK", weight=BOLD)
+        heap_title = build_text("HEAP", weight=BOLD)
+        self.add(stack_title, heap_title)
+        stack_title.next_to(self.stack_blackboard, UP * .5)
+        heap_title.next_to(self.heap_blackboard, UP * .5)
+
+        self.vars_by_name = {}  # the index of the vars in the memory
+        self.last_block = {}
 
     def process_snapshot(self, snapshot):
         print('PROCESSING SNAP')
-        for thing in snapshot.diff.new_cells:
-            print("Adding", thing)
-            if isinstance(thing, str):
-                cell = snapshot.state.cell_by_names[thing]
-                self.add_var(thing, cell.var_type, cell.value)
-        for thing in snapshot.diff.changed_cells:
-            print("Changing", thing)
-            if isinstance(thing, str):
-                cell = snapshot.state.cell_by_names[thing]
-                self.set_value(thing, cell.value)
+        for name_or_addr in snapshot.diff.new_cells:
+            print("Adding", name_or_addr)
+            if isinstance(name_or_addr, MemoryAddress):
+                cell = snapshot.state.heap[name_or_addr]
+                self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=True)
+            else:
+                cell = snapshot.state.cell_by_names[name_or_addr]
+                self.add_var(name_or_addr, cell.var_type, cell.value)
+        for name_or_addr in snapshot.diff.changed_cells:
+            print("Changing", name_or_addr)
+            if isinstance(name_or_addr, MemoryAddress):
+                cell = snapshot.state.heap[name_or_addr]
+            else:
+                cell = snapshot.state.cell_by_names[name_or_addr]
+            self.set_value(name_or_addr, cell.value)
+        for name_or_addr in snapshot.diff.deleted_cells:
+            print("Deleting", name_or_addr)
+            in_heap = isinstance(name_or_addr, MemoryAddress)
+            self.delete_var(name_or_addr, in_heap=in_heap)
 
-    def add_var(self, name, _type, value):
-        var = Variable(name, _type, value)
-        var.align_to(self.space, LEFT)
-        if self.last_block is None:
-            var.align_to(self.space, UP)
+    def add_var(self, name, _type, value, in_heap=False):
+        # Create the correct var sprite
+        if isinstance(_type, PointerOf):
+            vars_index = self.vars_by_name
+            var = PointerVar(vars_index, name, _type, value, in_heap=in_heap)
         else:
-            var.align_to(self.last_block, DOWN)
-            var.shift(DOWN * var.rect.height * 2.5)
-        # var.shift(RIGHT * 0.25)
-        self.space.add(var)
-        self.last_block = var
+            var = Variable(name, _type, value, in_heap=in_heap)
+
+        # Select the correct blackboard and add&align the var
+        if in_heap:
+            blackboard = self.heap_blackboard
+        else:
+            blackboard = self.stack_blackboard
+        var.align_to(blackboard, LEFT)
+
+        last_block = self.last_block.get(id(blackboard), None)
+        if last_block is None:
+            var.align_to(blackboard, UP)
+        else:
+            var.align_to(last_block, DOWN)
+            var.shift(DOWN * var.rect.height * 2)
+        self.last_block[id(blackboard)] = var
         self.vars_by_name[name] = var
+
+        if in_heap:
+            self.scene.play(Write(var))
+        blackboard.add(var)
+
+    def delete_var(self, name, in_heap):
+        if not in_heap:
+            raise NotImplementedError()
+        var = self.vars_by_name[name]
+        self.vars_by_name.pop(name)
+
+        self.heap_blackboard.remove(var)
+        self.scene.play(Unwrite(var))
 
     def set_value(self, name, value):
         var = self.vars_by_name[name]
-        if hasattr(var, 'value'):
-            var.remove(var.value)
-        var.set_value(value)
-        var.add(var.value)
+        var.set_value(value, transition_animator=self.scene)
 
