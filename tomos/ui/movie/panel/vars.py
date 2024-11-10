@@ -5,6 +5,8 @@ from skitso.atom import Container, Point
 from skitso import movement
 from skitso.shapes import Rectangle, RoundedRectangle, Arrow, DeadArrow
 
+thickness = 2  #configs.THICKNESS
+
 
 class Variable(Container):
     def get_color_by_type(self, _type):
@@ -82,28 +84,22 @@ class PointerVar(Variable):
     @property
     def arrow_color(self):
         # ideally shall return a color based on the cell it points to
-        return self.get_color_by_type(self._type.of)
+        return "white"  #self.get_color_by_type(self._type.of)
 
     @property
     def tip_height(self):
-        return 20 * configs.SCALE
+        return 10 * configs.SCALE
 
     def build_dead_arrow(self):
         sp = self.arrow_start_point
         half_height = self.rect.box_height / 2
-        return DeadArrow(sp.x, sp.y, half_height, self.tip_height, self.arrow_color, 2)
-
-        # elbow_point = sp + (RIGHT * half_height)
-        # end_point = elbow_point + (DOWN * half_height)
-
-        # return DeadArrow(sp, elbow_point, end_point, self.tip_scale,
-        #                  color=self.arrow_color, stroke_width=2)
+        return DeadArrow(sp.x, sp.y, half_height, self.tip_height, self.arrow_color, thickness)
 
     def build_arrow_to_var(self, var):
         x, y = self.arrow_start_point
         to_x, to_y = var.point_to_receive_arrow()
         arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
-                      thickness=2, tip_height=self.tip_height)
+                      thickness=thickness, tip_height=self.tip_height)
         return arrow
 
     def set_value(self, value):
