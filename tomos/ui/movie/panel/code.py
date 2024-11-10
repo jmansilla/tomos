@@ -1,59 +1,63 @@
+from io import BytesIO
+from PIL import Image
+
+from skitso.atom import BaseImgElem, Container, Point
+
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import ImageFormatter
+from pygments_ayed2.style import Ayed2Style
+
 from tomos.ui.movie.texts import build_text
-from manim import (
-    Code as ManimCode,
-    UP, DOWN, LEFT, RIGHT,
-    YELLOW,
-    Text, SurroundingRectangle, VGroup)
 
 
-class Highlighter(VGroup):
+class CodeBox(BaseImgElem):
+    line_pad = 2
+    def __init__(self, source_code, language="ayed2", font_size=18, bg_color="#000000"):
+        self.source_code = source_code
+        self.language = language
+        self.font_size = font_size
+        self.bg_color = bg_color
+        self.lexer = get_lexer_by_name(language)
+        self.formatter = self.get_formatter()
+        self.background = None
 
-    def __init__(self, line, rect, line_number):
-        super().__init__(line, rect)
-        self.line_number = line_number
+    def highlight(self, code):
+        return Image.open(BytesIO(highlight(code, self.lexer, self.formatter)))
 
-    def show_info(self, msg, color=None):
-        hint = build_text(str(msg), font="Monospace")
-        hint.set_color(YELLOW)
-        # hint.scale(0.2)
-        hint.next_to(self, RIGHT)
-        return hint
+    def get_formatter(self):
+        style = Ayed2Style
+        style.background_color = self.bg_color
+        return ImageFormatter(
+            font_size=self.font_size,
+            line_pad=self.line_pad,
+            line_numbers=True,
+            style=style,
+        )
+
+    def draw_me(self, pencil):
+        img = self.highlight(self.source_code)
+        x, y = self.position
+        pencil.draw_image(img, x, y)
 
 
-class TomosCode(ManimCode):
+class TomosCode(Container):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.source_code_txt = kwargs['code']
-        self.line_blocks = self.code
-        self.main_highlighter = self.build_highlighter()
-        self.code.add(self.main_highlighter)
+    def __init__(self, source_code, language="ayed2"):
+        position = Point(0, 0)
+        super().__init__(position)
+        self.language = language
+        self.source_code = source_code
+        self.code_img = CodeBox(source_code, language=language).highlight(source_code)
+        self.focuser = self.build_focuser()
 
-    def build_highlighter(self):
-        max_columns = max([len(line) for line in self.source_code_txt.split('\n')])
-        invisible_line = Text("-" * max_columns)
-        invisible_line.set_opacity(0)
-        rect = SurroundingRectangle(invisible_line, buff=0.2, corner_radius=0.2)
-        rect.set_opacity(0.2)
-        return Highlighter(invisible_line, rect, line_number=None)
+    def build_focuser(self):
+        pass
 
-    def highlight_line(self, line_number):
-        prev_number = self.main_highlighter.line_number
-        if prev_number == line_number:
-            return
-        reference = self.code[line_number - 1]
-        if prev_number is None:
-            self.main_highlighter.align_to(reference, LEFT)
-            self.main_highlighter.shift(0.05 * LEFT)
-            direction = DOWN
-        elif prev_number < line_number:
-            direction = DOWN
-        else:
-            direction = UP
-
-        self.main_highlighter.align_to(reference, direction)
-        self.main_highlighter.shift(0.025 * DOWN) # to make the line centered respect text
-        self.main_highlighter.line_number = line_number
+    def focus_line(self, line_number):
+        pass
 
     def build_hint(self, msg):
-        return self.main_highlighter.show_info(msg)
+        pass
+
+
