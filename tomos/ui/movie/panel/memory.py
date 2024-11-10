@@ -55,8 +55,8 @@ class MemoryBlock(Container):
             heap_title.position.x, boards_y, fill_color="#6A1E55"
         )
 
-        self.add(self.stack_blackboard)
         self.add(self.heap_blackboard)
+        self.add(self.stack_blackboard)
 
         self.vars_by_name = {}  # the index of the vars in the memory
 
@@ -116,7 +116,7 @@ class MemoryBlock(Container):
             raise NotImplementedError()
         var = self.vars_by_name[name]
         self.vars_by_name.pop(name)
-        self.remove(var)
+        self.heap_blackboard.remove(var)
 
     def set_value(self, name, value):
         var = self.vars_by_name[name]
