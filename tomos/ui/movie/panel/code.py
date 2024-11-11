@@ -38,7 +38,7 @@ class CodeBox(BaseImgElem):
     def draw_me(self, pencil):
         img = self.highlight(self.source_code)
         x, y = self.position
-        pencil.draw_image(img, x, y)
+        pencil.image.paste(img, (x, y))
 
 
 class TomosCode(Container):
@@ -48,7 +48,9 @@ class TomosCode(Container):
         super().__init__(position)
         self.language = language
         self.source_code = source_code
-        self.code_img = CodeBox(source_code, language=language).highlight(source_code)
+        self.code_img = CodeBox(source_code, language=language)
+        self.code_img.position = position
+        self.add(self.code_img)
         self.focuser = self.build_focuser()
 
     def build_focuser(self):
