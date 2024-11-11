@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from skitso.atom import Container, Point
 from skitso import movement
 from skitso.shapes import Rectangle
@@ -8,6 +10,9 @@ from tomos.ayed2.evaluation.state import MemoryAddress
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
 from tomos.ui.movie.panel.vars import Variable, PointerVar
+
+
+logger = getLogger(__name__)
 
 
 board_width, board_height = configs.MEMORY_BOARD_SIZE
@@ -61,9 +66,9 @@ class MemoryBlock(Container):
         self.vars_by_name = {}  # the index of the vars in the memory
 
     def process_snapshot(self, snapshot):
-        print('PROCESSING SNAPSHOT')
+        logger.debug('PROCESSING SNAPSHOT')
         for name_or_addr in snapshot.diff.new_cells:
-            print("Adding", name_or_addr)
+            logger.debug("Adding", name_or_addr)
             if isinstance(name_or_addr, MemoryAddress):
                 cell = snapshot.state.heap[name_or_addr]
                 self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=True)
@@ -71,14 +76,14 @@ class MemoryBlock(Container):
                 cell = snapshot.state.cell_by_names[name_or_addr]
                 self.add_var(name_or_addr, cell.var_type, cell.value)
         for name_or_addr in snapshot.diff.changed_cells:
-            print("Changing", name_or_addr)
+            logger.debug("Changing", name_or_addr)
             if isinstance(name_or_addr, MemoryAddress):
                 cell = snapshot.state.heap[name_or_addr]
             else:
                 cell = snapshot.state.cell_by_names[name_or_addr]
             self.set_value(name_or_addr, cell.value)
         for name_or_addr in snapshot.diff.deleted_cells:
-            print("Deleting", name_or_addr)
+            logger.debug("Deleting", name_or_addr)
             in_heap = isinstance(name_or_addr, MemoryAddress)
             self.delete_var(name_or_addr, in_heap=in_heap)
 
