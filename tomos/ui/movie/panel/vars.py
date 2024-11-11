@@ -20,11 +20,11 @@ class Variable(Container):
             return configs.UNNAMED_COLORS.pop()
 
     def __init__(self, name, _type, value, in_heap=False):
-        super().__init__(Point(0, 0))  # created at origin. Needs to be shifted later.
         self.name = name    # for debugging.
         self._type = _type
         self.in_heap = in_heap
         self.color = self.get_color_by_type(_type)
+        super().__init__(Point(0, 0))  # created at origin. Needs to be shifted later.
         self.name_sprite = self.set_name(name)
         self.add(self.name_sprite)
         self.rect = self.build_box(0, self.name_sprite.box_height + configs.PADDING*.5)
@@ -62,9 +62,9 @@ class Variable(Container):
         return value_sprite
 
     def point_to_receive_arrow(self):
-        location = self.rect.position
-        location.y += self.rect.box_height / 2
-        return location
+        x, y = self.rect.position
+        y += self.rect.box_height / 2
+        return Point(x, y)
 
 
 class PointerVar(Variable):
@@ -77,9 +77,9 @@ class PointerVar(Variable):
     @property
     def arrow_start_point(self):
         # returns x, y where arrows shall start
-        location = self.rect.end
-        location.y -= self.rect.box_height / 2
-        return location
+        x, y = self.rect.end
+        y -= self.rect.box_height / 2
+        return Point(x, y)
 
     @property
     def arrow_color(self):
