@@ -29,6 +29,9 @@ class TomosScene(Scene):
 
         source_code = open(self.filename, 'r').read()
         code_block = TomosCode(source_code)
+        code_block.center_respect_to(self)
+        code_block.to_edge(self, movement.LEFT_EDGE)
+        code_block.shift(movement.RIGHT * (configs.PADDING))
         self.add(code_block)
 
         for i, snapshot in enumerate(self.timeline.timeline):
@@ -54,6 +57,8 @@ class TomosScene(Scene):
             if STOP_AT == str(i):
                 print("STOP at", i)
                 break
+        code_block.focus_line(None)
+        self.tick()
 
         # self.wait()
 
