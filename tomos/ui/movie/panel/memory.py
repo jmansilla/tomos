@@ -96,20 +96,7 @@ class MemoryBlock(Container):
         else:
             blackboard = self.stack_blackboard
         blackboard.add_var(var)
-        # var.to_edge(blackboard, movement.LEFT_EDGE)
-        # var.shift(movement.RIGHT * padding)
-
-        # last_block = self.last_block.get(blackboard, None)
-        # if last_block is None:
-        #     var.to_edge(blackboard, movement.TOP_EDGE)
-        #     var.shift(movement.DOWN * padding)
-        # else:
-        #     var.to_edge(last_block, movement.BOTTOM_EDGE)
-        #     var.shift(movement.DOWN * (var.box_height + padding))
-        # self.last_block[blackboard] = var
         self.vars_by_name[name] = var
-
-        # self.add(var)
 
     def delete_var(self, name, in_heap):
         if not in_heap:
