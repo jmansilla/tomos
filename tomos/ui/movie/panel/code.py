@@ -1,3 +1,4 @@
+from logging import getLogger
 from io import BytesIO
 from PIL import Image
 
@@ -11,6 +12,55 @@ from pygments_ayed2.style import Ayed2Style
 from tomos.ui.movie.texts import build_text
 
 
+logger = getLogger(__name__)
+
+
+class NextPrevLineFormatter(ImageFormatter):
+    _NEXT = 'next'
+    _PREV = 'prev'
+
+    def __init__(self, *args, next_line_nr=None, prev_line_nr=None, **kwargs):
+        color_order = []
+        if next_line_nr is None:
+            if prev_line_nr is None:
+                # should not happen.
+                logger.error("next_line_nr and/or prev_line_nr should be provided.")
+                lines = []
+            else:
+                lines = [prev_line_nr]
+                color_order = [self._PREV]
+        else:
+            if prev_line_nr is None:
+                lines = [next_line_nr]
+                color_order = [self._NEXT]
+            else:
+                lines = sorted([prev_line_nr, next_line_nr])
+                if next_line_nr < prev_line_nr:
+                    color_order = [self._NEXT, self._PREV]
+                else:
+                    color_order = [self._PREV, self._NEXT]
+        kwargs['hl_lines'] = lines
+        super().__init__(*args, **kwargs)
+        self.color_order = color_order
+        self._hl_prev_color = "#440000"
+        self._hl_next_color = "#004400"
+
+    @property
+    def hl_color(self):
+        # this attribute will be consumed in ascending order (by line number)
+        if not self.color_order:
+            return self._hl_color
+        which = self.color_order.pop(0)
+        if which == self._PREV:
+            return self._hl_prev_color
+        else:
+            return self._hl_next_color
+
+    @hl_color.setter
+    def hl_color(self, color):
+        self._hl_color = color
+
+
 class CodeBox(BaseImgElem):
     line_pad = 2
     def __init__(self, source_code, language="ayed2", font_size=18, bg_color="#000000"):
@@ -19,26 +69,44 @@ class CodeBox(BaseImgElem):
         self.font_size = font_size
         self.bg_color = bg_color
         self.lexer = get_lexer_by_name(language)
-        self.formatter = self.get_formatter()
         self.background = None
+        self.next_line_nr = None
+        self.prev_line_nr = None
 
     def highlight(self, code):
         return Image.open(BytesIO(highlight(code, self.lexer, self.formatter)))
 
-    def get_formatter(self):
+    def update_next_line_nr(self, line_nr):
+        self.prev_line_nr = self.next_line_nr
+        self.next_line_nr = line_nr
+
+    @property
+    def formatter(self):
         style = Ayed2Style
         style.background_color = self.bg_color
-        return ImageFormatter(
-            font_size=self.font_size,
-            line_pad=self.line_pad,
-            line_numbers=True,
-            style=style,
-        )
+        kw = {"font_size": self.font_size,
+              "line_pad": self.line_pad,
+              "line_numbers": True,
+              "style": style,
+              "next_line_nr": self.next_line_nr,
+              "prev_line_nr": self.prev_line_nr
+              }
+        return NextPrevLineFormatter(**kw)
 
     def draw_me(self, pencil):
         img = self.highlight(self.source_code)
         x, y = self.position
-        pencil.image.paste(img, (x, y))
+        pencil.image.paste(img, (round(x), round(y)))
+
+    @property
+    def end(self):
+        if not hasattr(self, "position"):
+            raise ValueError("Position not set")
+        if not hasattr(self, "relative_end"):
+            pass
+        tmp_img = self.highlight(self.source_code)
+        self.relative_end = Point(tmp_img.size[0], tmp_img.size[1])
+        return self.position + self.relative_end
 
 
 class TomosCode(Container):
@@ -48,18 +116,12 @@ class TomosCode(Container):
         super().__init__(position)
         self.language = language
         self.source_code = source_code
-        self.code_img = CodeBox(source_code, language=language)
-        self.code_img.position = position
-        self.add(self.code_img)
-        self.focuser = self.build_focuser()
-
-    def build_focuser(self):
-        pass
+        self.code_generator = CodeBox(source_code, language=language)
+        self.code_generator.position = position
+        self.add(self.code_generator)
 
     def focus_line(self, line_number):
-        pass
+        self.code_generator.update_next_line_nr(line_number)
 
     def build_hint(self, msg):
         pass
-
-
