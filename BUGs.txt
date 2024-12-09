@@ -8,4 +8,4 @@
  - null handling in arrows
  - pointers aliasing and free
  - fonts loading
- - state Stack in evaluator
+ - state Stack in evaluator (mala abstracción, charlado con Franco)

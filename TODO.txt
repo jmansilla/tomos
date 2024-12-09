@@ -35,6 +35,9 @@ l)  [x] Expand sentences (if, while)
         [x] eval
         [x] ui
 m)  [ ] For loops
+        [ ] variable scope, and dynamic visualization (on and off)
+        [ ] support for integers only
+        [ ] ¿support for enums?
 n)  [ ] Better UI
         [ ] Prototype with manim
         [ ] syntax highlight
@@ -44,7 +47,7 @@ p)  [ ] Execution-Modes: unkownvalue, random, others ?
 
 
 Tech debt:
-t1)  [ ] add logging
+t1)  [.] add logging
 t2)  [ ] runtime type checking
         [ ] Unary and Binary Operations
         [ ] Assigments
