@@ -1,14 +1,18 @@
 // Everything that's defined like <<TYPEDECLARATION>> means to be done later
 // Everything in the shape of {some_name} will be replaced in python code
 
-?program           : typedef_section funprocdef_section body
-typedef_section    : typedef*
-typedef            : "<<TYPEDECLARATION>>"
+?program           : typedecl_section funprocdef_section body
+typedecl_section    : (typedecl _SEP)*
 funprocdef_section : funprocdef*
 funprocdef         : "<<FUNPROCDECLARATION>>"
 body               : vardef_section sentences
 vardef_section     : (var_declaration _SEP)*
 var_declaration    : "var" variable ":" type
+
+typedecl           : "type" NAME "=" (syn | enum| tuple)
+syn                : type
+enum               : "enumerate" (_literal _SEP?)+ "end enumerate"
+tuple              : "tuple" (fieldname ":" type)+ "end tuple"
 
 sentences          : (_sentence _SEP)*
 
@@ -35,8 +39,7 @@ expr_factor        : expr_unary ( FACTOR_SYMBOL  expr_unary )*
 expr_unary         : UNARY_SYMBOL expr_unary
                    | _expr_primary
 _expr_primary      : _literal | variable | "(" expr ")"
-_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL
-                   | INF | NULL
+_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | INF | NULL
 !bool_literal      : "true" | "false"
 INF                : "inf"
 NULL               : "null"
@@ -56,9 +59,9 @@ variable              : NAME
                       | variable_dereferenced
 
 variable_indexed      : variable "[" expr ("," expr)* "]"
-variable_accessed     : variable "." fname
+variable_accessed     : variable "." fieldname
 variable_dereferenced : "*" variable
-fname                 : NAME
+fieldname             : NAME
 
 
 type : BASIC_TYPE
