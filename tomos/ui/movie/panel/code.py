@@ -1,59 +1,127 @@
+from logging import getLogger
+from io import BytesIO
+from PIL import Image
+
+from skitso.atom import BaseImgElem, Container, Point
+
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import ImageFormatter
+from pygments_ayed2.style import Ayed2Style
+
 from tomos.ui.movie.texts import build_text
-from manim import (
-    Code as ManimCode,
-    UP, DOWN, LEFT, RIGHT,
-    YELLOW,
-    Text, SurroundingRectangle, VGroup)
 
 
-class Highlighter(VGroup):
-
-    def __init__(self, line, rect, line_number):
-        super().__init__(line, rect)
-        self.line_number = line_number
-
-    def show_info(self, msg, color=None):
-        hint = build_text(str(msg), font="Monospace")
-        hint.set_color(YELLOW)
-        # hint.scale(0.2)
-        hint.next_to(self, RIGHT)
-        return hint
+logger = getLogger(__name__)
 
 
-class TomosCode(ManimCode):
+class NextPrevLineFormatter(ImageFormatter):
+    _NEXT = 'next'
+    _PREV = 'prev'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.source_code_txt = kwargs['code']
-        self.line_blocks = self.code
-        self.main_highlighter = self.build_highlighter()
-        self.code.add(self.main_highlighter)
-
-    def build_highlighter(self):
-        max_columns = max([len(line) for line in self.source_code_txt.split('\n')])
-        invisible_line = Text("-" * max_columns)
-        invisible_line.set_opacity(0)
-        rect = SurroundingRectangle(invisible_line, buff=0.2, corner_radius=0.2)
-        rect.set_opacity(0.2)
-        return Highlighter(invisible_line, rect, line_number=None)
-
-    def highlight_line(self, line_number):
-        prev_number = self.main_highlighter.line_number
-        if prev_number == line_number:
-            return
-        reference = self.code[line_number - 1]
-        if prev_number is None:
-            self.main_highlighter.align_to(reference, LEFT)
-            self.main_highlighter.shift(0.05 * LEFT)
-            direction = DOWN
-        elif prev_number < line_number:
-            direction = DOWN
+    def __init__(self, *args, next_line_nr=None, prev_line_nr=None, **kwargs):
+        color_order = []
+        if next_line_nr is None:
+            if prev_line_nr is None:
+                # should not happen.
+                logger.error("next_line_nr and/or prev_line_nr should be provided.")
+                lines = []
+            else:
+                lines = [prev_line_nr]
+                color_order = [self._PREV]
         else:
-            direction = UP
+            if prev_line_nr is None:
+                lines = [next_line_nr]
+                color_order = [self._NEXT]
+            else:
+                lines = sorted([prev_line_nr, next_line_nr])
+                if next_line_nr < prev_line_nr:
+                    color_order = [self._NEXT, self._PREV]
+                else:
+                    color_order = [self._PREV, self._NEXT]
+        kwargs['hl_lines'] = lines
+        super().__init__(*args, **kwargs)
+        self.color_order = color_order
+        self._hl_prev_color = "#440000"
+        self._hl_next_color = "#004400"
 
-        self.main_highlighter.align_to(reference, direction)
-        self.main_highlighter.shift(0.025 * DOWN) # to make the line centered respect text
-        self.main_highlighter.line_number = line_number
+    @property
+    def hl_color(self):
+        # this attribute will be consumed in ascending order (by line number)
+        if not self.color_order:
+            return self._hl_color
+        which = self.color_order.pop(0)
+        if which == self._PREV:
+            return self._hl_prev_color
+        else:
+            return self._hl_next_color
+
+    @hl_color.setter
+    def hl_color(self, color):
+        self._hl_color = color
+
+
+class CodeBox(BaseImgElem):
+    line_pad = 2
+    def __init__(self, source_code, language="ayed2", font_size=18, bg_color="#000000"):
+        self.source_code = source_code
+        self.language = language
+        self.font_size = font_size
+        self.bg_color = bg_color
+        self.lexer = get_lexer_by_name(language)
+        self.background = None
+        self.next_line_nr = None
+        self.prev_line_nr = None
+
+    def highlight(self, code):
+        return Image.open(BytesIO(highlight(code, self.lexer, self.formatter)))
+
+    def update_next_line_nr(self, line_nr):
+        self.prev_line_nr = self.next_line_nr
+        self.next_line_nr = line_nr
+
+    @property
+    def formatter(self):
+        style = Ayed2Style
+        style.background_color = self.bg_color
+        kw = {"font_size": self.font_size,
+              "line_pad": self.line_pad,
+              "line_numbers": True,
+              "style": style,
+              "next_line_nr": self.next_line_nr,
+              "prev_line_nr": self.prev_line_nr
+              }
+        return NextPrevLineFormatter(**kw)
+
+    def draw_me(self, pencil):
+        img = self.highlight(self.source_code)
+        x, y = self.position
+        pencil.image.paste(img, (round(x), round(y)))
+
+    @property
+    def end(self):
+        if not hasattr(self, "position"):
+            raise ValueError("Position not set")
+        if not hasattr(self, "relative_end"):
+            pass
+        tmp_img = self.highlight(self.source_code)
+        self.relative_end = Point(tmp_img.size[0], tmp_img.size[1])
+        return self.position + self.relative_end
+
+
+class TomosCode(Container):
+
+    def __init__(self, source_code, language="ayed2"):
+        position = Point(0, 0)
+        super().__init__(position)
+        self.language = language
+        self.source_code = source_code
+        self.code_generator = CodeBox(source_code, language=language)
+        self.code_generator.position = position
+        self.add(self.code_generator)
+
+    def focus_line(self, line_number):
+        self.code_generator.update_next_line_nr(line_number)
 
     def build_hint(self, msg):
-        return self.main_highlighter.show_info(msg)
+        pass

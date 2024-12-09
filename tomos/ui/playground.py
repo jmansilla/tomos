@@ -20,7 +20,7 @@ from tomos.ui.interpreter_hooks import ShowSentence, ShowState, Sleeper, wait_fo
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
 
-from tomos.ui.movie.builder import build_movie
+from tomos.ui.movie.builder import build_movie, logger
 
 
 if __name__ == "__main__":
@@ -64,8 +64,17 @@ if __name__ == "__main__":
                                   post_hooks=post_hooks)
         final_state = interpreter.run()
         if opts["--movie"]:
-            print("Generating movie...")
+            logger.info("Generating movie...")
+
+            # from pyinstrument import Profiler
+            # profiler = Profiler()
+            # profiler.start()
+            # code you want to profile
             build_movie(source_path, timeline, delay=delay)
+
+            # profiler.stop()
+            # profiler.print()
+
 
         print(final_state)
 

@@ -2,3 +2,10 @@
     - probar hacer array de array de punteros y volvera a explotar
     - llevar el expr-evaluator adentro del state?
  - ugly handling of interpreter of jumps (if, while, and in the future for)
+ - unkown typo
+ - auto casting between booleans and ints
+ - infinity integers
+ - null handling in arrows
+ - pointers aliasing and free
+ - fonts loading
+ - state Stack in evaluator
