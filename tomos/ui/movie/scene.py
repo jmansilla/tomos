@@ -33,6 +33,7 @@ class TomosScene(Scene):
         code_block.to_edge(self, movement.LEFT_EDGE)
         code_block.shift(movement.RIGHT * (configs.PADDING))
         self.add(code_block)
+        self.tick()
 
         for i, snapshot in enumerate(self.timeline.timeline):
             if isinstance(snapshot.last_sentence, VarDeclaration):
