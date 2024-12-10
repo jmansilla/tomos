@@ -2,12 +2,12 @@ from tomos.ayed2.ast.types import TomosTypeError, PointerOf, ArrayOf
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 
-class _UnkownSingleton:
+class _UnknownSingleton:
     def __repr__(self):
         return "<?>"
 
     def __eq__(self, value: object) -> bool:
-        if isinstance(value, _UnkownSingleton):
+        if isinstance(value, _UnknownSingleton):
             return True
         return False
 
@@ -15,7 +15,7 @@ class _UnkownSingleton:
         return str(self).__hash__()
 
 
-UnkownValue = _UnkownSingleton()
+UnknownValue = _UnknownSingleton()
 
 
 class State:
@@ -53,7 +53,7 @@ class State:
             raise MemoryInfrigementError()
         del self.memory_cells[cell.value]
         del self.heap[cell.value]
-        cell.value = UnkownValue
+        cell.value = UnknownValue
 
     def set_variable_value(self, name, value, modifiers=None):
         dereferenced = getattr(modifiers, "dereferenced", False)
@@ -153,7 +153,7 @@ class MemoryCell:
         self.address = address
         self.var_type = var_type
         if value is None:
-            self.value = UnkownValue
+            self.value = UnknownValue
         else:
             self.value = value
 

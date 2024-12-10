@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
-from tomos.ayed2.evaluation.state import State, UnkownValue, MemoryAddress
+from tomos.ayed2.evaluation.state import State, UnknownValue, MemoryAddress
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 
@@ -41,10 +41,10 @@ class TestEvalState(TestCase):
         with self.assertRaises(UndeclaredVariableError):
             state.set_variable_value("x", 5)
 
-    def test_get_variable_after_declaration_returns_unkown(self):
+    def test_get_variable_after_declaration_returns_unknown(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        self.assertEqual(state.get_variable_value("x"), UnkownValue)
+        self.assertEqual(state.get_variable_value("x"), UnknownValue)
 
 
 class TestEvalStateAllocFree(TestCase):
@@ -53,11 +53,11 @@ class TestEvalStateAllocFree(TestCase):
         for base_type in [IntType, BoolType, RealType, CharType]:
             state = State()
             state.declare_static_variable("x", PointerOf(base_type))
-            self.assertEqual(state.get_variable_value("x"), UnkownValue)
+            self.assertEqual(state.get_variable_value("x"), UnknownValue)
             state.alloc("x")
             # now shall have an address as value
             value = state.get_variable_value("x")
-            self.assertNotEqual(value, UnkownValue)
+            self.assertNotEqual(value, UnknownValue)
             self.assertIsInstance(value, MemoryAddress)
             self.assertEqual(state.heap[value].var_type, base_type)
 
@@ -79,7 +79,7 @@ class TestEvalStateAllocFree(TestCase):
         state.alloc("x")
         value = state.get_variable_value("x")
         state.free("x")
-        self.assertEqual(state.get_variable_value("x"), UnkownValue)
+        self.assertEqual(state.get_variable_value("x"), UnknownValue)
         self.assertNotIn(value, state.heap)
 
     def test_free_twice_raises_exception(self):

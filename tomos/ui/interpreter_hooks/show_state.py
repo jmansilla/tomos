@@ -2,7 +2,7 @@ import pprint
 from prettytable import PrettyTable
 
 from tomos.ayed2.ast.types import ArrayOf, PointerOf, CharType
-from tomos.ayed2.evaluation.state import UnkownValue
+from tomos.ayed2.evaluation.state import UnknownValue
 from tomos.ui.colors import bcolors
 
 
@@ -49,7 +49,7 @@ class ShowState:
             value = self.format_array(cell)
         else:
             value = cell.value
-            if isinstance(cell.var_type, CharType) and not value == UnkownValue:
+            if isinstance(cell.var_type, CharType) and not value == UnknownValue:
                 value = f"'{value}'"
             if self.show_diff:
                 value = self.differ(cell.address, value)
