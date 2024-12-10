@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
-from tomos.ayed2.evaluation.state import State, UnkownValue, UndeclaredVariableError, AlreadyDeclaredVariableError, MemoryAddress, MemoryInfrigementError
-from tomos.exceptions import TomosTypeError
+from tomos.ayed2.evaluation.state import State, UnkownValue, MemoryAddress
+from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 
 class TestEvalState(TestCase):

@@ -10,3 +10,15 @@ class TomosTypeError(TomosException):
 
 class ExpressionEvaluationError(TomosException):
     pass
+
+
+class AlreadyDeclaredVariableError(TomosException):
+    pass
+
+
+class MemoryInfrigementError(TomosException):
+    pass
+
+
+class UndeclaredVariableError(TomosException):
+    pass

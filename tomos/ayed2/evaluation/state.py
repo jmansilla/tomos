@@ -1,17 +1,5 @@
 from tomos.ayed2.ast.types import TomosTypeError, PointerOf, ArrayOf
-from tomos.exceptions import TomosTypeError
-
-
-class UndeclaredVariableError(Exception):
-    pass
-
-
-class AlreadyDeclaredVariableError(Exception):
-    pass
-
-
-class MemoryInfrigementError(Exception):
-    pass
+from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 
 class _UnkownSingleton:
