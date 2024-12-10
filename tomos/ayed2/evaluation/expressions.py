@@ -1,9 +1,6 @@
 from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType
+from tomos.exceptions import ExpressionEvaluationError
 from tomos.visit import NodeVisitor
-
-
-class ExpressionEvaluationError(Exception):
-    pass
 
 
 class ExpressionEvaluator(NodeVisitor):
