@@ -9,7 +9,7 @@ body               : vardef_section sentences
 vardef_section     : (var_declaration _SEP)*
 var_declaration    : "var" variable ":" type
 
-typedecl           : "type" NAME "=" (syn | enum| tuple)
+typedecl           : "type" NAME "=" (syn | enum | tuple)
 syn                : type
 enum               : "enumerate" (_literal _SEP?)+ "end enumerate"
 tuple              : "tuple" (fieldname ":" type)+ "end tuple"
@@ -67,6 +67,7 @@ fieldname             : NAME
 type : BASIC_TYPE
      | "pointer of" type -> pointer
      | "array" array_axes "of" type -> array_of
+     | NAME
 
 BASIC_TYPE      : "int" | "bool" | "real" | "char"
 array_axes      : ("[" array_axis ("," array_axis)* "]")
