@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import TomosTypeError, PointerOf, ArrayOf
+from tomos.ayed2.ast.types import PointerOf, ArrayOf
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 

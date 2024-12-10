@@ -49,9 +49,8 @@ class TreeToAST(Transformer):
     def type(self, args):
         assert len(args) == 1
         token = args[0]
-        if token.value not in type_map:
-            raise UnexpectedInput(f"Unknown type: {token.value}")
-        return type_map[token.value]()
+        type_factory = type_registry.get_type(token.value)
+        return type_factory()
 
     def builtin_name(self, args):
         token = args[0]
