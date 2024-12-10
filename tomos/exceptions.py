@@ -1,0 +1,3 @@
+
+class TomosTypeError(Exception):
+    pass

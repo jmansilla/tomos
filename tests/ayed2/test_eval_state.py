@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
-from tomos.ayed2.evaluation.state import State, UnkownValue, UndeclaredVariableError, AlreadyDeclaredVariableError, Ayed2TypeError, MemoryAddress, MemoryInfrigementError
+from tomos.ayed2.evaluation.state import State, UnkownValue, UndeclaredVariableError, AlreadyDeclaredVariableError, MemoryAddress, MemoryInfrigementError
+from tomos.exceptions import TomosTypeError
 
 
 class TestEvalState(TestCase):
@@ -32,7 +33,7 @@ class TestEvalState(TestCase):
     def test_set_variable_of_wrong_type_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             state.set_variable_value("x", True)
 
     def test_set_variable_before_declaration_raises_exception(self):
@@ -63,13 +64,13 @@ class TestEvalStateAllocFree(TestCase):
     def test_doing_alloc_for_not_pointer_variable_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             state.alloc("x")
 
     def test_doing_free_for_not_pointer_variable_raises_exception(self):
         state = State()
         state.declare_static_variable("x", IntType)
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             state.free("x")
 
     def test_free_for_pointer_variable(self):

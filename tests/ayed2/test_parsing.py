@@ -4,7 +4,7 @@ from unittest.mock import patch
 from tomos.ayed2.parser import parser
 from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral
 from tomos.ayed2.ast.operators import UnaryOp
-from tomos.ayed2.ast.program import Program, VarDeclaration
+from tomos.ayed2.ast.program import Program, VarDeclaration, TypeDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf
 
@@ -365,3 +365,27 @@ class TestParseArrayVarDeclarations(TestCase):
         self.assertIsInstance(sent, VarDeclaration)
         self.assertIsInstance(sent.var_type, ArrayOf)
         self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(N))')
+
+
+class TestParseTypeDeclarations(TestCase):
+    def test_parse_synonym_declarations(self):
+        new_type = "SomeNewType"
+        var_name = "x"
+        for usual_type_name, var_type in [
+            ("int", IntType),
+            ("bool", BoolType),
+            ("real", RealType),
+            ("char", CharType),
+        ]:
+            source = f"type {new_type} = {usual_type_name}; var {var_name}: {new_type}"
+            sentences = get_parsed_sentences(source)
+            self.assertEqual(len(sentences), 2)
+            sent = sentences[0]
+            self.assertIsInstance(sent, TypeDeclaration)
+            self.assertEqual(sent.name, new_type)
+            self.assertIsInstance(sent.var_type, var_type)
+
+    def test_declaring_var_of_unknown_type(self):
+        source = "var x: unknown"
+        # self.assertRaises(VariableDeclarationError, get_parsed_sentences, source)
+        self.assertRaises(ValueError, get_parsed_sentences, source)

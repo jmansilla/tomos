@@ -1,4 +1,5 @@
-from tomos.ayed2.ast.types import Ayed2TypeError, PointerOf, ArrayOf
+from tomos.ayed2.ast.types import TomosTypeError, PointerOf, ArrayOf
+from tomos.exceptions import TomosTypeError
 
 
 class UndeclaredVariableError(Exception):
@@ -48,7 +49,7 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if not isinstance(cell.var_type, PointerOf):
-            raise Ayed2TypeError(f"Cannot allocate. Variable {name} is not a pointer.")
+            raise TomosTypeError(f"Cannot allocate. Variable {name} is not a pointer.")
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type.of)
         self.memory_cells[new_cell.address] = new_cell
         self.heap[new_cell.address] = new_cell
@@ -59,7 +60,7 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if not isinstance(cell.var_type, PointerOf):
-            raise Ayed2TypeError(f"Cannot free. Variable {name} is not a pointer.")
+            raise TomosTypeError(f"Cannot free. Variable {name} is not a pointer.")
         if cell.value not in self.memory_cells or cell.value not in self.heap:
             raise MemoryInfrigementError()
         del self.memory_cells[cell.value]
@@ -80,7 +81,7 @@ class State:
             cell = self.memory_cells[cell.value]
         if not cell.var_type.is_valid_value(value):
             star = "*" if dereferenced else ""
-            raise Ayed2TypeError(
+            raise TomosTypeError(
                 f"Variable {star}{name} was declared of type {cell.var_type}, "
                 f"but attempted to set value {value}({type(value)}) that's not valid for this type."
             )
