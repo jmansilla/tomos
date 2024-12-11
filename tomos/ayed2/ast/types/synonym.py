@@ -8,3 +8,14 @@ class Synonym(Ayed2Type):
 
     def __call__(self):
         return self
+
+    @property
+    def SIZE(self):
+        return self.underlying_type.SIZE
+
+    @property
+    def is_pointer(self):
+        return self.underlying_type.is_pointer
+
+    def is_valid_value(self, value):
+        return self.underlying_type.is_valid_value(value)

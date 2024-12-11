@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym,type_registry
 from tomos.ayed2.evaluation.state import State, UnknownValue, MemoryAddress
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
@@ -96,3 +96,28 @@ class TestEvalStateAllocFree(TestCase):
             state.alloc("y")
         with self.assertRaises(UndeclaredVariableError):
             state.free("y")
+
+
+class TestEvalStateForSynonyms(TestCase):
+
+    def test_for_synonym_of_int(self):
+        newType = Synonym("number", IntType)
+        state = State()
+        state.declare_static_variable("x", newType)
+        state.set_variable_value("x", 5)
+        self.assertRaises(Exception, state.set_variable_value, "x", "c")
+
+    def test_alloc_free_for_synonym_pointer_variable(self):
+        newType = Synonym("number", IntType)
+        state = State()
+        state.declare_static_variable("x", PointerOf(newType))
+        self.assertEqual(state.get_variable_value("x"), UnknownValue)
+        state.alloc("x")
+        value = state.get_variable_value("x")
+        self.assertNotEqual(value, UnknownValue)
+        self.assertIsInstance(value, MemoryAddress)
+        self.assertEqual(state.heap[value].var_type, newType)
+        state.free("x")
+        self.assertEqual(state.get_variable_value("x"), UnknownValue)
+        self.assertNotIn(value, state.heap)
+
