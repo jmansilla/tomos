@@ -1,4 +1,5 @@
 class Ayed2Type:
+    is_pointer = False
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -50,6 +51,7 @@ class CharType(BasicType):
 class PointerOf(BasicType):
     NAMED_LITERALS = {"null": None}
     SIZE = 2
+    is_pointer = True
 
     def __init__(self, of):
         self.of = of
