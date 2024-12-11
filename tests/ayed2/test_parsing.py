@@ -2,11 +2,13 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from tomos.ayed2.parser import parser
+from tomos.ayed2.parser.reserved_words import KEYWORDS
 from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf,Synonym, type_registry
+from tomos.exceptions import TomosTypeError
 
 from .factories.expressions import IntegerLiteralFactory
 
@@ -19,7 +21,9 @@ def compare_literals_for_testing(lit1, lit2):
     return lit1.value_str == lit2.value_str
 
 
-def get_parsed_sentences(source, single_sentence=False):
+def get_parsed_sentences(source, single_sentence=False, reset_registry=False):
+    if reset_registry:
+        type_registry.reset()
     if not source.endswith(";"):
         source = source + ";"
     program = parser.parse(source)
@@ -85,6 +89,11 @@ class TestParseBasicTypeSentences(TestCase):
         self.assertIsInstance(sent, Assignment)
         self.assertIsInstance(sent.expr, NullLiteral)  # type: ignore
         self.assertEqual(sent.expr.value_str, "null")  # type: ignore
+
+    def test_variable_names_cant_be_keywords(self):
+        for keyword in KEYWORDS:
+            source = f"var {keyword}: int"
+            self.assertRaises(TomosTypeError, get_parsed_sentences, source)
 
 
 @patch("tomos.ayed2.ast.expressions._Literal.__eq__", new=compare_literals_for_testing)
@@ -311,6 +320,26 @@ class TestParseIfSentences(TestCase):
         self.assertEqual(len(sent.else_sentences), 0)
 
 
+class TestParsePointerVarDeclarations(TestCase):
+
+    def test_parse_pointer_of_basic(self):
+        source = "var x: pointer of int"
+        sent = get_parsed_sentences(source, single_sentence=True)
+        self.assertIsInstance(sent, VarDeclaration)
+        self.assertEqual(sent.name, "x")  # type: ignore
+        self.assertIsInstance(sent.var_type, PointerOf)  # type: ignore
+        self.assertIsInstance(sent.var_type.of, IntType)  # type: ignore
+
+    def test_parse_pointer_of_pointer(self):
+        source = "var x: pointer of pointer of int"
+        sent = get_parsed_sentences(source, single_sentence=True)
+        self.assertIsInstance(sent, VarDeclaration)
+        self.assertEqual(sent.name, "x")  # type: ignore
+        self.assertIsInstance(sent.var_type, PointerOf)  # type: ignore
+        self.assertIsInstance(sent.var_type.of, PointerOf)  # type: ignore
+        self.assertIsInstance(sent.var_type.of.of, IntType)  # type: ignore
+
+
 class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
@@ -365,3 +394,53 @@ class TestParseArrayVarDeclarations(TestCase):
         self.assertIsInstance(sent, VarDeclaration)
         self.assertIsInstance(sent.var_type, ArrayOf)
         self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(N))')
+
+
+class TestParseTypeDeclarationsSynonyms(TestCase):
+    def test_parse_simple_synonym_declarations(self):
+        new_type = "SomeNewType"
+        var_name = "x"
+        for usual_type_name, var_type in [
+            ("int", IntType),
+            ("bool", BoolType),
+            ("real", RealType),
+            ("char", CharType),
+        ]:
+            source = f"type {new_type} = {usual_type_name}; var {var_name}: {new_type}"
+            sentences = get_parsed_sentences(source, reset_registry=True)
+            self.assertEqual(len(sentences), 1)
+            sent = sentences[0]
+            self.assertIsInstance(sent, VarDeclaration)
+            self.assertIsInstance(sent.var_type, Synonym)
+
+    def test_parse_synonym_of_pointer(self):
+        new_type = "SomeNewType"
+
+        for usual_type_name, var_type in [
+            ("int", IntType),
+            ("bool", BoolType),
+            ("real", RealType),
+            ("char", CharType),
+        ]:
+            source = f"type {new_type} = pointer of {usual_type_name}; var x: {new_type}"
+            sentences = get_parsed_sentences(source, reset_registry=True)
+            self.assertEqual(len(sentences), 1)
+            sent = sentences[0]
+            self.assertIsInstance(sent, VarDeclaration)
+            self.assertIsInstance(sent.var_type, Synonym)
+
+    def test_declaring_var_of_unknown_type_should_fail(self):
+        source = "var x: unknown"
+        self.assertRaises(TomosTypeError, get_parsed_sentences, source)
+
+    def test_overloading_existent_name_should_fail(self):
+        source = "type int = int"
+        self.assertRaises(TomosTypeError, get_parsed_sentences, source)
+        source = "type NewName = int; type NewName = char"
+        self.assertRaises(TomosTypeError, get_parsed_sentences, source)
+
+    def test_cant_name_type_with_keyword(self):
+        for keyword in KEYWORDS:
+            source = f"type {keyword} = int"
+            self.assertRaises(TomosTypeError, get_parsed_sentences, source)
+

@@ -7,6 +7,9 @@ from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
 from tomos.ayed2.ast.program import *
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
+from tomos.exceptions import TomosTypeError
+
+from .reserved_words import KEYWORDS
 
 
 class TreeToAST(Transformer):
@@ -39,19 +42,53 @@ class TreeToAST(Transformer):
 
     def var_declaration(self, args):
         var, var_type = args
+        if var.name in KEYWORDS:
+            raise TomosTypeError(f"Cant use {var.name} as variable name because it is reserved")
         return VarDeclaration(variable=var, var_type=var_type)
 
-    def pointer(self, args):
+    def pointer_of(self, args):
         assert len(args) == 1 and isinstance(args[0], Ayed2Type)
         pointed_type = args[0]
         return PointerOf(of=pointed_type)
 
     def type(self, args):
+        # This production is used in several different places.
+        # a) when declaring a variable of basic type
+        # b) when declaring a variable of a custom-type
+        # c) when declaring a variable of pointer type or array type
+        #    (where type is an argument to the complex-type constructor)
+        # d) when declaring a type synonym
+        #
         assert len(args) == 1
-        token = args[0]
-        if token.value not in type_map:
-            raise UnexpectedInput(f"Unknown type: {token.value}")
-        return type_map[token.value]()
+        arg0 = args[0]
+        # print('ESTOY EN TYPE-pre-todo', arg0, type(arg0))
+        if isinstance(arg0, Token):
+            # we are in case a) b) or d) described above
+            type_factory = type_registry.get_type(arg0.value)
+            return type_factory()
+        elif isinstance(arg0, Ayed2Type):
+            # we are in case c)
+            return arg0
+        else:
+            raise UnexpectedInput(f"Invalid type {arg0}")
+
+    def custom_type(self, args):
+        assert len(args) == 1
+        return args[0]
+
+    def syn(self, args):
+        # synomym for type
+        assert len(args) == 1 and isinstance(args[0], Ayed2Type)
+
+        return Synonym(name=None, underlying_type=args[0])
+
+    def typedecl(self, args):
+        assert len(args) == 2
+        new_name, new_type = args
+        if new_name in KEYWORDS:
+            raise TomosTypeError(f"Type name {new_name} is reserved")
+        new_type.name = new_name
+        type_registry.register_type(new_name, new_type)
 
     def builtin_name(self, args):
         token = args[0]
@@ -148,7 +185,6 @@ class TreeToAST(Transformer):
     def CHAR_LITERAL(self, token):
         return self.parse_literal(CharLiteral, token)
 
-    # array definition parsing
     def array_of(self, args):
         if len(args) == 2:
             return ArrayOf(of=args[1], axes=args[0])

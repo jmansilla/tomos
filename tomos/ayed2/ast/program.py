@@ -45,11 +45,6 @@ class VarDeclaration(ProgramExpression):
         return f"VarDeclaration(name={self.name}, type={self.var_type})"
 
 
-class TypeDeclaration(ProgramExpression):
-    # TODO
-    pass
-
-
 class FunctionDeclaration(ProgramExpression):
     # TODO
     pass

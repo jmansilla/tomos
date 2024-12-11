@@ -89,7 +89,7 @@ class MemoryBlock(Container):
 
     def add_var(self, name, _type, value, in_heap=False):
         # Create the correct var sprite
-        if isinstance(_type, PointerOf):
+        if _type.is_pointer:
             vars_index = self.vars_by_name
             var = PointerVar(vars_index, name, _type, value, in_heap=in_heap)
         else:

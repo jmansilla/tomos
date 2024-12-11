@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, PointerOf
-from tomos.ayed2.evaluation.state import UnkownValue, MemoryAddress
+from tomos.ayed2.evaluation.state import UnknownValue, MemoryAddress
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 
 from .factories.state import StateFactory
@@ -80,11 +80,11 @@ class TestEvalVariableExpressions(TestCase):
         with self.assertRaises(Exception):
             run_eval(expr, state)
 
-    def test_declared_but_unset_variable_returns_unkown(self):
+    def test_declared_but_unset_variable_returns_unknown(self):
         var_expr = VariableFactory()
         state = StateFactory()
         state.declare_static_variable(var_expr.name, IntType)
-        self.assertEqual(run_eval(var_expr, state), UnkownValue)
+        self.assertEqual(run_eval(var_expr, state), UnknownValue)
 
     def test_eval_pointer_variable(self):
         var_pointer = VariableFactory()
@@ -94,6 +94,7 @@ class TestEvalVariableExpressions(TestCase):
         self.assertIsInstance(run_eval(var_pointer, state), MemoryAddress)
         var_pointer.dereferenced = True
         self.assertNotIsInstance(run_eval(var_pointer, state), MemoryAddress)
+
 
 class TestEvalUnaryExpressions(TestCase):
     def test_eval_negative_integer(self):

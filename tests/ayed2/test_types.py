@@ -3,8 +3,9 @@ from unittest import TestCase
 from .factories.expressions import IntegerLiteralFactory
 from .factories.state import StateFactory
 
-from tomos.ayed2.ast.types import Ayed2TypeError, ArrayAxis, ArrayOf, IntType
+from tomos.ayed2.ast.types import ArrayAxis, ArrayOf, IntType
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
+from tomos.exceptions import TomosTypeError
 
 
 def _ArrayType(ranges_str):
@@ -104,16 +105,15 @@ class TestArrayIndexing(TestArray):
 
     def test_out_of_range_raises(self):
         at = self.eval_expressions(_ArrayType("[5]"))
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             at.flatten_index([5])
 
     def test_wrong_range_raises(self):
         at = self.eval_expressions(_ArrayType("[5]"))
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             at.flatten_index([1, 2, 3])
         at = self.eval_expressions(_ArrayType("[5, 5]"))
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             at.flatten_index([1, 2, 3])
-        with self.assertRaises(Ayed2TypeError):
+        with self.assertRaises(TomosTypeError):
             at.flatten_index([1])
-

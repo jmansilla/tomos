@@ -1,6 +1,6 @@
 import factory
 
-from tomos.ayed2.ast.types import type_map
+from tomos.ayed2.ast.types import type_registry
 from tomos.ayed2.ast.program import VarDeclaration
 from tomos.ayed2.ast.sentences import Assignment, If, While
 
@@ -19,7 +19,7 @@ class VarDeclarationFactory(factory.Factory):
 
     class Params:
         faker_type = factory.Faker(
-            "random_element", elements=type_map.values()
+            "random_element", elements=type_registry.type_map.values()
         )
 
     variable = factory.SubFactory("tests.ayed2.factories.expressions.VariableFactory")

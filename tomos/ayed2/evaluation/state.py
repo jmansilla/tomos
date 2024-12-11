@@ -1,24 +1,13 @@
-from tomos.ayed2.ast.types import Ayed2TypeError, PointerOf, ArrayOf
+from tomos.ayed2.ast.types import PointerOf, ArrayOf
+from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 
 
-class UndeclaredVariableError(Exception):
-    pass
-
-
-class AlreadyDeclaredVariableError(Exception):
-    pass
-
-
-class MemoryInfrigementError(Exception):
-    pass
-
-
-class _UnkownSingleton:
+class _UnknownSingleton:
     def __repr__(self):
         return "<?>"
 
     def __eq__(self, value: object) -> bool:
-        if isinstance(value, _UnkownSingleton):
+        if isinstance(value, _UnknownSingleton):
             return True
         return False
 
@@ -26,7 +15,7 @@ class _UnkownSingleton:
         return str(self).__hash__()
 
 
-UnkownValue = _UnkownSingleton()
+UnknownValue = _UnknownSingleton()
 
 
 class State:
@@ -48,7 +37,7 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if not isinstance(cell.var_type, PointerOf):
-            raise Ayed2TypeError(f"Cannot allocate. Variable {name} is not a pointer.")
+            raise TomosTypeError(f"Cannot allocate. Variable {name} is not a pointer.")
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type.of)
         self.memory_cells[new_cell.address] = new_cell
         self.heap[new_cell.address] = new_cell
@@ -59,12 +48,12 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if not isinstance(cell.var_type, PointerOf):
-            raise Ayed2TypeError(f"Cannot free. Variable {name} is not a pointer.")
+            raise TomosTypeError(f"Cannot free. Variable {name} is not a pointer.")
         if cell.value not in self.memory_cells or cell.value not in self.heap:
             raise MemoryInfrigementError()
         del self.memory_cells[cell.value]
         del self.heap[cell.value]
-        cell.value = UnkownValue
+        cell.value = UnknownValue
 
     def set_variable_value(self, name, value, modifiers=None):
         dereferenced = getattr(modifiers, "dereferenced", False)
@@ -80,7 +69,7 @@ class State:
             cell = self.memory_cells[cell.value]
         if not cell.var_type.is_valid_value(value):
             star = "*" if dereferenced else ""
-            raise Ayed2TypeError(
+            raise TomosTypeError(
                 f"Variable {star}{name} was declared of type {cell.var_type}, "
                 f"but attempted to set value {value}({type(value)}) that's not valid for this type."
             )
@@ -164,7 +153,7 @@ class MemoryCell:
         self.address = address
         self.var_type = var_type
         if value is None:
-            self.value = UnkownValue
+            self.value = UnknownValue
         else:
             self.value = value
 
