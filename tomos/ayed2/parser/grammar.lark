@@ -64,16 +64,16 @@ variable_dereferenced : "*" variable
 fieldname             : NAME
 
 
-type : BASIC_TYPE
-     | "pointer of" type -> pointer
-     | "array" array_axes "of" type -> array_of
-     | NAME
+type              : BASIC_TYPE | pointer_of | array_of | custom_type
 
-BASIC_TYPE      : "int" | "bool" | "real" | "char"
-array_axes      : ("[" array_axis ("," array_axis)* "]")
-array_axis      : (array_axis_from "..")? array_axis_to
-array_axis_from : INT | variable
-array_axis_to   : INT | variable
+BASIC_TYPE.2      : "int" | "bool" | "real" | "char"
+pointer_of.2      : "pointer" "of" type
+array_of.2        : "array" array_axes "of" type
+array_axes        : ("[" array_axis ("," array_axis)* "]")
+array_axis        : (array_axis_from "..")? array_axis_to
+array_axis_from   : INT | variable
+array_axis_to     : INT | variable
+custom_type.0     : NAME
 
 COMMENT : "//" /[^\n]*/
 _SEP    : (";" | NL)  // separator
