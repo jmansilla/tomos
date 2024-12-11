@@ -43,7 +43,7 @@ n)  [ ] Better UI
         [ ] syntax highlight
 o)  [ ] Distribution... pypi? website? others?
 o)  [ ] Constants as input
-p)  [ ] Execution-Modes: unkownvalue, random, others ?
+p)  [ ] Execution-Modes: unknownvalue, random, others ?
 
 
 Tech debt:
@@ -53,6 +53,10 @@ t2)  [ ] runtime type checking
         [ ] Assigments
         [ ] tricky array indexing (valid number of axes and within boundaries)
 t3)  [ ] Show gracefull error messages instead of python tracebacks
+t4)  [.] Overlapped usage of names (for types, for fields, for vars). Detect, report and finish
+        - Half done considering keywords.
+        - Missing check vars need to respect a given scope (global or not): when var is declared,
+          need to not overlap an existent custom type or some other var
 
 
 Not-gonna-happen in this verison:
