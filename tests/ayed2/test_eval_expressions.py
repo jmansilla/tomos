@@ -95,6 +95,7 @@ class TestEvalVariableExpressions(TestCase):
         var_pointer.dereferenced = True
         self.assertNotIsInstance(run_eval(var_pointer, state), MemoryAddress)
 
+
 class TestEvalUnaryExpressions(TestCase):
     def test_eval_negative_integer(self):
         sub_expr = IntegerLiteralFactory()
