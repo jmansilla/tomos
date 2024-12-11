@@ -57,6 +57,7 @@ t4)  [.] Overlapped usage of names (for types, for fields, for vars). Detect, re
         - Half done considering keywords.
         - Missing check vars need to respect a given scope (global or not): when var is declared,
           need to not overlap an existent custom type or some other var
+        - Missing considerations respect Enum Literals
 
 
 Not-gonna-happen in this verison:
