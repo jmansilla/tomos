@@ -11,5 +11,5 @@ brightness := 2
 shade := Red
 alloc(proxy_b)
 alloc(proxy_s)
-proxy_b := 7
-proxy_s := Green
+*proxy_b := 7
+*proxy_s := Green
