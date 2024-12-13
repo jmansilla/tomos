@@ -9,10 +9,10 @@ body               : vardef_section sentences
 vardef_section     : (var_declaration _SEP)*
 var_declaration    : "var" variable ":" type
 
-typedecl           : "type" NAME "=" (syn | enum | tuple)
+typedecl           : "type" L_NAME "=" (syn | enum | tuple)
 syn                : type
-enum               : "enumerate" (_literal _SEP?)+ "end enumerate"
-tuple              : "tuple" (fieldname ":" type)+ "end tuple"
+enum               : "enumerate" (U_NAME _SEP?)+ "end" "enumerate"
+tuple              : "tuple" (fieldname ":" type)+ "end" "tuple"
 
 sentences          : (_sentence _SEP)*
 
@@ -39,11 +39,12 @@ expr_factor        : expr_unary ( FACTOR_SYMBOL  expr_unary )*
 expr_unary         : UNARY_SYMBOL expr_unary
                    | _expr_primary
 _expr_primary      : _literal | variable | "(" expr ")"
-_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | INF | NULL
+_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | INF | NULL | ENUM_LITERAL
 !bool_literal      : "true" | "false"
 INF                : "inf"
 NULL               : "null"
 CHAR_LITERAL       :  /./
+ENUM_LITERAL       : U_NAME
 
 // Expression Symbols
 JUNCTION_SYMBOL    : ( "&&" | "||" )
@@ -53,7 +54,7 @@ TERM_SYMBOL        : ( "-" | "+" )
 FACTOR_SYMBOL      : ( "/" | "*" | "%" )
 UNARY_SYMBOL       : ( "!" | "-" )
 
-variable              : NAME
+variable              : L_NAME
                       | variable_indexed
                       | variable_accessed
                       | variable_dereferenced
@@ -61,7 +62,7 @@ variable              : NAME
 variable_indexed      : variable "[" expr ("," expr)* "]"
 variable_accessed     : variable "." fieldname
 variable_dereferenced : "*" variable
-fieldname             : NAME
+fieldname             : L_NAME
 
 
 type              : BASIC_TYPE | pointer_of | array_of | custom_type
@@ -73,12 +74,19 @@ array_axes        : ("[" array_axis ("," array_axis)* "]")
 array_axis        : (array_axis_from "..")? array_axis_to
 array_axis_from   : INT | variable
 array_axis_to     : INT | variable
-custom_type.0     : NAME
+custom_type.0     : L_NAME
 
 COMMENT : "//" /[^\n]*/
 _SEP    : (";" | NL)  // separator
 
-%import common.CNAME            -> NAME
+L_NAME  : ("_"|LCASE_LETTER) ("_"|LETTER|DIGIT)*
+U_NAME  : (UCASE_LETTER) ("_"|LETTER|DIGIT)*
+
+%import common.CNAME            -> ANY_NAME
+%import common.LETTER           -> LETTER
+%import common.LCASE_LETTER     -> LCASE_LETTER
+%import common.UCASE_LETTER     -> UCASE_LETTER
+%import common.DIGIT            -> DIGIT
 %import common.INT              -> INT
 %import common.FLOAT            -> REAL
 
