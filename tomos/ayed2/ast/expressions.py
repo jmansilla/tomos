@@ -7,6 +7,7 @@ from tomos.ayed2.ast.types import *
 class Expr(ASTNode):
     pass
 
+
 class _Literal(Expr):
     def __init__(self, token):
         assert isinstance(token, Token)
@@ -38,6 +39,10 @@ class CharLiteral(_Literal):
 
 
 class NullLiteral(_Literal):
+    _type = None
+
+
+class EnumLiteral(_Literal):
     _type = None
 
 
