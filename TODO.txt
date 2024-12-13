@@ -44,6 +44,9 @@ n)  [ ] Better UI
 o)  [ ] Distribution... pypi? website? others?
 o)  [ ] Constants as input
 p)  [ ] Execution-Modes: unknownvalue, random, others ?
+q)  [ ] i18n
+        [ ] Adapt code messages to be i18n translated
+        [ ] Create actual translations
 
 
 Tech debt:
@@ -57,6 +60,10 @@ t4)  [.] Overlapped usage of names (for types, for fields, for vars). Detect, re
         - Half done considering keywords.
         - Missing check vars need to respect a given scope (global or not): when var is declared,
           need to not overlap an existent custom type or some other var
+        - Missing considerations respect Enum Literals
+t5)  [ ] Replace asserts with descriptfull exceptions
+t6)  [ ] Basic Type classes are singletons-like. But weirdly handled.
+t7)  [ ] Upgrade syntax highlight with types definitions
 
 
 Not-gonna-happen in this verison:

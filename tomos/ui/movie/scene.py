@@ -5,7 +5,7 @@ from skitso.scene import Scene
 from skitso import movement
 
 from tomos.ayed2.ast.sentences import Assignment, If, While
-from tomos.ayed2.ast.program import VarDeclaration
+from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
 from tomos.ui.movie import configs
 from tomos.ui.movie.panel.code import TomosCode
 from tomos.ui.movie.panel.memory import MemoryBlock
@@ -36,6 +36,8 @@ class TomosScene(Scene):
         self.tick()
 
         for i, snapshot in enumerate(self.timeline.timeline):
+            if isinstance(snapshot.last_sentence, TypeDeclaration):
+                continue
             if isinstance(snapshot.last_sentence, VarDeclaration):
                 memory_block.process_snapshot(snapshot)
                 continue

@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from tomos.ayed2.parser import parser
 from tomos.ayed2.parser.reserved_words import KEYWORDS
-from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral
+from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral, EnumLiteral
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf,Synonym, type_registry
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf, Synonym, type_registry, Enum
 from tomos.exceptions import TomosTypeError
 
 from .factories.expressions import IntegerLiteralFactory
@@ -387,18 +387,18 @@ class TestParseArrayVarDeclarations(TestCase):
         self.assertIsInstance(sent.var_type.of.of, IntType)  # type: ignore
 
     def test_array_of_variable(self):
-        source = "var x: array [N] of int"
+        source = "var x: array [n] of int"
         sentences = get_parsed_sentences(source)
         self.assertEqual(len(sentences), 1)
         sent = sentences[0]
         self.assertIsInstance(sent, VarDeclaration)
         self.assertIsInstance(sent.var_type, ArrayOf)
-        self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(N))')
+        self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(n))')
 
 
 class TestParseTypeDeclarationsSynonyms(TestCase):
     def test_parse_simple_synonym_declarations(self):
-        new_type = "SomeNewType"
+        new_type = "somenewtype"
         var_name = "x"
         for usual_type_name, var_type in [
             ("int", IntType),
@@ -414,7 +414,7 @@ class TestParseTypeDeclarationsSynonyms(TestCase):
             self.assertIsInstance(sent.var_type, Synonym)
 
     def test_parse_synonym_of_pointer(self):
-        new_type = "SomeNewType"
+        new_type = "somenewtype"
 
         for usual_type_name, var_type in [
             ("int", IntType),
@@ -436,11 +436,29 @@ class TestParseTypeDeclarationsSynonyms(TestCase):
     def test_overloading_existent_name_should_fail(self):
         source = "type int = int"
         self.assertRaises(TomosTypeError, get_parsed_sentences, source)
-        source = "type NewName = int; type NewName = char"
+        source = "type new_type_name = int; type new_type_name = char"
         self.assertRaises(TomosTypeError, get_parsed_sentences, source)
 
     def test_cant_name_type_with_keyword(self):
         for keyword in KEYWORDS:
             source = f"type {keyword} = int"
             self.assertRaises(TomosTypeError, get_parsed_sentences, source)
+
+
+class TestParseEnum(TestCase):
+    def test_parse_simple_synonym_declarations(self):
+        new_type = "somenewtype"
+        var_name = "x"
+        source = f"type {new_type} = enumerate Uno Dos Tres end enumerate; "
+        source += f"var {var_name}: {new_type};"
+        source += f" {var_name} := Uno;"
+        sentences = get_parsed_sentences(source, reset_registry=True)
+        self.assertEqual(len(sentences), 2)  # type declaration is sent to type_registry, and only 2 sents received
+        var_dec_sent = sentences[0]
+        self.assertIsInstance(var_dec_sent, VarDeclaration)
+        self.assertIsInstance(var_dec_sent.var_type, Enum)
+        assign_sent = sentences[1]
+        self.assertIsInstance(assign_sent, Assignment)
+        self.assertIsInstance(assign_sent.expr, EnumLiteral)
+
 

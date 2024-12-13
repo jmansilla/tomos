@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType
+from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType, type_registry
 from tomos.exceptions import ExpressionEvaluationError
 from tomos.visit import NodeVisitor
 
@@ -7,6 +7,9 @@ class ExpressionEvaluator(NodeVisitor):
 
     def eval(self, expr, state):
         return self.visit(expr, state=state)
+
+    def visit_enum_literal(self, expr, **kw):
+        return type_registry.get_enum_constant(expr.value_str)
 
     def visit_boolean_literal(self, expr, **kw):
         if expr.value_str in BoolType.NAMED_LITERALS:

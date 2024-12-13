@@ -61,7 +61,6 @@ class TreeToAST(Transformer):
         #
         assert len(args) == 1
         arg0 = args[0]
-        # print('ESTOY EN TYPE-pre-todo', arg0, type(arg0))
         if isinstance(arg0, Token):
             # we are in case a) b) or d) described above
             type_factory = type_registry.get_type(arg0.value)
@@ -79,16 +78,24 @@ class TreeToAST(Transformer):
     def syn(self, args):
         # synomym for type
         assert len(args) == 1 and isinstance(args[0], Ayed2Type)
+        return Synonym(underlying_type=args[0])
 
-        return Synonym(name=None, underlying_type=args[0])
+    def enum(self, args):
+        assert len(args) >= 1
+        values = []
+        for arg in args:
+            if not isinstance(arg, Token):
+                raise UnexpectedInput(f"Invalid enum literal {arg}. Expected token, got {type(arg)} instead.")
+            values.append(arg.value)
+        return Enum(values)
 
     def typedecl(self, args):
         assert len(args) == 2
         new_name, new_type = args
         if new_name in KEYWORDS:
             raise TomosTypeError(f"Type name {new_name} is reserved")
-        new_type.name = new_name
         type_registry.register_type(new_name, new_type)
+        return TypeDeclaration(name=new_name, new_type=new_type)
 
     def builtin_name(self, args):
         token = args[0]
@@ -157,7 +164,7 @@ class TreeToAST(Transformer):
     # LITERALS
     def parse_literal(self, _class, token):
         literal = _class(token=token)
-        if self.do_eval_literals and not isinstance(literal, NullLiteral):
+        if self.do_eval_literals:
             evaluator = ExpressionEvaluator()
             try:
                 evaluator.eval(literal, state=None)
@@ -173,7 +180,7 @@ class TreeToAST(Transformer):
         return self.parse_literal(IntegerLiteral, token)
 
     def NULL(self, token):
-        return self.parse_literal(NullLiteral, token)
+        return NullLiteral(token)
 
     def REAL(self, token):
         return self.parse_literal(RealLiteral, token)
@@ -184,6 +191,14 @@ class TreeToAST(Transformer):
 
     def CHAR_LITERAL(self, token):
         return self.parse_literal(CharLiteral, token)
+
+    def ENUM_LITERAL(self, token):
+        for tname, ttype in type_registry.list_types():
+            if isinstance(ttype, Enum):
+                if ttype.is_valid_value(token.value):
+                    return EnumLiteral(token)
+
+        raise UnexpectedInput(f"Invalid enum literal: {token}")
 
     def array_of(self, args):
         if len(args) == 2:

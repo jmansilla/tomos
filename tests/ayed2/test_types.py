@@ -3,12 +3,12 @@ from unittest import TestCase
 from .factories.expressions import IntegerLiteralFactory
 from .factories.state import StateFactory
 
-from tomos.ayed2.ast.types import ArrayAxis, ArrayOf, IntType
+from tomos.ayed2.ast.types import ArrayAxis, ArrayOf, IntType, RealType, Synonym, Enum, type_registry
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
-from tomos.exceptions import TomosTypeError
+from tomos.exceptions import TomosTypeError, SynonymError
 
 
-def _ArrayType(ranges_str):
+def _ArrayType(ranges_str, base_type=None):
     sep = ","
     ellipsis = ".."
     if not ranges_str.startswith("[") or not ranges_str.endswith("]"):
@@ -24,8 +24,10 @@ def _ArrayType(ranges_str):
             _from = IntegerLiteralFactory(token__value=_from_str)
             _to = IntegerLiteralFactory(token__value=_to_str)
         axes.append(ArrayAxis(_from, _to))
+    if base_type is None:
+        base_type = IntType()
 
-    return ArrayOf(IntType(), axes)
+    return ArrayOf(base_type, axes)
 
 
 class TestArray(TestCase):
@@ -117,3 +119,52 @@ class TestArrayIndexing(TestArray):
             at.flatten_index([1, 2, 3])
         with self.assertRaises(TomosTypeError):
             at.flatten_index([1])
+
+
+class TestSynonym(TestCase):
+    def test_synonyms_are_nameless(self):
+        s = Synonym(IntType())
+        self.assertFalse(hasattr(s, 'name'))
+
+    def test_underlying_type_must_inherit_from_base(self):
+        class Whatever:
+            pass
+        w = Whatever()
+        self.assertRaises(SynonymError, Synonym, w)
+
+    def test_can_create_synonym_of_array(self):
+        at = _ArrayType("[5]", IntType())
+        s = Synonym(at)
+        self.assertEqual(s.underlying_type, at)
+
+    def test_can_create_synonym_of_synonym(self):
+        s1 = Synonym(IntType())
+        s2 = Synonym(s1)
+        self.assertEqual(s2.underlying_type, s1)
+
+
+class TestTypeRegistry(TestCase):
+
+    def test_cant_register_something_that_is_not_a_type(self):
+        class Whatever: pass
+        for not_a_type in [1, None, [], Whatever()]:
+            with self.assertRaises(TomosTypeError):
+                type_registry.register_type("some_name", not_a_type)
+
+    def test_cant_declare_new_types_with_existent_names(self):
+        s1_int = Synonym(underlying_type=IntType())
+        with self.assertRaises(TomosTypeError):
+            type_registry.register_type("int", s1_int)
+
+        type_registry.register_type("number", s1_int)
+        s1_real = Synonym(underlying_type=RealType())
+        with self.assertRaises(TomosTypeError):
+            type_registry.register_type("number", s1_real)
+
+    def test_cant_declare_enums_with_overlapped_constants(self):
+        blue = "blue"
+        e1 = Enum(["red", "green", blue])
+        e2 = Enum(["white", "yellow", blue])
+        type_registry.register_type("some_colors", e1)
+        with self.assertRaises(TomosTypeError):
+            type_registry.register_type("more_colors", e2)

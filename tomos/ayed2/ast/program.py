@@ -45,6 +45,19 @@ class VarDeclaration(ProgramExpression):
         return f"VarDeclaration(name={self.name}, type={self.var_type})"
 
 
+class TypeDeclaration(ProgramExpression):
+    def __init__(self, name, new_type):
+        self.name = name
+        self.new_type = new_type
+
+    @property
+    def line_number(self):
+        return self.name.line
+
+    def __repr__(self) -> str:
+        return f"TypeDeclaration(name={self.name}, type={self.new_type})"
+
+
 class FunctionDeclaration(ProgramExpression):
     # TODO
     pass

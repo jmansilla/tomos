@@ -36,4 +36,4 @@ COLOR_BY_TYPE = {
     }
 
 
-UNNAMED_COLORS = ["red", "blue", "orange", "purple", "white"]
+UNNAMED_COLORS = ["red", "blue", "orange", "purple", "black", "pink"]

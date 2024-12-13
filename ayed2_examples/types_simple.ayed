@@ -1,0 +1,15 @@
+type number = int
+type color = enumerate Red Blue Green end enumerate
+
+var brightness: number
+var shade: color
+
+var proxy_b: pointer of number
+var proxy_s: pointer of color
+
+brightness := 2
+shade := Red
+alloc(proxy_b)
+alloc(proxy_s)
+*proxy_b := 7
+*proxy_s := Green

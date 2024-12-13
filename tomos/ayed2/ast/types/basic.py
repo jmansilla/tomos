@@ -1,8 +1,12 @@
 class Ayed2Type:
     is_pointer = False
+    SIZE = None
 
     def __repr__(self) -> str:
         return self.__class__.__name__
+
+    def is_valid_value(self, value):
+        raise NotImplementedError()
 
 
 class BasicType(Ayed2Type):

@@ -22,3 +22,11 @@ class MemoryInfrigementError(TomosException):
 
 class UndeclaredVariableError(TomosException):
     pass
+
+
+class EnumerationError(TomosException):
+    pass
+
+
+class SynonymError(TomosException):
+    pass
