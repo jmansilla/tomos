@@ -100,23 +100,23 @@ class TestEvalStateAllocFree(TestCase):
 
 class TestEvalStateForSynonyms(TestCase):
 
-    def test_for_synonym_of_int(self):
-        newType = Synonym("number", IntType)
+    def test_declare_var_synonym_of_int(self):
+        numberType = Synonym(IntType())
         state = State()
-        state.declare_static_variable("x", newType)
+        state.declare_static_variable("x", numberType)
         state.set_variable_value("x", 5)
         self.assertRaises(Exception, state.set_variable_value, "x", "c")
 
     def test_alloc_free_for_synonym_pointer_variable(self):
-        newType = Synonym("number", IntType)
+        numberType = Synonym(IntType())
         state = State()
-        state.declare_static_variable("x", PointerOf(newType))
+        state.declare_static_variable("x", PointerOf(numberType))
         self.assertEqual(state.get_variable_value("x"), UnknownValue)
         state.alloc("x")
         value = state.get_variable_value("x")
         self.assertNotEqual(value, UnknownValue)
         self.assertIsInstance(value, MemoryAddress)
-        self.assertEqual(state.heap[value].var_type, newType)
+        self.assertEqual(state.heap[value].var_type, numberType)
         state.free("x")
         self.assertEqual(state.get_variable_value("x"), UnknownValue)
         self.assertNotIn(value, state.heap)
