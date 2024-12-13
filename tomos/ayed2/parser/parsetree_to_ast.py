@@ -95,6 +95,7 @@ class TreeToAST(Transformer):
         if new_name in KEYWORDS:
             raise TomosTypeError(f"Type name {new_name} is reserved")
         type_registry.register_type(new_name, new_type)
+        return TypeDeclaration(name=new_name, new_type=new_type)
 
     def builtin_name(self, args):
         token = args[0]
@@ -194,7 +195,7 @@ class TreeToAST(Transformer):
     def ENUM_LITERAL(self, token):
         for tname, ttype in type_registry.list_types():
             if isinstance(ttype, Enum):
-                if token.value in ttype.values:
+                if ttype.is_valid_value(token.value):
                     return EnumLiteral(token)
 
         raise UnexpectedInput(f"Invalid enum literal: {token}")
