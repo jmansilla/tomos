@@ -95,6 +95,11 @@ class SentenceEvaluator(NodeVisitor):
         result = super().get_visit_name_from_type(_type)
         return result
 
+    def visit_type_declaration(self, command, **kw):
+        # Do nothing, type declarations are processed at parsing time
+        state = kw["state"]
+        return state
+
     def visit_if(self, sentence, **kw):
         state = kw["state"]
         if self.visit_expr(sentence.guard, state=state):
