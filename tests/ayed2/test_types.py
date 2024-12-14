@@ -122,9 +122,6 @@ class TestArrayIndexing(TestArray):
 
 
 class TestSynonym(TestCase):
-    def test_synonyms_are_nameless(self):
-        s = Synonym(IntType())
-        self.assertFalse(hasattr(s, 'name'))
 
     def test_underlying_type_must_inherit_from_base(self):
         class Whatever:
@@ -144,6 +141,17 @@ class TestSynonym(TestCase):
 
 
 class TestTypeRegistry(TestCase):
+
+    def tearDown(self):
+        type_registry.reset()
+
+    def test_register_simple(self):
+        s1_int = Synonym(underlying_type=IntType())
+        self.assertIsNone(getattr(s1_int, 'name'))
+        type_registry.register_type("number", s1_int)
+        # after registering, the name should be set
+        self.assertIsNotNone(getattr(s1_int, 'name'))
+        self.assertEqual(s1_int.name, "number")
 
     def test_cant_register_something_that_is_not_a_type(self):
         class Whatever: pass
