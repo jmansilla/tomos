@@ -1,8 +1,8 @@
 from tomos.exceptions import SynonymError
-from .basic import Ayed2Type
+from .basic import Ayed2Type, UserDefinedType
 
 
-class Synonym(Ayed2Type):
+class Synonym(UserDefinedType):
     def __init__(self, underlying_type):
         if not isinstance(underlying_type, Ayed2Type):
             raise SynonymError(f"Cant create a synonym of {underlying_type},"
