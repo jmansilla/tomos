@@ -1,5 +1,5 @@
 from tomos.exceptions import TomosTypeError
-from .basic import IntType, RealType, BoolType, CharType, Ayed2Type
+from .basic import IntType, RealType, BoolType, CharType, UserDefinedType
 from .enum import Enum
 
 
@@ -41,8 +41,8 @@ class TypeRegistry:
         self._enum_constants = EnumConstantsRegistry()
 
     def register_type(self, name, new_type):
-        if not isinstance(new_type, Ayed2Type):
-            raise TomosTypeError(f"Cant register type {new_type} because it does not inherit from Ayed2Type.")
+        if not isinstance(new_type, UserDefinedType):
+            raise TomosTypeError(f"Cant register type {new_type} because it does not inherit from UserDefinedType.")
         if name in self.type_map:
             raise TomosTypeError(f"Type {name} is already registered.")
         if isinstance(new_type, Enum):
@@ -51,6 +51,7 @@ class TypeRegistry:
                 raise TomosTypeError(f"Enum constants overlap: {overlap}")
             else:
                 self._enum_constants.update(new_type.constants)
+        new_type.name = name
         self.type_map[name] = new_type
 
     def get_type(self, name):
