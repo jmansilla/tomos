@@ -76,7 +76,6 @@ class Assignment(Sentence):
     class Modifiers:
         dereferenced: bool
         array_indexing: list
-        accessed_field: str
 
     def __init__(self, dest_variable, expr):
         self.dest_variable = dest_variable
@@ -94,8 +93,7 @@ class Assignment(Sentence):
     def modifiers(self):
         return self.Modifiers(
             dereferenced=self.dest_variable.dereferenced,
-            array_indexing=copy(self.dest_variable.array_indexing),
-            accessed_field=self.dest_variable.accessed_field
+            array_indexing=copy(self.dest_variable.array_indexing)
         )
 
     def __repr__(self) -> str:
