@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import ArrayOf
+from tomos.ayed2.ast.types import ArrayOf, Tuple
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
 
@@ -12,11 +12,14 @@ class MemoryAllocator:
         assert partition in MemoryAddress.PARTITIONS
         if isinstance(var_type, ArrayOf):
             elements = []
-
-            for i in range(var_type.number_of_elements()):
+            for _ in range(var_type.number_of_elements()):
                 elements.append(self.allocate(partition, var_type.of))
-
             return ArrayCellCluster(var_type, elements)
+        elif isinstance(var_type, Tuple):
+            sub_cells = {}
+            for field_name, field_type in var_type.fields_mapping.items():
+                sub_cells[field_name] = self.allocate(partition, field_type)
+            return TupleCellCluster(var_type, sub_cells)
         else:
             address = self.next_free_address[partition]
             cell = MemoryCell(MemoryAddress(partition, address), var_type)
@@ -39,6 +42,11 @@ class MemoryAddress:
 
     def __repr__(self) -> str:
         return f"MemoryAddress({self.partition}, {self.address})"
+
+    def __lt__(self, other):
+        if self.partition != other.partition:
+            return self.partition < other.partition
+        return self.address < other.address
 
     def __eq__(self, other):
         return hash(self) == hash(other)
@@ -86,5 +94,15 @@ class ArrayCellCluster:
         return self.elements[idx].value
 
 
-class RecordCellCluster:
-    pass
+class TupleCellCluster:
+    def __init__(self, tuple_type, sub_cells):
+        assert isinstance(tuple_type, Tuple)
+        self.tuple_type = tuple_type
+        self.sub_cells = sub_cells
+
+    @property
+    def address(self):
+        # used by the UIs
+        if not hasattr(self, "_address"):
+            self._address = min(sc.address for sc in self.sub_cells.values())
+        return self._address
