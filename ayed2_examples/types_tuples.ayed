@@ -1,0 +1,16 @@
+type tgenre = enumerate
+    Male
+    Female
+    Other
+    end enumerate
+
+type person = tuple
+    initial: char
+    age: int
+    genre: tgenre
+end tuple
+
+var juan: person
+juan.initial := 'J'
+juan.age := 32
+juan.genre := Male
