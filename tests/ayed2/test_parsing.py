@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from tomos.ayed2.parser import parser
 from tomos.ayed2.parser.reserved_words import KEYWORDS
-from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral, EnumLiteral
+from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral, EnumLiteral, CharLiteral
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf, Synonym, type_registry, Enum
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf, Synonym, type_registry, Enum, Tuple
 from tomos.exceptions import TomosTypeError
 
 from .factories.expressions import IntegerLiteralFactory
@@ -446,13 +446,16 @@ class TestParseTypeDeclarationsSynonyms(TestCase):
 
 
 class TestParseEnum(TestCase):
+    def setUp(self):
+        return type_registry.reset()
+
     def test_parse_simple_synonym_declarations(self):
         new_type = "somenewtype"
         var_name = "x"
         source = f"type {new_type} = enumerate Uno Dos Tres end enumerate; "
         source += f"var {var_name}: {new_type};"
         source += f" {var_name} := Uno;"
-        sentences = get_parsed_sentences(source, reset_registry=True)
+        sentences = get_parsed_sentences(source)
         self.assertEqual(len(sentences), 2)  # type declaration is sent to type_registry, and only 2 sents received
         var_dec_sent = sentences[0]
         self.assertIsInstance(var_dec_sent, VarDeclaration)
@@ -461,4 +464,27 @@ class TestParseEnum(TestCase):
         self.assertIsInstance(assign_sent, Assignment)
         self.assertIsInstance(assign_sent.expr, EnumLiteral)
 
+
+class TestParseTuple(TestCase):
+    def setUp(self):
+        return type_registry.reset()
+
+    def test_parse_simple_tuple_declarations(self):
+        new_type = "new_tuple"
+        var_name = "x"
+        source = f"type {new_type} = tuple field_a:int; field_b:char end tuple; "
+        source += f"var {var_name}: {new_type};"
+        source += f" {var_name}.field_a := 1;"
+        source += f" {var_name}.field_b := 'B';"
+        sentences = get_parsed_sentences(source)
+        self.assertEqual(len(sentences), 3)
+        var_dec_sent = sentences[0]
+        self.assertIsInstance(var_dec_sent, VarDeclaration)
+        self.assertIsInstance(var_dec_sent.var_type, Tuple)
+        assign_sent = sentences[1]
+        self.assertIsInstance(assign_sent, Assignment)
+        self.assertIsInstance(assign_sent.expr, IntegerLiteral)
+        assign_sent = sentences[2]
+        self.assertIsInstance(assign_sent, Assignment)
+        self.assertIsInstance(assign_sent.expr, CharLiteral)
 
