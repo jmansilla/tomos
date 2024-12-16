@@ -47,9 +47,12 @@ class EnumLiteral(_Literal):
 
 
 class Variable(Expr):
+
     def __init__(self, name_token, dereferenced=False, array_indexing=None):
         assert isinstance(name_token, Token)
         self.name_token = name_token
+        self.traverse_steps = []
+
         self.dereferenced = dereferenced
         self.array_indexing = array_indexing
 
