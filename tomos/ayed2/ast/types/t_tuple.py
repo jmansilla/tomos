@@ -1,3 +1,5 @@
+# This module is named t_tuple to avoid clashes with the python tuple class
+
 from tomos.exceptions import TomosTypeError
 from .basic import Ayed2Type, UserDefinedType
 
