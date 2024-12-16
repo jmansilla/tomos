@@ -1,8 +1,18 @@
 type number = int
 type color = enumerate Red Blue Green end enumerate
+type days = enumerate
+    Monday
+    Tuesday
+    Wednesday
+    THursday
+    Friday
+    Saturday
+    Sunday
+    end enumerate
 
 var brightness: number
 var shade: color
+var today: days
 
 var proxy_b: pointer of number
 var proxy_s: pointer of color
@@ -13,3 +23,4 @@ alloc(proxy_b)
 alloc(proxy_s)
 *proxy_b := 7
 *proxy_s := Green
+today := Saturday
