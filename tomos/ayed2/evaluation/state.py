@@ -22,7 +22,7 @@ class State:
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
-        if not isinstance(cell.var_type, PointerOf):
+        if not cell.var_type.is_pointer:
             raise TomosTypeError(f"Cannot allocate. Variable {name} is not a pointer.")
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, cell.var_type.of)
         self.memory_cells[new_cell.address] = new_cell
@@ -33,7 +33,7 @@ class State:
         if name not in self.cell_by_names:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
-        if not isinstance(cell.var_type, PointerOf):
+        if not cell.var_type.is_pointer:
             raise TomosTypeError(f"Cannot free. Variable {name} is not a pointer.")
         if cell.value not in self.memory_cells or cell.value not in self.heap:
             raise MemoryInfrigementError()
@@ -49,7 +49,7 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         cell = self.cell_by_names[name]
         if dereferenced:
-            assert isinstance(cell.var_type, PointerOf)
+            assert cell.var_type.is_pointer
             if cell.value not in self.memory_cells:
                 raise MemoryInfrigementError()
             cell = self.memory_cells[cell.value]
@@ -71,7 +71,7 @@ class State:
             raise UndeclaredVariableError(f"Variable {name} is not declared.")
         root_cell = self.cell_by_names[name]
         if dereferenced:
-            assert isinstance(root_cell.var_type, PointerOf)
+            assert root_cell.var_type.is_pointer
             if root_cell.value not in self.memory_cells:
                 raise MemoryInfrigementError()
             cell = self.memory_cells[root_cell.value]
