@@ -81,16 +81,21 @@ class Variable(Expr):
     def line_number(self):
         return self.name_token.line
 
-    @property
-    def symbols_name(self):
-        star = "*" if self.dereferenced else ""
-        return f"{star}{self.name}"
+    def full_name(self):
+        result = str(self.name_token)
+        for i, step in enumerate(self.traverse_path):
+            if step.kind == TraverseStep.DEREFERENCE:
+                if i == 0:
+                    result = "*"+result
+                else:
+                    result = f"*({result})"
+            else:
+                extra = step.kind % str(step.argument)
+                result += extra
+        return result
 
     def __str__(self):
-        indexing = ""
-        if self.array_indexing is not None:
-            indexing = [str(i) for i in self.array_indexing]
-        return f"{self.symbols_name}{indexing}"
+        return self.full_name()
 
     def __repr__(self) -> str:
         return f"Variable({str(self)})"
