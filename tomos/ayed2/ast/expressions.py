@@ -46,15 +46,32 @@ class EnumLiteral(_Literal):
     _type = None
 
 
-class Variable(Expr):
+class TraverseStep:
+    DEREFERENCE = '*'
+    ARRAY_INDEXING = '[%s]'
+    ACCESSED_FIELD = '.%s'
 
-    def __init__(self, name_token, dereferenced=False, array_indexing=None):
+    def __init__(self, kind, argument=None):
+        assert kind in [TraverseStep.DEREFERENCE, TraverseStep.ARRAY_INDEXING, TraverseStep.ACCESSED_FIELD]
+        self.kind = kind
+        if kind is not TraverseStep.DEREFERENCE:
+            assert argument is not None
+        self.argument = argument
+
+
+class Variable(Expr):
+    DEREFERENCE = TraverseStep.DEREFERENCE
+    ARRAY_INDEXING = TraverseStep.ARRAY_INDEXING
+    ACCESSED_FIELD = TraverseStep.ACCESSED_FIELD
+
+    def __init__(self, name_token):
         assert isinstance(name_token, Token)
         self.name_token = name_token
-        self.traverse_steps = []
+        self.traverse_path = []
 
-        self.dereferenced = dereferenced
-        self.array_indexing = array_indexing
+    def traverse_append(self, kind, argument=None):
+        step = TraverseStep(kind, argument)
+        self.traverse_path.append(step)
 
     @property
     def name(self):
