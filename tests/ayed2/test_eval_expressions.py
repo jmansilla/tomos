@@ -68,11 +68,11 @@ class TestEvalLiteralExpressions(TestCase):
 class TestEvalVariableExpressions(TestCase):
     def test_eval_variable(self):
         name = "somename"
-        expr = VariableFactory(name_token__value=name)
+        var_expr = VariableFactory(name_token__value=name)
         state = StateFactory()
-        state.declare_static_variable(name, IntType)
-        state.set_variable_value(name, 5)
-        self.assertEqual(run_eval(expr, state), 5)
+        state.declare_static_variable(var_expr.name, IntType)
+        state.set_variable_value(var_expr, 5)
+        self.assertEqual(run_eval(var_expr, state), 5)
 
     def test_undeclared_variable_raises_exception(self):
         expr = VariableFactory()
@@ -90,9 +90,9 @@ class TestEvalVariableExpressions(TestCase):
         var_pointer = VariableFactory()
         state = StateFactory()
         state.declare_static_variable(var_pointer.name, PointerOf(of=IntType))
-        state.alloc(var_pointer.name)
+        state.alloc(var_pointer)
         self.assertIsInstance(run_eval(var_pointer, state), MemoryAddress)
-        var_pointer.dereferenced = True
+        var_pointer.traverse_append(var_pointer.DEREFERENCE)  # deref, not getting the address, but the value
         self.assertNotIsInstance(run_eval(var_pointer, state), MemoryAddress)
 
 
