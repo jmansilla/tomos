@@ -7,16 +7,14 @@ from tomos.ayed2.evaluation.unknown_value import UnknownValue
 class State:
     def __init__(self):
         self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
-        self.cell_by_names = dict() # stack. Maps names -> cells
-        self.heap = dict()          # heap.  Maps mem_address -> cells
-        self.memory_cells = dict()  # Maps mem_address -> cells  (Shouldn't be inside the allocator??)
+        self.stack = dict()                 # stack. Maps names -> cells
+        self.heap = dict()                  # heap.  Maps mem_address -> cells
 
     def declare_static_variable(self, name, var_type):
-        if name in self.cell_by_names:
+        if name in self.stack:
             raise AlreadyDeclaredVariableError(f"Variable {name} already declared.")
         cell = self.allocator.allocate(MemoryAddress.STACK, var_type)
-        self.memory_cells[cell.address] = cell
-        self.cell_by_names[name] = cell
+        self.stack[name] = cell
 
     def alloc(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
@@ -28,7 +26,6 @@ class State:
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, stack_cell.var_type.of)
         stack_cell.value = new_cell.address
         self.heap[new_cell.address] = new_cell
-        self.memory_cells[new_cell.address] = new_cell
 
     def free(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
@@ -40,22 +37,21 @@ class State:
         if stack_cell.value not in self.heap:
             msg = f"Cannot free. Variable {var} (pointing to {stack_cell.value}) is not pointing to memory cell on the heap."
             raise MemoryInfrigementError(msg)
-        del self.memory_cells[stack_cell.value]
         del self.heap[stack_cell.value]
         stack_cell.value = UnknownValue
 
     def cell_after_traversal(self, var):
         name = var.name
-        if name not in self.cell_by_names:
+        if name not in self.stack:
             raise UndeclaredVariableError(f"Can't access variable {name}. It was not declared.")
-        cell = self.cell_by_names[name]
+        cell = self.stack[name]
         for step in var.traverse_path:
             if step.kind == var.DEREFERENCE:
                 assert cell.var_type.is_pointer
-                if cell.value not in self.memory_cells:
+                if cell.value not in self.heap:
                     msg = f"Accessing var {var}. Can't dereference a pointer to address ({cell.value})"
                     raise MemoryInfrigementError(msg)
-                cell = self.memory_cells[cell.value]
+                cell = self.heap[cell.value]
             elif step.kind == var.ARRAY_INDEXING:
                 assert isinstance(cell.var_type, ArrayOf)
                 indexing = step.argument
@@ -95,5 +91,5 @@ class State:
         return cell.value
 
     def list_declared_variables(self):
-        return {name: cell.var_type for name, cell in self.cell_by_names.items()}
+        return {name: cell.var_type for name, cell in self.stack.items()}
 

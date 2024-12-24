@@ -14,9 +14,9 @@ class StateDiff:
         # what has changed from state_a -> state_b
         # So, in "new_cells" will be the cells that are in b but not in a
         diff = StateDiff([], [], [])
-        a_stack = {name: cell.value for name, cell in state_a.cell_by_names.items()}
+        a_stack = {name: cell.value for name, cell in state_a.stack.items()}
         a_heap = {addr: cell.value for addr, cell in state_a.heap.items()}
-        b_stack = {name: cell.value for name, cell in state_b.cell_by_names.items()}
+        b_stack = {name: cell.value for name, cell in state_b.stack.items()}
         b_heap = {addr: cell.value for addr, cell in state_b.heap.items()}
 
         for name, val in b_stack.items():

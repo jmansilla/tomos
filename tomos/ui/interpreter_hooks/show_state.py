@@ -20,7 +20,7 @@ class ShowState:
         table.align['Value'] = 'r'
         table.align['Pointed value'] = 'r'
         for name, _ in state.list_declared_variables().items():
-            cell = state.cell_by_names[name]
+            cell = state.stack[name]
             table.add_row(self.build_cell_row(name, cell, state))
 
         table._dividers[-1] = True
@@ -38,7 +38,8 @@ class ShowState:
         row = [name, cell.var_type, cell.var_type.SIZE, cell.address, fmt_value, '']
 
         if cell.var_type.is_pointer:
-            referenced_cell = state.memory_cells.get(cell.value, None)
+            # pointers always point to a heap cell
+            referenced_cell = state.heap.get(cell.value, None)
             if referenced_cell is not None:
                 row[-1] = self.formated_cell_value(referenced_cell)
 

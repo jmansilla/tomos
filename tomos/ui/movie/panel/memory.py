@@ -73,14 +73,14 @@ class MemoryBlock(Container):
                 cell = snapshot.state.heap[name_or_addr]
                 self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=True)
             else:
-                cell = snapshot.state.cell_by_names[name_or_addr]
+                cell = snapshot.state.stack[name_or_addr]
                 self.add_var(name_or_addr, cell.var_type, cell.value)
         for name_or_addr in snapshot.diff.changed_cells:
             logger.debug("Changing", name_or_addr)
             if isinstance(name_or_addr, MemoryAddress):
                 cell = snapshot.state.heap[name_or_addr]
             else:
-                cell = snapshot.state.cell_by_names[name_or_addr]
+                cell = snapshot.state.stack[name_or_addr]
             self.set_value(name_or_addr, cell.value)
         for name_or_addr in snapshot.diff.deleted_cells:
             logger.debug("Deleting", name_or_addr)
