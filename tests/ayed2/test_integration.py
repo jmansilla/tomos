@@ -76,6 +76,7 @@ class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
             self.assertMemoryEqual(actual_val, v, 'stack', k)
 
     def assertMemoryEqual(self, actual_value, expected_value, block_name, key):
+        base_msg = f'On block {block_name}, name: {key}'
         if actual_value == UnknownValue:
             actual_value = '<?>'
         if isinstance(actual_value, MemoryAddress):
@@ -84,8 +85,13 @@ class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
             self.assertTrue(expected_value.startswith('H') or expected_value.startswith('S'), msg)
             address = str(actual_value)
             actual_value = self.addresses_translation.setdefault(address, expected_value)  # translation made.
-
-        self.assertEqual(actual_value, expected_value, f'On block {block_name}, name: {key}')
+        if isinstance(expected_value, list):
+            self.assertIsInstance(actual_value, list, f'{base_msg}, Expected {actual_value} to be a list')
+            self.assertEqual(len(actual_value), len(expected_value), f'List lenghts. {base_msg}.')
+            for idx, (a, e) in enumerate(zip(actual_value, expected_value)):
+                self.assertMemoryEqual(a, e, f'{block_name}:{key} list', idx)
+        else:
+            self.assertEqual(actual_value, expected_value, base_msg)
 
     def assertHeapEqual(self, actual, expected):
         # first adapt actual keys according to translations
