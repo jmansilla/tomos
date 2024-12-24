@@ -87,8 +87,19 @@ class ArrayCellCluster:
 
     @property
     def value(self):
-        # used by the UIs
-        return [cell.value for cell in self.elements]
+        # used by the UIs. Because of that, only imported if needed
+        from functools import reduce
+        from operator import mul
+
+        def reshape(lst, shape):
+            if len(shape) == 1:
+                return lst
+            n = reduce(mul, shape[1:])
+            return [reshape(lst[i*n:(i+1)*n], shape[1:]) for i in range(len(lst)//n)]
+
+        values = [cell.value for cell in self.elements]
+        needed_shape = self.array_type.shape()
+        return reshape(values, needed_shape)
 
     def __getitem__(self, key):
         idx = self.array_type.flatten_index(key)

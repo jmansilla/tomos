@@ -56,6 +56,8 @@ class TraverseStep:
         self.kind = kind
         if kind is not TraverseStep.DEREFERENCE:
             assert argument is not None
+        if kind is TraverseStep.ARRAY_INDEXING:
+            assert isinstance(argument, list)
         self.argument = argument
 
 

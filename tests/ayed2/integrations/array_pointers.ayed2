@@ -1,0 +1,29 @@
+var i: int
+var a: array [5] of pointer of int
+
+i := 0
+while i < 5 do
+    alloc(a[i])
+    i := i + 1
+od
+i := 2
+while i < 5 do
+    *a[i] := 100 - i
+    i := i + 1
+od
+
+
+// EXPECTATION
+// {
+//  'stack': {
+//     'i': 5,
+//     'a': ['H0', 'H1', 'H2', 'H3', 'H4'],
+//  },
+//  'heap': {
+//     'H0': '<?>',
+//     'H1': '<?>',
+//     'H2': 98,
+//     'H3': 97,
+//     'H4': 96,
+//  },
+// }
