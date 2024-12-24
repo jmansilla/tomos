@@ -1,5 +1,5 @@
 from tomos.ayed2.ast.types import ArrayOf, Tuple
-from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
+from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
@@ -9,6 +9,14 @@ class State:
         self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
         self.stack = dict()                 # stack. Maps names -> cells
         self.heap = dict()                  # heap.  Maps mem_address -> cells
+
+    def set_expressions_evaluator(self, evaluator):
+        self.evaluator = evaluator
+
+    def get_expression_evaluator(self):
+        if not hasattr(self, "evaluator"):
+            raise TomosRuntimeError("Expression evaluator not set.")
+        return self.evaluator
 
     def declare_static_variable(self, name, var_type):
         if name in self.stack:
@@ -55,8 +63,12 @@ class State:
             elif step.kind == var.ARRAY_INDEXING:
                 assert isinstance(cell.var_type, ArrayOf)
                 indexing = step.argument
+                exp_eval = self.get_expression_evaluator()
+                evaluated_indexing = [
+                    exp_eval.eval(expr, self) for expr in indexing
+                ]
                 try:
-                    cell = cell[indexing]
+                    cell = cell[evaluated_indexing]
                 except IndexError:
                     msg = f"Accessing var {var}. Can't access array at index {indexing}."
                     raise MemoryInfrigementError(msg)

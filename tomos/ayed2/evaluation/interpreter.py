@@ -29,6 +29,7 @@ class Interpreter:
         self.sent_evaluator = SentenceEvaluator()
         self.last_executed_sentece = None  # For hooks
         state = State()
+        state.set_expressions_evaluator(self.sent_evaluator.expression_evaluator)
         logger.info('Running Body section')
         next_sent = self.get_entry_point()
         while next_sent is not None:
