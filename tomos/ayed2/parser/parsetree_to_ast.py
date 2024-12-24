@@ -165,7 +165,7 @@ class TreeToAST(Transformer):
     def variable_accessed(self, args):
         var = args[0]
         field_name = args[1]
-        var.accessed_field = field_name
+        var.traverse_append(Variable.ACCESSED_FIELD, field_name)
         return var
 
     def variable_dereferenced(self, args):
