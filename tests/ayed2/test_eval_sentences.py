@@ -45,28 +45,30 @@ class TestEvalIfThenElse(BaseSentEval):
         state = StateFactory()
         with patch.object(self.evaluator, "visit_expr") as mock_eval_expr:
             mock_eval_expr.return_value = True  # shall use "then" branch
-            new_state, extra_sentences = self.run_eval(s_if, state)
+            new_state, next_sent = self.run_eval(s_if, state)
             self.assertEqual(new_state, state)
-            self.assertEqual(extra_sentences, s_if.then_sentences)
+            self.assertEqual(next_sent, s_if.then_sentences[0])
             mock_eval_expr.return_value = False  # shall use "else" branch
-            new_state, extra_sentences = self.run_eval(s_if, state)
+            new_state, next_sent = self.run_eval(s_if, state)
             self.assertEqual(new_state, state)
-            self.assertEqual(extra_sentences, s_if.else_sentences)
+            self.assertEqual(next_sent, s_if.else_sentences[0])
 
 
 class TestEvalWhile(BaseSentEval):
 
     def test_eval_if_then_else(self):
         s_while = WhileFactory()
+        any_other_sentence = AssignmentFactory()
+        s_while.next_instruction = any_other_sentence
         state = StateFactory()
         with patch.object(self.evaluator, "visit_expr") as mock_eval_expr:
             mock_eval_expr.return_value = False  # shall exit in the loop
-            new_state, extra_sentences = self.run_eval(s_while, state)
+            new_state, next_sent = self.run_eval(s_while, state)
             self.assertEqual(new_state, state)
-            self.assertEqual(extra_sentences, [])
+            self.assertEqual(next_sent, any_other_sentence)
 
             mock_eval_expr.return_value = True  # shall remain in the loop
-            new_state, extra_sentences = self.run_eval(s_while, state)
+            new_state, next_sent = self.run_eval(s_while, state)
             self.assertEqual(new_state, state)
-            self.assertEqual(extra_sentences, s_while.sentences + [s_while])
+            self.assertEqual(next_sent, s_while.sentences[0])
 
