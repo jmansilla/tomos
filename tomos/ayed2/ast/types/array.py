@@ -34,6 +34,7 @@ class ArrayOf(Ayed2Type):
         for axis in self.axes:
             lengths.append(max(0, axis.to_value - axis.from_value))
         return lengths
+
     @property
     def SIZE(self):
         return self.number_of_elements() * self.element_size()
@@ -55,6 +56,8 @@ class ArrayOf(Ayed2Type):
         # position a[3*5 + (12-10)] = a[3*5 + 2] = a[17]
         if len(indexes) != len(self.axes):
             raise TomosTypeError(f"Wrong number of indexes. Expected {len(self.axes)}, got {len(indexes)}")
+        if not all(isinstance(idx, int) for idx in indexes):
+            raise TomosTypeError(f"Expected integer indexes, got {indexes}")
         flatten_value = 0
         previous_size = 1
         for idx, axis in zip(reversed(indexes), reversed(self.axes)):
