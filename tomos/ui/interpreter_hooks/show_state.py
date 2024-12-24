@@ -20,7 +20,7 @@ class ShowState:
         table.align['Value'] = 'r'
         table.align['Pointed value'] = 'r'
         for name, _ in state.list_declared_variables().items():
-            cell = state.cell_by_names[name]
+            cell = state.stack[name]
             table.add_row(self.build_cell_row(name, cell, state))
 
         table._dividers[-1] = True

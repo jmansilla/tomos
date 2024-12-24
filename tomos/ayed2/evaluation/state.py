@@ -7,16 +7,16 @@ from tomos.ayed2.evaluation.unknown_value import UnknownValue
 class State:
     def __init__(self):
         self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
-        self.cell_by_names = dict() # stack. Maps names -> cells
-        self.heap = dict()          # heap.  Maps mem_address -> cells
-        self.memory_cells = dict()  # Maps mem_address -> cells  (Shouldn't be inside the allocator??)
+        self.stack = dict()                 # stack. Maps names -> cells
+        self.heap = dict()                  # heap.  Maps mem_address -> cells
+        self.memory_cells = dict()          # Maps mem_address -> cells  (Shouldn't be inside the allocator??)
 
     def declare_static_variable(self, name, var_type):
-        if name in self.cell_by_names:
+        if name in self.stack:
             raise AlreadyDeclaredVariableError(f"Variable {name} already declared.")
         cell = self.allocator.allocate(MemoryAddress.STACK, var_type)
         self.memory_cells[cell.address] = cell
-        self.cell_by_names[name] = cell
+        self.stack[name] = cell
 
     def alloc(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
@@ -46,9 +46,9 @@ class State:
 
     def cell_after_traversal(self, var):
         name = var.name
-        if name not in self.cell_by_names:
+        if name not in self.stack:
             raise UndeclaredVariableError(f"Can't access variable {name}. It was not declared.")
-        cell = self.cell_by_names[name]
+        cell = self.stack[name]
         for step in var.traverse_path:
             if step.kind == var.DEREFERENCE:
                 assert cell.var_type.is_pointer
@@ -95,5 +95,5 @@ class State:
         return cell.value
 
     def list_declared_variables(self):
-        return {name: cell.var_type for name, cell in self.cell_by_names.items()}
+        return {name: cell.var_type for name, cell in self.stack.items()}
 
