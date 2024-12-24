@@ -170,13 +170,13 @@ class TreeToAST(Transformer):
 
     def variable_dereferenced(self, args):
         var = args[0]
-        var.dereferenced = True
+        var.traverse_append(Variable.DEREFERENCE)
         return var
 
     def variable_indexed(self, args):
         var = args[0]
         indexing = args[1:]
-        var.array_indexing = indexing
+        var.traverse_append(Variable.ARRAY_INDEXING, indexing)
         return var
 
     def expr(self, args):
