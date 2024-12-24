@@ -89,6 +89,6 @@ class ExpressionEvaluator(NodeVisitor):
             return left >= right
         raise ExpressionEvaluationError(f"Invalid binary operator {expr.op}")
 
-    def visit_variable(self, expr, **kw):
+    def visit_variable(self, var, **kw):
         state = kw["state"]
-        return state.get_variable_value(expr.name, expr.dereferenced)
+        return state.get_variable_value(var)
