@@ -1,9 +1,10 @@
-from dataclasses import dataclass
-from copy import copy
+from tomos.ayed2.ast.base import ASTNode
+from tomos.ayed2.ast.expressions import Expr, Variable
+from tomos.exceptions import TomosSyntaxError
 
 
-class Sentence:
-    pass
+class Sentence(ASTNode):
+    next_instruction = None
 
 
 class Skip(Sentence):
@@ -38,6 +39,10 @@ class BuiltinCall(Sentence):
 
 class If(Sentence):
     def __init__(self, guard, then_sentences, else_sentences):
+        if not isinstance(then_sentences, list) or not isinstance(else_sentences, list):
+            raise TomosSyntaxError("then_sentences and else_sentences must be lists")
+        if not isinstance(guard, Expr):
+            raise TomosSyntaxError("guard must be an expression")
         self.guard = guard
         self.then_sentences = then_sentences
         self.else_sentences = else_sentences
@@ -52,8 +57,16 @@ class If(Sentence):
 
 class While(Sentence):
     def __init__(self, guard, sentences):
+        if not isinstance(sentences, list):
+            raise TomosSyntaxError("sentences must be lists")
+        elif not sentences:
+            raise TomosSyntaxError("sentences must not be empty")
+        if not isinstance(guard, Expr):
+            raise TomosSyntaxError("guard must be an expression")
         self.guard = guard
         self.sentences = sentences
+        last = sentences[-1]
+        last.next_instruction = self  # making sure after body is executed we check the guard again
 
     @property
     def line_number(self):
@@ -72,8 +85,11 @@ class For(Sentence):
 
 
 class Assignment(Sentence):
-
     def __init__(self, dest_variable, expr):
+        if not isinstance(dest_variable, Variable):
+            raise TomosSyntaxError("dest_variable must be a variable")
+        if not isinstance(expr, Expr):
+            raise TomosSyntaxError("expr must be an expression")
         self.dest_variable = dest_variable
         self.expr = expr
 

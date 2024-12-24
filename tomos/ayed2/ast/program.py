@@ -2,7 +2,7 @@ from tomos.ayed2.ast.base import ASTNode
 
 
 class ProgramExpression(ASTNode):
-    pass
+    next_instruction = None
 
 
 class Program(ProgramExpression):
