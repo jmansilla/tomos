@@ -9,13 +9,11 @@ class State:
         self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
         self.stack = dict()                 # stack. Maps names -> cells
         self.heap = dict()                  # heap.  Maps mem_address -> cells
-        self.memory_cells = dict()          # Maps mem_address -> cells  (Shouldn't be inside the allocator??)
 
     def declare_static_variable(self, name, var_type):
         if name in self.stack:
             raise AlreadyDeclaredVariableError(f"Variable {name} already declared.")
         cell = self.allocator.allocate(MemoryAddress.STACK, var_type)
-        self.memory_cells[cell.address] = cell
         self.stack[name] = cell
 
     def alloc(self, var):
@@ -28,7 +26,6 @@ class State:
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, stack_cell.var_type.of)
         stack_cell.value = new_cell.address
         self.heap[new_cell.address] = new_cell
-        self.memory_cells[new_cell.address] = new_cell
 
     def free(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
@@ -40,7 +37,6 @@ class State:
         if stack_cell.value not in self.heap:
             msg = f"Cannot free. Variable {var} (pointing to {stack_cell.value}) is not pointing to memory cell on the heap."
             raise MemoryInfrigementError(msg)
-        del self.memory_cells[stack_cell.value]
         del self.heap[stack_cell.value]
         stack_cell.value = UnknownValue
 
@@ -52,10 +48,10 @@ class State:
         for step in var.traverse_path:
             if step.kind == var.DEREFERENCE:
                 assert cell.var_type.is_pointer
-                if cell.value not in self.memory_cells:
+                if cell.value not in self.heap:
                     msg = f"Accessing var {var}. Can't dereference a pointer to address ({cell.value})"
                     raise MemoryInfrigementError(msg)
-                cell = self.memory_cells[cell.value]
+                cell = self.heap[cell.value]
             elif step.kind == var.ARRAY_INDEXING:
                 assert isinstance(cell.var_type, ArrayOf)
                 indexing = step.argument
