@@ -12,18 +12,34 @@ from tomos.exceptions import TomosTypeError
 from .reserved_words import KEYWORDS
 
 
+def chain_instructions(instructions):
+    prev = None
+    for inst in instructions:
+        if prev is not None:
+            prev.next_instruction = inst
+        prev = inst
+    return instructions
+
+
 class TreeToAST(Transformer):
     do_eval_literals = True
 
     def program(self, args):
         tdef, fdef, body = args
-        return Program(typedef_section=tdef.children, funprocdef_section=fdef.children, body=body)
+        return Program(
+            typedef_section=chain_instructions(tdef.children),
+            funprocdef_section=chain_instructions(fdef.children),
+            body=body)
 
-    sentences = list
+    def sentences(self, args):
+        sents = chain_instructions(list(args))
+        return sents
 
     def body(self, args):
         vardef, sentences = args
-        return Body(var_declarations=vardef.children, sentences=sentences)
+        body = Body(var_declarations=vardef.children, sentences=sentences)
+        chain_instructions(iter(body))
+        return body
 
     def if_sent(self, args):
         if len(args) == 2:
