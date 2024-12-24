@@ -1,0 +1,105 @@
+import ast
+import pathlib
+from unittest import TestCase
+
+from tomos.ayed2.parser import parser
+from tomos.ayed2.evaluation.interpreter import Interpreter
+from tomos.ayed2.evaluation.memory import MemoryAddress
+from tomos.ayed2.evaluation.unknown_value import UnknownValue
+
+
+integrations_folder = pathlib.Path(__file__).parent.resolve() / "integrations"
+splitter = "// EXPECTATION\n"
+
+def list_test_files(folder_path):
+    for file in folder_path.iterdir():
+        if file.is_file() and (file.suffix == ".ayed" or file.suffix == ".ayed2"):
+            yield file
+
+
+def split_code_and_expectation(file_path):
+    with open(file_path) as f:
+        content = f.read()
+    if content.count(splitter) != 1:
+        raise ValueError(f"File {file_path} does not contain the splitter {splitter} (or has more than one)")
+    code, raw_expect = content.split(splitter)
+    raw_expect = raw_expect.replace('//', '')
+    expect = ast.literal_eval(raw_expect)
+    return code, expect
+
+
+def execute_code(code):
+    tree = parser.parse(code)
+    interpreter = Interpreter(tree)
+    final_state = interpreter.run()
+    return final_state
+
+
+def state_as_python_dict(state):
+    result = {}
+    for block_name in ['stack', 'heap']:
+        state_block = getattr(state, block_name, {})
+        block = {}
+        for name, cell in state_block.items():
+            block[name] = cell.value
+        result[block_name] = block
+    return result
+
+
+class IntegrationMeta(type):
+    """Builds test functions before unittest does its discovery.
+    """
+    def __new__(mcs, name, bases, dict):
+
+        def gen_test(ff):
+            def test(self):
+                code, expected = split_code_and_expectation(ff)
+                actual = state_as_python_dict(execute_code(code))
+                self.assertStackEqual(actual.get('stack', {}), expected.get('stack', {}))
+                self.assertHeapEqual(actual.get('heap', {}), expected.get('heap', {}))
+            return test
+
+        for file in list_test_files(integrations_folder):
+            test_name = "test_" + file.stem
+            dict[test_name] = gen_test(file)
+        return type.__new__(mcs, name, bases, dict)
+
+class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
+
+    def setUp(self):
+        self.addresses_translation = {}
+
+    def assertStackEqual(self, actual, expected):
+        self.assertSetEqual(set(actual.keys()), set(expected.keys()))
+        for k, v in expected.items():
+            actual_val = actual[k]
+            self.assertMemoryEqual(actual_val, v, 'stack', k)
+
+    def assertMemoryEqual(self, actual_value, expected_value, block_name, key):
+        if actual_value == UnknownValue:
+            actual_value = '<?>'
+        if isinstance(actual_value, MemoryAddress):
+            msg = 'Expected addresses must be strings in the form of H<number> or S<number>. Not %s' % expected_value
+            self.assertIsInstance(expected_value, str, msg)
+            self.assertTrue(expected_value.startswith('H') or expected_value.startswith('S'), msg)
+            address = str(actual_value)
+            actual_value = self.addresses_translation.setdefault(address, expected_value)  # translation made.
+
+        self.assertEqual(actual_value, expected_value, f'On block {block_name}, name: {key}')
+
+    def assertHeapEqual(self, actual, expected):
+        # first adapt actual keys according to translations
+        translated_actual = {}
+        for ak, av in actual.items():
+            if isinstance(ak, MemoryAddress):
+                address = str(ak)
+                if address in self.addresses_translation:
+                    address = self.addresses_translation[address]
+                translated_actual[address] = av
+            else:
+                self.fail(f'Unexpected key {ak} of type {type(ak)} on Heap. Expected MemoryAddress only.')
+
+        self.assertSetEqual(set(translated_actual.keys()), set(expected.keys()))
+        for k, v in expected.items():
+            actual_val = translated_actual[k]
+            self.assertMemoryEqual(actual_val, v, 'heap', k)
