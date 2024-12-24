@@ -6,7 +6,6 @@ class VisitError(Exception):
 
 
 class NodeVisitor:
-    provide_initializer_node = False
 
     def get_visit_name_from_type(self, _type):
         # Transforms CammelCase to snake_case, and preppends "visit_"
@@ -15,10 +14,6 @@ class NodeVisitor:
         return "visit_" + pattern.sub("_", name).lower()
 
     def visit(self, node, *args, **kwargs):
-        if self.provide_initializer_node:
-            if not hasattr(self, "initializer"):
-                self.initializer = node
-            kwargs["initializer"] = self.initializer == node
         if hasattr(node, "children"):
             children = [self.visit(c, *args, **kwargs) for c in node.children()]
         else:
