@@ -43,7 +43,7 @@ class State:
     def cell_after_traversal(self, var):
         name = var.name
         if name not in self.stack:
-            raise UndeclaredVariableError(f"Can't access variable {name}. It was not declared.")
+            raise UndeclaredVariableError(f"Can't access variable \"{name}\". It was not declared.")
         cell = self.stack[name]
         for step in var.traverse_path:
             if step.kind == var.DEREFERENCE:
