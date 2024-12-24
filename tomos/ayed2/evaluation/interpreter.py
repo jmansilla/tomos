@@ -99,53 +99,45 @@ class SentenceEvaluator(NodeVisitor):
         result = super().get_visit_name_from_type(_type)
         return result
 
-    def visit_type_declaration(self, command, **kw):
+    def visit_type_declaration(self, command, state, **kw):
         # Do nothing, type declarations are processed at parsing time
-        state = kw["state"]
         return state
 
-    def visit_if(self, sentence, **kw):
-        state = kw["state"]
+    def visit_if(self, sentence, state, **kw):
         if self.visit_expr(sentence.guard, state=state):
             injected_block = sentence.then_sentences
         else:
             injected_block = sentence.else_sentences
         return state, injected_block
 
-    def visit_while(self, sentence, **kw):
-        state = kw["state"]
+    def visit_while(self, sentence, state, **kw):
         if self.visit_expr(sentence.guard, state=state):
             injected_block = list(sentence.sentences) + [sentence]
         else:
             injected_block = []
         return state, injected_block
 
-    def visit_expr(self, expr, **kw):
-        state = kw["state"]
+    def visit_expr(self, expr, state, **kw):
         value = self.expression_evaluator.eval(expr, state)
         self.intermediate_evaluated_expressions[expr] = value
         return value
 
-    def visit_skip(self, sentence, **kw):
-        state = kw["state"]
+    def visit_skip(self, sentence, state, **kw):
         return state
 
-    def visit_var_declaration(self, sentence, **kw):
-        state = kw["state"]
+    def visit_var_declaration(self, sentence, state, **kw):
         if isinstance(sentence.var_type, ArrayOf):
             sentence.var_type.eval_axes_expressions(self.expression_evaluator, state)
         state.declare_static_variable(sentence.name, sentence.var_type)
         return state
 
-    def visit_assignment(self, assignment, **kw):
-        state = kw["state"]
+    def visit_assignment(self, assignment, state, **kw):
         variable = assignment.dest_variable
         value = self.visit_expr(assignment.expr, state=state)
         state.set_variable_value(variable, value)
         return state
 
-    def visit_builtin_call(self, sentence, **kw):
-        state = kw["state"]
+    def visit_builtin_call(self, sentence, state, **kw):
         name = sentence.name
         if name in ['alloc', 'free']:
             variable = sentence.args[0]

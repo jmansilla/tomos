@@ -1,8 +1,7 @@
-
 a)  [x] Evaluate expresions
         [x] testing
-b)  [x] Evaluador basic sentences (no if, no for, no while)
-        [ ] testing
+b)  [x] Evaluator basic sentences (no if, no for, no while)
+        [x] testing
 c)  [x] Make Programs Evaluator / Interpreter
         [x] entry-point is the file body
 d)  [x] Extend parser & eval with alloc and free as builtins (no procs)
@@ -14,22 +13,22 @@ f)  [x] Add other basic types (char, bool, real)
         [x] to parser
         [x] to Eval
         [x] to ui
-g)  [ ] Details to parsing
-        [x] precedencia de operadores
-        [ ] mensajes de error apropiados
-h)  [x] Agregar Arrays
+g)  [x] Details to parsing
+        [x] operators precedence
+h)  [x] Add Arrays
         [x] to parser
-        [x] to Eval
+        [.] to Eval
+           [ ] sub-expressions for array indexing
         [.] to ui
 i)  [ ] Enums
-        [ ] parser
-        [ ] Eval
+        [x] parser
+        [x] Eval
         [ ] ui
 j)  [ ] Records/structs
-        [ ] parser
-        [ ] Eval
+        [x] parser
+        [x] Eval
         [ ] ui
-k)  [ ] types synonims
+k)  [x] types synonyms
 l)  [x] Expand sentences (if, while)
         [x] parser
         [x] eval
@@ -39,8 +38,8 @@ m)  [ ] For loops
         [ ] support for integers only
         [ ] ¿support for enums?
 n)  [ ] Better UI
-        [ ] Prototype with manim
-        [ ] syntax highlight
+        [x] Prototype with manim
+        [x] syntax highlight
 o)  [ ] Distribution... pypi? website? others?
 o)  [ ] Constants as input
 p)  [ ] Execution-Modes: unknownvalue, random, others ?
@@ -63,9 +62,13 @@ t4)  [.] Overlapped usage of names (for types, for fields, for vars). Detect, re
         - Missing considerations respect Enum Literals
 t5)  [ ] Replace asserts with descriptfull exceptions
 t6)  [ ] Basic Type classes are singletons-like. But weirdly handled.
-t7)  [ ] Upgrade syntax highlight with types definitions
-t8)  [ ] On visitors, remove the kw to simply leave "state" argument.
+t7)  [.] Upgrade syntax highlight with types definitions and for loops
+t8)  [x] On visitors, remove the kw to simply leave "state" argument.
 t9)  [ ] Check can_get_set_values_directly
+t10) [ ] Test that complex variable compositions works. Examples:
+           array_var[1].field_one works
+           array_var[other_var + 2]
+           array_var[3].field_with_sub_array[i]
 
 
 Not-gonna-happen in this verison:

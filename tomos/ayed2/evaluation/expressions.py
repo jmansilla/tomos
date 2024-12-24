@@ -8,16 +8,16 @@ class ExpressionEvaluator(NodeVisitor):
     def eval(self, expr, state):
         return self.visit(expr, state=state)
 
-    def visit_enum_literal(self, expr, **kw):
+    def visit_enum_literal(self, expr, children, state):
         return type_registry.get_enum_constant(expr.value_str)
 
-    def visit_boolean_literal(self, expr, **kw):
+    def visit_boolean_literal(self, expr, children, state):
         if expr.value_str in BoolType.NAMED_LITERALS:
             return BoolType.NAMED_LITERALS[expr.value_str]
         else:
             raise ExpressionEvaluationError(f"Invalid boolean value {expr.value_str}")
 
-    def visit_char_literal(self, expr, **kw):
+    def visit_char_literal(self, expr, children, state):
         raw = expr.value_str
         if raw in CharType.NAMED_LITERALS:
             return CharType.NAMED_LITERALS[raw]
@@ -25,7 +25,7 @@ class ExpressionEvaluator(NodeVisitor):
             return raw
         raise ExpressionEvaluationError(f"Invalid char value \"{expr.value_str}\"")
 
-    def visit_integer_literal(self, expr, **kw):
+    def visit_integer_literal(self, expr, children, state):
         raw = expr.value_str
         if raw in IntType.NAMED_LITERALS:
             return IntType.NAMED_LITERALS[raw]
@@ -34,7 +34,7 @@ class ExpressionEvaluator(NodeVisitor):
         except ValueError:
             raise ExpressionEvaluationError(f"Invalid integer value {expr.value_str}")
 
-    def visit_real_literal(self, expr, **kw):
+    def visit_real_literal(self, expr, children, state):
         raw = expr.value_str
         if raw in RealType.NAMED_LITERALS:
             return RealType.NAMED_LITERALS[raw]
@@ -43,8 +43,7 @@ class ExpressionEvaluator(NodeVisitor):
         except ValueError:
             raise ExpressionEvaluationError(f"Invalid real value {expr.value_str}")
 
-    def visit_unary_op(self, expr, **kw):
-        children = kw["children"]
+    def visit_unary_op(self, expr, children, state):
         assert len(children) == 1
         sub_value = children[0]
         if expr.op == "-":
@@ -56,8 +55,7 @@ class ExpressionEvaluator(NodeVisitor):
         else:
             raise ExpressionEvaluationError(f"Invalid unary operator {expr.op}")
 
-    def visit_binary_op(self, expr, **kw):
-        children = kw["children"]
+    def visit_binary_op(self, expr, children, state):
         assert len(children) == 2
         left = children[0]
         right = children[1]
@@ -89,6 +87,5 @@ class ExpressionEvaluator(NodeVisitor):
             return left >= right
         raise ExpressionEvaluationError(f"Invalid binary operator {expr.op}")
 
-    def visit_variable(self, var, **kw):
-        state = kw["state"]
+    def visit_variable(self, var, children, state):
         return state.get_variable_value(var)
