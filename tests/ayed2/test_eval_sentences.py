@@ -35,7 +35,7 @@ class TestEvalVarDeclarationsAndAssignments(BaseSentEval):
             mock_eval_expr.return_value = some_value = 9
             with patch.object(state, "set_variable_value") as mock_set:
                 self.run_eval(sentence, state)
-                mock_set.assert_called_once_with(sentence.name, some_value, sentence.modifiers)
+                mock_set.assert_called_once_with(sentence.dest_variable, some_value)
 
 
 class TestEvalIfThenElse(BaseSentEval):

@@ -27,6 +27,7 @@ class MemoryAllocator:
             return cell
 
 
+
 class MemoryAddress:
     STACK = 'S'
     HEAP = 'H'
@@ -56,6 +57,8 @@ class MemoryAddress:
 
 
 class MemoryCell:
+    can_get_set_values_directly = True
+
     def __init__(self, address, var_type, value=None):
         assert isinstance(address, MemoryAddress)
         self.address = address
@@ -67,6 +70,8 @@ class MemoryCell:
 
 
 class ArrayCellCluster:
+    can_get_set_values_directly = False
+
     def __init__(self, array_type, elements):
         assert isinstance(array_type, ArrayOf)
         self.array_type = array_type
@@ -85,16 +90,14 @@ class ArrayCellCluster:
         # used by the UIs
         return [cell.value for cell in self.elements]
 
-    def __setitem__(self, key, value):
-        idx = self.array_type.flatten_index(key)
-        self.elements[idx].value = value
-
     def __getitem__(self, key):
         idx = self.array_type.flatten_index(key)
-        return self.elements[idx].value
+        return self.elements[idx]
 
 
 class TupleCellCluster:
+    can_set_get_values_directly = False
+
     def __init__(self, tuple_type, sub_cells):
         assert isinstance(tuple_type, Tuple)
         self.tuple_type = tuple_type

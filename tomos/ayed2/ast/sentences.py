@@ -72,11 +72,6 @@ class For(Sentence):
 
 
 class Assignment(Sentence):
-    @dataclass
-    class Modifiers:
-        dereferenced: bool
-        array_indexing: list
-        accessed_field: str
 
     def __init__(self, dest_variable, expr):
         self.dest_variable = dest_variable
@@ -90,15 +85,6 @@ class Assignment(Sentence):
     def line_number(self):
         return self.dest_variable.line_number
 
-    @property
-    def modifiers(self):
-        return self.Modifiers(
-            dereferenced=self.dest_variable.dereferenced,
-            array_indexing=copy(self.dest_variable.array_indexing),
-            accessed_field=self.dest_variable.accessed_field
-        )
-
     def __repr__(self) -> str:
-        full_name = self.dest_variable.symbols_name
         full_name = str(self.dest_variable)
         return f"Assignment(dest={full_name}, expr={self.expr})"

@@ -1,10 +1,11 @@
 import logging
 
-from tomos.visit import NodeVisitor
 from tomos.ayed2.ast.expressions import Expr
 from tomos.ayed2.ast.types import ArrayOf
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from tomos.ayed2.evaluation.state import State
+from tomos.exceptions import TomosRuntimeError
+from tomos.visit import NodeVisitor
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -71,6 +72,9 @@ class SentenceEvaluator(NodeVisitor):
         super().__init__()
         self.expression_evaluator = ExpressionEvaluator()
         self.intermediate_evaluated_expressions = {}
+        # This intermediate-evaluated-expressions is a cache usefull for UI and hooks in general
+        # to know what's the value of some evaluated expressions during executing.
+        # Example: how was the guard of an if evaluated
 
     def flush_intermediate_evaluated_expressions(self):
         result = self.intermediate_evaluated_expressions
@@ -86,7 +90,7 @@ class SentenceEvaluator(NodeVisitor):
         elif isinstance(result, tuple) and len(result) == 2:
             return result
         else:
-            raise ValueError(f"Unexpected result {result}")
+            raise TomosRuntimeError(f"Unexpected result {result}")
 
     def get_visit_name_from_type(self, _type):
         # Transforms CammelCase to snake_case, and preppends "visit_"
@@ -135,22 +139,18 @@ class SentenceEvaluator(NodeVisitor):
 
     def visit_assignment(self, assignment, **kw):
         state = kw["state"]
+        variable = assignment.dest_variable
         value = self.visit_expr(assignment.expr, state=state)
-        modifiers = assignment.modifiers
-        if modifiers.array_indexing:
-            for i, index_expr in enumerate(modifiers.array_indexing):
-                assert isinstance(index_expr, Expr)
-                index_value = self.visit_expr(index_expr, state=state)
-                modifiers.array_indexing[i] = index_value
-        state.set_variable_value(assignment.name, value, modifiers)
+        state.set_variable_value(variable, value)
         return state
 
     def visit_builtin_call(self, sentence, **kw):
         state = kw["state"]
-        if sentence.name == 'alloc':
+        name = sentence.name
+        if name in ['alloc', 'free']:
             variable = sentence.args[0]
-            state.alloc(variable.name)
-        elif sentence.name == 'free':
-            variable = sentence.args[0]
-            state.free(variable.name)
+            method = getattr(state, name)
+            method(variable)
+        else:
+            raise TomosRuntimeError(f"Unknown builtin call {sentence.name}")
         return state

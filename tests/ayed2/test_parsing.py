@@ -153,8 +153,10 @@ class TestParseExpressions(TestCase):
         source = "*y"
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
-        self.assertEqual(expr.name, "y")
-        self.assertEqual(expr.dereferenced, True)
+        var = expr
+        self.assertEqual(var.name, "y")
+        self.assertEqual(len(var.traverse_path), 1)
+        self.assertEqual(var.traverse_path[0].kind, Variable.DEREFERENCE)
 
     def test_parse_dereferenced_negated(self):
         source = "-*y"
@@ -162,25 +164,35 @@ class TestParseExpressions(TestCase):
         self.assertIsInstance(expr, UnaryOp)
         self.assertEqual(expr.op, "-")
         self.assertIsInstance(expr.expr, Variable)
-        self.assertEqual(expr.expr.name, "y")
-        self.assertEqual(expr.expr.dereferenced, True)
+        var = expr.expr
+        self.assertEqual(var.name, "y")
+        self.assertEqual(len(var.traverse_path), 1)
+        self.assertEqual(var.traverse_path[0].kind, Variable.DEREFERENCE)
 
     def test_parse_array_indexing_simple(self):
         IL = lambda x: IntegerLiteralFactory(token__value=str(x))
         source = "x[1]"
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
-        self.assertEqual(expr.name, "x")
-        self.assertListEqual(expr.array_indexing, [IL(1)])
+        var = expr
+        self.assertEqual(var.name, "x")
+        self.assertEqual(len(var.traverse_path), 1)
+        step = var.traverse_path[0]
+        self.assertEqual(step.kind, Variable.ARRAY_INDEXING)
+        self.assertListEqual(step.argument, [IL(1)])
 
     def test_parse_array_indexing_multiple(self):
         IL = lambda x: IntegerLiteralFactory(token__value=str(x))
         source = "x[1, 5, 18, 6, 0]"
         expr = self.parsed_expr(source)
         self.assertIsInstance(expr, Variable)
-        self.assertEqual(expr.name, "x")
+        var = expr
+        self.assertEqual(var.name, "x")
+        self.assertEqual(len(var.traverse_path), 1)
+        step = var.traverse_path[0]
+        self.assertEqual(step.kind, Variable.ARRAY_INDEXING)
         self.assertListEqual(
-            expr.array_indexing,
+            step.argument,
             [IL(1), IL(5), IL(18), IL(6), IL(0)]
         )
 
