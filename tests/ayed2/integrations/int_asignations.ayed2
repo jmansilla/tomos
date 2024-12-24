@@ -1,4 +1,3 @@
-// Simplest example of AyED2 snippet:
 var one: int
 var two: int
 var three: int
@@ -19,4 +18,19 @@ arrow_two := arrow_one
 alloc(arrow_three)
 *arrow_three := *arrow_two + three
 free(arrow_three)
-*arrow_three := 5  // This shall cause a memory error
+
+// EXPECTATION
+// {
+//  'stack': {
+//     'one': 2,
+//     'two': 10,
+//     'three': 4,
+//     'arrow_one': 'H1',
+//     'arrow_two': 'H1',
+//     'arrow_three': '<?>'
+//  },
+//  'heap': {
+//     'H1': 11,
+//  },
+// }
+

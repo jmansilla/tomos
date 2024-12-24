@@ -14,3 +14,13 @@ while row_number < 2 do
     row_number := row_number + 1
 od
 
+// EXPECTATION
+// {
+//  'stack': {
+//     'row_number': 2,
+//     'col_number': 2,
+//     'aux': 11,
+//     'matrix': [[0, 1], [10, 11]],
+//  },
+//  'heap': {},
+// }
