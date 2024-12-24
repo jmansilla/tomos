@@ -8,6 +8,10 @@ class TomosTypeError(TomosException):
     pass
 
 
+class TomosSyntaxError(TomosException):
+    pass
+
+
 class TomosRuntimeError(TomosException):
     pass
 
