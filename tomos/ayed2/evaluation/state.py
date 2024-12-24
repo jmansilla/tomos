@@ -6,10 +6,10 @@ from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
 class State:
     def __init__(self):
-        self.allocator = MemoryAllocator()
-        self.memory_cells = dict()
-        self.cell_by_names = dict()
-        self.heap = dict()
+        self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
+        self.cell_by_names = dict() # stack. Maps names -> cells
+        self.heap = dict()          # heap.  Maps mem_address -> cells
+        self.memory_cells = dict()  # Maps mem_address -> cells  (Shouldn't be inside the allocator??)
 
     def declare_static_variable(self, name, var_type):
         if name in self.cell_by_names:
