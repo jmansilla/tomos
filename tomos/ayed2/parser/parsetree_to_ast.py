@@ -89,6 +89,23 @@ class TreeToAST(Transformer):
             values.append(arg.value)
         return Enum(values)
 
+    def tuple_field(self, args):
+        assert len(args) == 2
+        return (args[0], args[1])
+
+    def fieldname(self, args):
+        assert len(args) == 1
+        return args[0]
+
+    def t_tuple(self, args):
+        assert len(args) >= 1
+        fields_mapping = {}
+        for arg in args:
+            if not isinstance(arg, tuple):
+                raise UnexpectedInput(f"Invalid tuple field {arg}. Expected tuple, got {type(arg)} instead.")
+            fields_mapping[arg[0]] = arg[1]
+        return Tuple(fields_mapping=fields_mapping)
+
     def typedecl(self, args):
         assert len(args) == 2
         new_name, new_type = args
@@ -145,15 +162,21 @@ class TreeToAST(Transformer):
             return args[0]
         return Variable(name_token=args[0])
 
+    def variable_accessed(self, args):
+        var = args[0]
+        field_name = args[1]
+        var.traverse_append(Variable.ACCESSED_FIELD, field_name)
+        return var
+
     def variable_dereferenced(self, args):
         var = args[0]
-        var.dereferenced = True
+        var.traverse_append(Variable.DEREFERENCE)
         return var
 
     def variable_indexed(self, args):
         var = args[0]
         indexing = args[1:]
-        var.array_indexing = indexing
+        var.traverse_append(Variable.ARRAY_INDEXING, indexing)
         return var
 
     def expr(self, args):

@@ -9,10 +9,11 @@ body               : vardef_section sentences
 vardef_section     : (var_declaration _SEP)*
 var_declaration    : "var" variable ":" type
 
-typedecl           : "type" L_NAME "=" (syn | enum | tuple)
+typedecl           : "type" L_NAME "=" (syn | enum | t_tuple)
 syn                : type
 enum               : "enumerate" (U_NAME _SEP?)+ "end" "enumerate"
-tuple              : "tuple" (fieldname ":" type)+ "end" "tuple"
+t_tuple            : "tuple" (tuple_field _SEP?)+ "end" "tuple"
+tuple_field        : fieldname ":" type
 
 sentences          : (_sentence _SEP)*
 

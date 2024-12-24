@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import ArrayOf
+from tomos.ayed2.ast.types import ArrayOf, Tuple
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
 
@@ -12,16 +12,20 @@ class MemoryAllocator:
         assert partition in MemoryAddress.PARTITIONS
         if isinstance(var_type, ArrayOf):
             elements = []
-
-            for i in range(var_type.number_of_elements()):
+            for _ in range(var_type.number_of_elements()):
                 elements.append(self.allocate(partition, var_type.of))
-
             return ArrayCellCluster(var_type, elements)
+        elif isinstance(var_type, Tuple):
+            sub_cells = {}
+            for field_name, field_type in var_type.fields_mapping.items():
+                sub_cells[field_name] = self.allocate(partition, field_type)
+            return TupleCellCluster(var_type, sub_cells)
         else:
             address = self.next_free_address[partition]
             cell = MemoryCell(MemoryAddress(partition, address), var_type)
             self.next_free_address[partition] += var_type.SIZE  # type: ignore
             return cell
+
 
 
 class MemoryAddress:
@@ -40,6 +44,11 @@ class MemoryAddress:
     def __repr__(self) -> str:
         return f"MemoryAddress({self.partition}, {self.address})"
 
+    def __lt__(self, other):
+        if self.partition != other.partition:
+            return self.partition < other.partition
+        return self.address < other.address
+
     def __eq__(self, other):
         return hash(self) == hash(other)
 
@@ -48,6 +57,8 @@ class MemoryAddress:
 
 
 class MemoryCell:
+    can_get_set_values_directly = True
+
     def __init__(self, address, var_type, value=None):
         assert isinstance(address, MemoryAddress)
         self.address = address
@@ -59,6 +70,8 @@ class MemoryCell:
 
 
 class ArrayCellCluster:
+    can_get_set_values_directly = False
+
     def __init__(self, array_type, elements):
         assert isinstance(array_type, ArrayOf)
         self.array_type = array_type
@@ -77,14 +90,22 @@ class ArrayCellCluster:
         # used by the UIs
         return [cell.value for cell in self.elements]
 
-    def __setitem__(self, key, value):
-        idx = self.array_type.flatten_index(key)
-        self.elements[idx].value = value
-
     def __getitem__(self, key):
         idx = self.array_type.flatten_index(key)
-        return self.elements[idx].value
+        return self.elements[idx]
 
 
-class RecordCellCluster:
-    pass
+class TupleCellCluster:
+    can_set_get_values_directly = False
+
+    def __init__(self, tuple_type, sub_cells):
+        assert isinstance(tuple_type, Tuple)
+        self.tuple_type = tuple_type
+        self.sub_cells = sub_cells
+
+    @property
+    def address(self):
+        # used by the UIs
+        if not hasattr(self, "_address"):
+            self._address = min(sc.address for sc in self.sub_cells.values())
+        return self._address

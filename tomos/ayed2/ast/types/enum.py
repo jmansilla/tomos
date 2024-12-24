@@ -1,8 +1,8 @@
-from .basic import Ayed2Type, IntType
+from .basic import IntType, UserDefinedType
 from tomos.exceptions import EnumerationError
 
 
-class Enum(Ayed2Type):
+class Enum(UserDefinedType):
     def __init__(self, constant_names):
         self.underlying_type = IntType
         for value in constant_names:
@@ -40,4 +40,4 @@ class EnumConstant:
         self.value = value
 
     def __repr__(self):
-        return f"{self.name}"
+        return f"{self.name}({self.enum})"

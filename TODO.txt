@@ -64,6 +64,8 @@ t4)  [.] Overlapped usage of names (for types, for fields, for vars). Detect, re
 t5)  [ ] Replace asserts with descriptfull exceptions
 t6)  [ ] Basic Type classes are singletons-like. But weirdly handled.
 t7)  [ ] Upgrade syntax highlight with types definitions
+t8)  [ ] On visitors, remove the kw to simply leave "state" argument.
+t9)  [ ] Check can_get_set_values_directly
 
 
 Not-gonna-happen in this verison:

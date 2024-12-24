@@ -9,6 +9,14 @@ class Ayed2Type:
         raise NotImplementedError()
 
 
+class UserDefinedType(Ayed2Type):
+    """Base class for user-defined types."""
+    name = None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}:{self.name}"
+
+
 class BasicType(Ayed2Type):
     pass
 
