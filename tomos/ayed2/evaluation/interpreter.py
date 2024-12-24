@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 class Interpreter:
     """
-    Interpreter for sentences.
+    Interpreter for sentences/commands (generally speaking: instructions).
     Exposes the public interface of interpreter.
     """
     def __init__(self, ast, pre_hooks=None, post_hooks=None):
@@ -22,37 +22,31 @@ class Interpreter:
         self.post_hooks = post_hooks or []
 
     def run(self):
+        # Type Definitions are processed at parsing time. No need to run them here now.
+        # Section for funcprocdefs are not implemented yet. No need to run them here now.
+
+        # So far, we just need to run the body.
         self.sent_evaluator = SentenceEvaluator()
         self.last_executed_sentece = None  # For hooks
         state = State()
-        for name, section in [
-            ('typedef', self.ast.typedef_section),
-            ('funprocdef', self.ast.funprocdef_section),
-            ('body', self.ast.body)
-        ]:
-            logger.info('Running section %s', name)
-            state = self.run_sequence_of_sentences(section, state)
+        logger.info('Running Body section')
+        next_sent = self.get_entry_point()
+        while next_sent is not None:
+            state, next_sent = self._run_sentence(next_sent, state)
         return state
 
-    def run_sequence_of_sentences(self, sentences, state):
-        self.buffer_of_sentences = list(sentences)
-        while self.buffer_of_sentences:
-            # Caution. This buffer can be modified in the middle of the loop
-            sentence = self.buffer_of_sentences.pop(0)
-            state, extra_sentences = self._run_sentence(sentence, state)
-            if extra_sentences:
-                self.buffer_of_sentences = extra_sentences + self.buffer_of_sentences
-
-        return state
+    def get_entry_point(self):
+        # just the first instruction of the body. Can be changed in the future
+        return next(iter(self.ast.body))
 
     def _run_sentence(self, sentence_to_run, state):
         self._run_pre_hooks(sentence_to_run, state)
 
-        new_state, injected_block = self.sent_evaluator.eval(sentence_to_run, state=state)
+        new_state, next_sent = self.sent_evaluator.eval(sentence_to_run, state=state)
 
         self.last_executed_sentece = sentence_to_run
-        self._run_post_hooks(state)
-        return new_state, injected_block
+        self._run_post_hooks(new_state)
+        return new_state, next_sent
 
     def _run_pre_hooks(self, next_sentence, state):
         for hook in self.pre_hooks:
@@ -83,14 +77,8 @@ class SentenceEvaluator(NodeVisitor):
 
     def eval(self, sentence, state):
         # Evaluate the sentence in a given state.
-        # Returns (new_state, extra_sentences)
-        result = self.visit(sentence, state=state)
-        if isinstance(result, State):
-            return result, []
-        elif isinstance(result, tuple) and len(result) == 2:
-            return result
-        else:
-            raise TomosRuntimeError(f"Unexpected result {result}")
+        # Returns (new_state, next_sentence)
+        return self.visit(sentence, state=state)
 
     def get_visit_name_from_type(self, _type):
         # Transforms CammelCase to snake_case, and preppends "visit_"
@@ -99,23 +87,25 @@ class SentenceEvaluator(NodeVisitor):
         result = super().get_visit_name_from_type(_type)
         return result
 
-    def visit_type_declaration(self, command, state, **kw):
-        # Do nothing, type declarations are processed at parsing time
-        return state
-
     def visit_if(self, sentence, state, **kw):
         if self.visit_expr(sentence.guard, state=state):
-            injected_block = sentence.then_sentences
+            sequence = sentence.then_sentences
         else:
-            injected_block = sentence.else_sentences
-        return state, injected_block
+            sequence = sentence.else_sentences
+
+        if sequence:  # first sentence of corresponding branch
+            next_sent = sequence[0]
+        else:  # the branch is empty
+            next_sent = sentence.next_instruction
+
+        return state, next_sent
 
     def visit_while(self, sentence, state, **kw):
         if self.visit_expr(sentence.guard, state=state):
-            injected_block = list(sentence.sentences) + [sentence]
+            next_sent = sentence.sentences[0]
         else:
-            injected_block = []
-        return state, injected_block
+            next_sent = sentence.next_instruction
+        return state, next_sent
 
     def visit_expr(self, expr, state, **kw):
         value = self.expression_evaluator.eval(expr, state)
@@ -123,19 +113,19 @@ class SentenceEvaluator(NodeVisitor):
         return value
 
     def visit_skip(self, sentence, state, **kw):
-        return state
+        return state, sentence.next_instruction
 
     def visit_var_declaration(self, sentence, state, **kw):
         if isinstance(sentence.var_type, ArrayOf):
             sentence.var_type.eval_axes_expressions(self.expression_evaluator, state)
         state.declare_static_variable(sentence.name, sentence.var_type)
-        return state
+        return state, sentence.next_instruction
 
     def visit_assignment(self, assignment, state, **kw):
         variable = assignment.dest_variable
         value = self.visit_expr(assignment.expr, state=state)
         state.set_variable_value(variable, value)
-        return state
+        return state, assignment.next_instruction
 
     def visit_builtin_call(self, sentence, state, **kw):
         name = sentence.name
@@ -145,4 +135,4 @@ class SentenceEvaluator(NodeVisitor):
             method(variable)
         else:
             raise TomosRuntimeError(f"Unknown builtin call {sentence.name}")
-        return state
+        return state, sentence.next_instruction
