@@ -65,16 +65,7 @@ if __name__ == "__main__":
         final_state = interpreter.run()
         if opts["--movie"]:
             logger.info("Generating movie...")
-
-            # from pyinstrument import Profiler
-            # profiler = Profiler()
-            # profiler.start()
-            # code you want to profile
             build_movie(source_path, timeline, delay=delay)
-
-            # profiler.stop()
-            # profiler.print()
-
 
         print(final_state)
 
