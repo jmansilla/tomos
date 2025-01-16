@@ -23,8 +23,8 @@ class NextPrevLineFormatter(ImageFormatter):
         color_order = []
         if next_line_nr is None:
             if prev_line_nr is None:
-                # should not happen.
-                logger.error("next_line_nr and/or prev_line_nr should be provided.")
+                # should not happen, unless we are in the
+                # section of types/vars definitions
                 lines = []
             else:
                 lines = [prev_line_nr]
