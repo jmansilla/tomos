@@ -46,6 +46,8 @@ p)  [ ] Execution-Modes: unknownvalue, random, others ?
 q)  [ ] i18n
         [ ] Adapt code messages to be i18n translated
         [ ] Create actual translations
+r)  [ ] const environment
+s)  [ ] limit cycles and memory size by parameter (so the web executions survive abusive usage)
 
 
 Tech debt:
@@ -69,6 +71,7 @@ t10) [ ] Test that complex variable compositions works. Examples:
            array_var[1].field_one works
            array_var[other_var + 2]
            array_var[3].field_with_sub_array[i]
+
 
 
 Not-gonna-happen in this verison:
