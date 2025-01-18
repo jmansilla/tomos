@@ -2,12 +2,16 @@ from tomos.visit import NodeVisitor
 
 class ASTPrettyFormatter(NodeVisitor):
     indent = "    "
+    show_next = False
 
     def format(self, ast):
         return self.visit(ast)
 
     def generic_visit(self, node, *args, **kwargs):
-        return repr(node)
+        result = repr(node)
+        if self.show_next and hasattr(node, "next_instruction"):
+            result += f" -> {node.next_instruction}"
+        return result
 
     def stuff_with_children(self, title, children):
         result = f"{title}"
@@ -50,11 +54,13 @@ class ASTPrettyFormatter(NodeVisitor):
         return self.stuff_with_sections("Program", sections)
 
     def visit_while(self, node, *args, **kwargs):
-        return self.stuff_with_children(str(node), node.sentences)
+        title = self.generic_visit(node)
+        return self.stuff_with_children(title, node.sentences)
 
     def visit_if(self, node, *args, **kwargs):
         sections = {
             "then": node.then_sentences,
             "else": node.else_sentences,
         }
-        return self.stuff_with_sections(str(node), sections)
+        title = self.generic_visit(node)
+        return self.stuff_with_sections(title, sections)
