@@ -17,8 +17,8 @@ STOP_AT = getenv("STOP_AT", "")
 
 class TomosScene(Scene):
 
-    def __init__(self, filename, timeline, output_path):
-        self.filename = filename
+    def __init__(self, source_code, timeline, output_path):
+        self.source_code = source_code
         self.timeline = timeline
         super().__init__(configs.CANVAS_SIZE, output_path, color=configs.CANVAS_COLOR)
 
@@ -27,8 +27,7 @@ class TomosScene(Scene):
         self.add(memory_block)
         memory_block.shift(movement.RIGHT * (self.width / 2))
 
-        source_code = open(self.filename, 'r').read()
-        code_block = TomosCode(source_code)
+        code_block = TomosCode(self.source_code)
         code_block.center_respect_to(self)
         code_block.to_edge(self, movement.LEFT_EDGE)
         code_block.shift(movement.RIGHT * (configs.PADDING))
@@ -63,5 +62,6 @@ class TomosScene(Scene):
         code_block.focus_line(None)
         self.tick()
 
-        # self.wait()
+        number_of_generated_frames = self.next_tick_id
+        return number_of_generated_frames
 

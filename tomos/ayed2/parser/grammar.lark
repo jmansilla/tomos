@@ -15,7 +15,7 @@ enum               : "enumerate" (U_NAME _SEP?)+ "end" "enumerate"
 t_tuple            : "tuple" (tuple_field _SEP?)+ "end" "tuple"
 tuple_field        : fieldname ":" type
 
-sentences          : (_sentence _SEP)*
+sentences          : (_sentence _SEP)* _sentence?
 
 _sentence          : SKIP
                    | if_sent

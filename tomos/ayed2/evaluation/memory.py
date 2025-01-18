@@ -59,6 +59,9 @@ class MemoryAddress:
 class MemoryCell:
     can_get_set_values_directly = True
 
+    def __repr__(self):
+        return f"MemoryCell({self.address}, {self.var_type}, value={self.value})"
+
     def __init__(self, address, var_type, value=None):
         assert isinstance(address, MemoryAddress)
         self.address = address
@@ -76,6 +79,9 @@ class ArrayCellCluster:
         assert isinstance(array_type, ArrayOf)
         self.array_type = array_type
         self.elements = elements
+
+    def __repr__(self):
+        return f"ArrayCellCluster({self.array_type}, {self.elements})"
 
     @property
     def var_type(self):

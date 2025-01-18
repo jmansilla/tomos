@@ -88,16 +88,16 @@ class SentenceEvaluator(NodeVisitor):
         result = super().get_visit_name_from_type(_type)
         return result
 
-    def visit_if(self, sentence, state, **kw):
-        if self.visit_expr(sentence.guard, state=state):
-            sequence = sentence.then_sentences
+    def visit_if(self, if_sent, state, **kw):
+        if self.visit_expr(if_sent.guard, state=state):
+            sequence = if_sent.then_sentences
         else:
-            sequence = sentence.else_sentences
+            sequence = if_sent.else_sentences
 
         if sequence:  # first sentence of corresponding branch
             next_sent = sequence[0]
         else:  # the branch is empty
-            next_sent = sentence.next_instruction
+            next_sent = if_sent.next_instruction
 
         return state, next_sent
 

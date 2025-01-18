@@ -20,7 +20,7 @@ from tomos.ui.interpreter_hooks import ShowSentence, ShowState, Sleeper, wait_fo
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
 
-from tomos.ui.movie.builder import build_movie, logger
+from tomos.ui.movie.builder import build_movie_from_file, logger
 
 
 if __name__ == "__main__":
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         final_state = interpreter.run()
         if opts["--movie"]:
             logger.info("Generating movie...")
-            build_movie(source_path, timeline, delay=delay)
+            build_movie_from_file(source_path, timeline, delay=delay)
 
         print(final_state)
 

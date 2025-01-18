@@ -13,6 +13,9 @@ class State:
     def set_expressions_evaluator(self, evaluator):
         self.evaluator = evaluator
 
+    def __str__(self):
+        return f"State(stack={self.stack}, heap={self.heap})"
+
     def get_expression_evaluator(self):
         if not hasattr(self, "evaluator"):
             raise TomosRuntimeError("Expression evaluator not set.")
