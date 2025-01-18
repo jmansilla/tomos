@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tomos"
-version = "0.1.2"
+version = "0.1.3"
 description = "Code Tomogrph for Ayed2"
 authors = ["Javier Mansilla <javimansilla@gmail.com>"]
 license = "MIT"
