@@ -17,8 +17,8 @@ g)  [x] Details to parsing
         [x] operators precedence
 h)  [x] Add Arrays
         [x] to parser
-        [.] to Eval
-           [ ] sub-expressions for array indexing
+        [x] to Eval
+           [x] sub-expressions for array indexing
         [.] to ui
 i)  [ ] Enums
         [x] parser
@@ -41,13 +41,15 @@ n)  [ ] Better UI
         [x] Prototype with manim
         [x] syntax highlight
 o)  [ ] Distribution... pypi? website? others?
-o)  [ ] Constants as input
-p)  [ ] Execution-Modes: unknownvalue, random, others ?
-q)  [ ] i18n
-        [ ] Adapt code messages to be i18n translated
+        [x] basic website for running tomos
+p)  [ ] i18n
+        [x] Adapt code messages to be i18n translated
         [ ] Create actual translations
-r)  [ ] const environment
-s)  [ ] limit cycles and memory size by parameter (so the web executions survive abusive usage)
+q)  [ ] const environment
+        [ ] add syntax for declaring constants
+        [ ] make it work with the interpreter (requesting such values from environment)
+        [ ] integrate on the website
+r)  [ ] limit cycles and memory size by parameter (so the web executions survive abusive usage)
 
 
 Tech debt:
