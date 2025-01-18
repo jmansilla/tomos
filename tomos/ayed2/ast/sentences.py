@@ -4,7 +4,15 @@ from tomos.exceptions import TomosSyntaxError
 
 
 class Sentence(ASTNode):
-    next_instruction = None
+    _next_instruction = None
+
+    @property
+    def next_instruction(self):
+        return self._next_instruction
+
+    @next_instruction.setter
+    def next_instruction(self, value):
+        self._next_instruction = value
 
 
 class Skip(Sentence):
@@ -45,11 +53,27 @@ class If(Sentence):
             raise TomosSyntaxError("guard must be an expression")
         self.guard = guard
         self.then_sentences = then_sentences
+        if self.then_sentences:
+            self.then_sentences[-1].next_instruction = self.next_instruction
         self.else_sentences = else_sentences
+        if self.else_sentences:
+            self.else_sentences[-1].next_instruction = self.next_instruction
 
     @property
     def line_number(self):
         return self.guard.line_number
+
+    @property
+    def next_instruction(self):
+        return self._next_instruction
+
+    @next_instruction.setter
+    def next_instruction(self, value):
+        self._next_instruction = value
+        if self.then_sentences:
+            self.then_sentences[-1].next_instruction = value
+        if self.else_sentences:
+            self.else_sentences[-1].next_instruction = value
 
     def __repr__(self) -> str:
         return f"If(guard={self.guard})"
