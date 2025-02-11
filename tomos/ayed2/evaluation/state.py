@@ -2,6 +2,7 @@ from tomos.ayed2.ast.types import ArrayOf, Tuple
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
+from tomos.ayed2.evaluation.limits import LIMITER
 
 
 class State:
@@ -26,6 +27,8 @@ class State:
             raise AlreadyDeclaredVariableError(f"Variable {name} already declared.")
         cell = self.allocator.allocate(MemoryAddress.STACK, var_type)
         self.stack[name] = cell
+        LIMITER.check_type_sizing_limits(var_type)
+        LIMITER.check_memory_size_limits(self)
 
     def alloc(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
@@ -37,6 +40,7 @@ class State:
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, stack_cell.var_type.of)
         stack_cell.value = new_cell.address
         self.heap[new_cell.address] = new_cell
+        LIMITER.check_memory_size_limits(self)
 
     def free(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.

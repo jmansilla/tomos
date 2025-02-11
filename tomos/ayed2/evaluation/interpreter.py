@@ -3,6 +3,7 @@ import logging
 from tomos.ayed2.ast.expressions import Expr
 from tomos.ayed2.ast.types import ArrayOf
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
+from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.ayed2.evaluation.state import State
 from tomos.exceptions import TomosRuntimeError
 from tomos.visit import NodeVisitor
@@ -26,6 +27,7 @@ class Interpreter:
         # Section for funcprocdefs are not implemented yet. No need to run them here now.
 
         # So far, we just need to run the body.
+        self.execution_counter = 0
         self.sent_evaluator = SentenceEvaluator()
         self.last_executed_sentece = None  # For hooks
         state = State()
@@ -34,6 +36,8 @@ class Interpreter:
         next_sent = self.get_entry_point()
         while next_sent is not None:
             state, next_sent = self._run_sentence(next_sent, state)
+            self.execution_counter += 1
+            LIMITER.check_execution_counter_limits(self)
         return state
 
     def get_entry_point(self):
