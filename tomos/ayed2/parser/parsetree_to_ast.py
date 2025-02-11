@@ -72,7 +72,7 @@ class TreeToAST(Transformer):
         # a) when declaring a variable of basic type
         # b) when declaring a variable of a custom-type
         # c) when declaring a variable of pointer type or array type
-        #    (where type is an argument to the complex-type constructor)
+        #    (where "type" is an argument to the complex-type constructor)
         # d) when declaring a type synonym
         #
         assert len(args) == 1
