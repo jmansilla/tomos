@@ -1,0 +1,27 @@
+# These limits below are kind-of arbitrary.
+# Given that Ayed is a toy language, it's not a big deal, and can be changed if needed.
+# The goal is to keep the UI simple and responsive.
+
+# Violating these limits will result in a internal LimitError
+# Changing any of these limits values to None will result in no limit.
+
+EXECUTION_STEPS_LIMIT = 1000
+
+# Arrays
+MAXIMUM_ARRAY_DIMENSIONS = 3
+MAXIMUM_ARRAY_SIZE = 100  # The maximum number of elements in an array (when flattened)
+
+# The maximum number of elements (fields) in a tuple
+MAXIMUM_TUPLE_SIZE = 10
+
+# Remember that an integer is a cell, an array of N is a cluster of N cells, and so on.
+MAXIMUM_STACK_CELLS = 500
+MAXIMUM_HEAP_CELLS = 5000
+
+# A simple basic type (int, real, char, bool) is depth 1
+# An Array is depth 1 + depth of its element type.
+# Tuples have depth 1 + maximum {depth of each field type}
+# Pointers do not increase the count.
+# Type Synonyms does not increase the count.
+# As an example, an array of bools is depth 2, an array of array of bools is depth 3, and so on.
+TYPE_COMPOSITION_DEPTH_LIMIT = 5

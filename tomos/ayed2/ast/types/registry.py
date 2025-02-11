@@ -1,3 +1,4 @@
+from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.exceptions import TomosTypeError
 from .basic import IntType, RealType, BoolType, CharType, UserDefinedType
 from .enum import Enum
@@ -21,11 +22,8 @@ class EnumConstantsRegistry:
         return self.constant_mapping[name]
 
 
-
 class TypeRegistry:
     def __init__(self):
-        # kind of weird coded like this instead of directly in __init__
-        # it's useful for testing
         self.reset()
 
     def load_basic_types(self):
@@ -51,6 +49,7 @@ class TypeRegistry:
                 raise TomosTypeError(f"Enum constants overlap: {overlap}")
             else:
                 self._enum_constants.update(new_type.constants)
+        LIMITER.check_type_sizing_limits(new_type)
         new_type.name = name
         self.type_map[name] = new_type
 

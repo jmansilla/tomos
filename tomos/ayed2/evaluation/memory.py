@@ -27,7 +27,6 @@ class MemoryAllocator:
             return cell
 
 
-
 class MemoryAddress:
     STACK = 'S'
     HEAP = 'H'
@@ -58,6 +57,7 @@ class MemoryAddress:
 
 class MemoryCell:
     can_get_set_values_directly = True
+    cell_count = 1
 
     def __repr__(self):
         return f"MemoryCell({self.address}, {self.var_type}, value={self.value})"
@@ -90,6 +90,10 @@ class ArrayCellCluster:
     @property
     def address(self):
         return self.elements[0].address
+
+    @property
+    def cell_count(self):
+        return sum(cell.cell_count for cell in self.elements)
 
     @property
     def value(self):
@@ -126,3 +130,7 @@ class TupleCellCluster:
         if not hasattr(self, "_address"):
             self._address = min(sc.address for sc in self.sub_cells.values())
         return self._address
+
+    @property
+    def cell_count(self):
+        return sum(cell.cell_count for cell in self.sub_cells)

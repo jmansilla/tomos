@@ -38,3 +38,33 @@ class EnumerationError(TomosException):
 
 class SynonymError(TomosException):
     pass
+
+
+# LIMIT ERRORS
+class LimitError(TomosException):
+    # base class, not to be raised directly
+    pass
+
+
+class ArraySizeLimitExceededError(LimitError):
+    pass
+
+
+class ArrayDimensionsLimitExceededError(LimitError):
+    pass
+
+
+class TupleSizeLimitExceededError(LimitError):
+    pass
+
+
+class ExecutionStepsLimitExceededError(LimitError):
+    pass
+
+
+class MemoryLimitExceededError(LimitError):
+    pass
+
+
+class TypeCompositionLimitExceededError(LimitError):
+    pass
