@@ -50,6 +50,7 @@ class TypeRegistry:
             else:
                 self._enum_constants.update(new_type.constants)
         LIMITER.check_type_sizing_limits(new_type)
+        new_type.name = name
         self.type_map[name] = new_type
 
     def get_type(self, name):
