@@ -62,7 +62,7 @@ class CharType(BasicType):
 
 class PointerOf(BasicType):
     NAMED_LITERALS = {"null": None}
-    SIZE = 2
+    SIZE = 1
     is_pointer = True
 
     def __init__(self, of):
