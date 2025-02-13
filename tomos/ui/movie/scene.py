@@ -22,6 +22,14 @@ class TomosScene(Scene):
         self.timeline = timeline
         super().__init__(configs.CANVAS_SIZE, output_path, color=configs.CANVAS_COLOR)
 
+    def build_folder(self, base_folder_path):
+        # Removing "NameOfSceneClass" from folder path, which is added by skitso
+        from pathlib import Path
+        self.folder_path = (
+            Path(base_folder_path) / "frames"
+        )
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
     def render(self):
         memory_block = MemoryBlock()
         self.add(memory_block)
