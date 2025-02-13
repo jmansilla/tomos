@@ -1,1 +1,2 @@
-skitso>=0.1.1
+skitso>=0.1.4
+moviepy>=2.1.2
