@@ -10,6 +10,16 @@ from pygments.formatters import ImageFormatter
 from pygments_ayed2.style import Ayed2Style
 
 from tomos.ui.movie.texts import build_text
+from tomos.ui.movie import configs
+
+
+class PatchedStyle(Ayed2Style):
+    # on black background, ansibrightblue is not visible
+    styles = {
+        k: v if v != 'ansibrightblue' else '#0099ff'
+        for k, v in Ayed2Style.styles.items()
+    }
+
 
 
 logger = getLogger(__name__)
@@ -42,8 +52,8 @@ class NextPrevLineFormatter(ImageFormatter):
         kwargs['hl_lines'] = lines
         super().__init__(*args, **kwargs)
         self.color_order = color_order
-        self._hl_prev_color = "#440000"
-        self._hl_next_color = "#004400"
+        self._hl_prev_color = configs.CODEBOX_NEXT_LINE_BGCOLOR
+        self._hl_next_color = configs.CODEBOX_PREV_LINE_BGCOLOR
 
     @property
     def hl_color(self):
@@ -63,11 +73,11 @@ class NextPrevLineFormatter(ImageFormatter):
 
 class CodeBox(BaseImgElem):
     line_pad = 2
-    def __init__(self, source_code, language="ayed2", font_size=18, bg_color="#000000"):
+    def __init__(self, source_code, language="ayed2", font_size=18, bg_color=None):
         self.source_code = source_code
         self.language = language
         self.font_size = font_size
-        self.bg_color = bg_color
+        self.bg_color = bg_color or configs.CODEBOX_BGCOLOR
         self.lexer = get_lexer_by_name(language)
         self.background = None
         self.next_line_nr = None
@@ -82,7 +92,7 @@ class CodeBox(BaseImgElem):
 
     @property
     def formatter(self):
-        style = Ayed2Style
+        style = PatchedStyle
         style.background_color = self.bg_color
         kw = {"font_size": self.font_size,
               "line_pad": self.line_pad,
