@@ -79,10 +79,13 @@ def main():
 
 
 def play_movie(movie_path):
+    from unittest import mock
     from moviepy import VideoFileClip
-    clip = VideoFileClip(movie_path)
-    clip.preview()
-    clip.close()
+    from tomos.ui.patch_moviepy import FixedPreviewer
+    with mock.patch("moviepy.video.io.ffplay_previewer.FFPLAY_VideoPreviewer", new=FixedPreviewer):
+        clip = VideoFileClip(movie_path)
+        clip.preview()
+        clip.close()
 
 
 if __name__ == "__main__":
