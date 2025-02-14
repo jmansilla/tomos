@@ -24,10 +24,7 @@ class ArrayOf(Ayed2Type):
             axis.eval_expressions(expr_evaluator, state)
 
     def number_of_elements(self):
-        lengths = []
-        for axis in self.axes:
-            lengths.append(max(0, axis.to_value - axis.from_value))
-        return math.prod(lengths)
+        return math.prod(self.shape())
 
     def shape(self):
         lengths = []
