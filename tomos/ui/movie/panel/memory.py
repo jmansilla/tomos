@@ -4,7 +4,6 @@ from skitso.atom import Container, Point
 from skitso import movement
 from skitso.shapes import Rectangle
 
-from tomos.ayed2.ast.types import PointerOf
 from tomos.ayed2.evaluation.state import MemoryAddress
 
 from tomos.ui.movie import configs
