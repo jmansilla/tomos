@@ -16,14 +16,6 @@ BASE_FONT_SIZE = 20
 VAR_BOX_MIN_CHAR_RATIO = (80, 30)
 
 COLOR_BY_TYPE = {
-    "IntType": "#A2D2DF",
-    "BoolType": "#F6EFBD",
-    "RealType": "#E4C087",
-    "CharType": "#BC7C7C",
-    "PointerOf": "#289e84",
-    "ArrayOf": "#F4D345",
-    }
-COLOR_BY_TYPE = {
     "IntType": "#13005A",
     "BoolType": "#00337C",
     "RealType": "#1C82AD",
@@ -31,6 +23,8 @@ COLOR_BY_TYPE = {
     "PointerOf": "#289e84",
     "ArrayOf": "#F4D345",
     }
+
+ARRAY_ORIENTATION = "vertical"  # "vertical" or "horizontal". Default: "vertical"
 
 UNNAMED_COLORS = ["red", "blue", "orange", "purple", "black", "pink"]
 
