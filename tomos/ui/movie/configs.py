@@ -34,3 +34,6 @@ COLOR_BY_TYPE = {
 
 UNNAMED_COLORS = ["red", "blue", "orange", "purple", "black", "pink"]
 
+CODEBOX_BGCOLOR = "#000000"
+CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
+CODEBOX_PREV_LINE_BGCOLOR = "#004d00"

@@ -40,7 +40,7 @@ def generate_mp4(frames_path, movie_path):
         logger.error(f"Unable to find any image in {frames_folder}")
         exit(0)
     clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
-    clip.write_videofile(movie_path, codec="libx264", audio=False)
+    clip.write_videofile(movie_path, codec="libx264", bitrate="5000k", audio=False)
 
 
 def clean_folder(folder_path):
