@@ -8,7 +8,7 @@ from tomos.ayed2.evaluation.state import MemoryAddress
 
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.vars import Variable, PointerVar
+from tomos.ui.movie.panel.vars import create_variable_sprite
 
 
 logger = getLogger(__name__)
@@ -88,12 +88,8 @@ class MemoryBlock(Container):
 
     def add_var(self, name, _type, value, in_heap=False):
         # Create the correct var sprite
-        if _type.is_pointer:
-            vars_index = self.vars_by_name
-            var = PointerVar(vars_index, name, _type, value, in_heap=in_heap)
-        else:
-            var = Variable(name, _type, value, in_heap=in_heap)
-
+        var = create_variable_sprite(name, _type, value, vars_index=self.vars_by_name,
+                                     in_heap=in_heap)
         # Select the correct blackboard and add&align the var
         if in_heap:
             blackboard = self.heap_blackboard
@@ -112,4 +108,3 @@ class MemoryBlock(Container):
     def set_value(self, name, value):
         var = self.vars_by_name[name]
         var.set_value(value)
-
