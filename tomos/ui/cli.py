@@ -9,6 +9,7 @@ Usage:
 
 Options:
     --movie=<fname>   Generates a movie with the execution (implicitly cancels --no-run if set).
+                      Must be a .mp4 file.
     --autoplay        Autoplay the movie. Implicitly sets --movie=movie.mp4 if not set.
     --no-run          Skips executing the program. Useful for debugging.
     --no-final-state  Skips printing the final state.
@@ -52,6 +53,9 @@ def main():
         pre_hooks = []
         post_hooks = []
         if opts["--movie"]:
+            if not opts["--movie"].endswith(".mp4"):
+                print("Movie must be a .mp4 file.")
+                exit(1)
             timeline = RememberState()
             post_hooks = [timeline]
 
@@ -68,7 +72,7 @@ def main():
             if opts["--autoplay"]:
                 if not movie_path.exists():
                     print(f"Unable to find movie {movie_path}")
-                    exit(0)
+                    exit(1)
                 play_movie(movie_path)
 
         print(final_state)
@@ -78,6 +82,7 @@ def play_movie(movie_path):
     from moviepy import VideoFileClip
     clip = VideoFileClip(movie_path)
     clip.preview()
+    clip.close()
 
 
 if __name__ == "__main__":
