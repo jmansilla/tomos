@@ -13,6 +13,7 @@ from .reserved_words import KEYWORDS
 
 
 def chain_instructions(instructions):
+    """Makes sure that next_instruction is set for each instruction"""
     prev = None
     for inst in instructions:
         if prev is not None:
@@ -52,6 +53,19 @@ class TreeToAST(Transformer):
     def while_sent(self, args):
         guard, sentences = args
         return While(guard=guard, sentences=sentences)
+
+    def for_sent_up(self, args):
+        return True, args
+
+    def for_sent_down(self, args):
+        return False, args
+
+    def for_sent(self, children_responses):
+        assert len(children_responses) == 1
+        up, args = children_responses[0]
+        var_token, start, end, sentences = args
+        var = self.variable([var_token])
+        return For(var, start, end, up, sentences)
 
     def SKIP(self, token):
         return Skip(token)

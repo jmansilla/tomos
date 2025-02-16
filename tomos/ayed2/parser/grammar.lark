@@ -20,16 +20,19 @@ sentences          : (_sentence _SEP)* _sentence?
 _sentence          : SKIP
                    | if_sent
                    | while_sent
-                   | builtin_call
-//                 | for_sent
+                   | for_sent
                    | assignment
+                   | builtin_call
 
 SKIP               : "skip"
 if_sent            : "if" expr "then" sentences ("else" sentences)? "fi"
 while_sent         : "while" expr "do" sentences "od"
+for_sent           : for_sent_up | for_sent_down
+for_sent_up        : "for" VAR_NAME ":=" expr "to" expr "do" sentences "od"
+for_sent_down      : "for" VAR_NAME ":=" expr "downto" expr "do" sentences "od"
+assignment         : variable ":=" expr
 builtin_call       : builtin_name "(" variable ")"
 !builtin_name      : "alloc" | "free"
-assignment         : variable ":=" expr
 
 expr               : expr_junction
 expr_junction      : expr_equality ( JUNCTION_SYMBOL expr_equality)*
@@ -55,10 +58,11 @@ TERM_SYMBOL        : ( "-" | "+" )
 FACTOR_SYMBOL      : ( "/" | "*" | "%" )
 UNARY_SYMBOL       : ( "!" | "-" )
 
-variable              : L_NAME
+variable              : VAR_NAME
                       | variable_indexed
                       | variable_accessed
                       | variable_dereferenced
+VAR_NAME              : L_NAME
 
 variable_indexed      : variable "[" expr ("," expr)* "]"
 variable_accessed     : variable "." fieldname
