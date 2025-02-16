@@ -101,11 +101,47 @@ class While(Sentence):
 
 
 class For(Sentence):
-    def __init__(self, name, start, end, sentences):
-        self.name_token = name
+    def __init__(self, variable, start, end, direction_up, sentences):
+        if not isinstance(variable, Variable):
+            raise TomosSyntaxError("variable must be a variable")
+        if not isinstance(start, Expr):
+            raise TomosSyntaxError("start must be an expression")
+        if not isinstance(end, Expr):
+            raise TomosSyntaxError("end must be an expression")
+        if not isinstance(sentences, list):
+            raise TomosSyntaxError("sentences must be lists")
+        elif not sentences:
+            raise TomosSyntaxError("sentences must not be empty")
+        if direction_up not in (True, False):
+            raise TomosSyntaxError("direction_up must be True or False")
+        self.loop_in_progress = False
+        self.loop_variable = variable
         self.start = start
         self.end = end
+        self.direction_up = direction_up
         self.sentences = sentences
+        last = sentences[-1]
+        last.next_instruction = self  # making sure next for iteration is executed
+
+    def next_value(self, current_value):
+        if self.direction_up:
+            return current_value + 1
+        else:
+            return current_value - 1
+
+    def has_iterations_left(self, current_value, end_value):
+        if self.direction_up:
+            return current_value <= end_value
+        else:
+            return current_value >= end_value
+
+    @property
+    def line_number(self):
+        return self.loop_variable.line_number
+
+    def __repr__(self) -> str:
+        dir = "to" if self.direction_up else "downto"
+        return f"For(variable={self.loop_variable}, {self.start} {dir} {self.end})"
 
 
 class Assignment(Sentence):
