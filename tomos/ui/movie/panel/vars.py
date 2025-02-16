@@ -17,14 +17,12 @@ def create_variable_sprite(
         inside_array=False):
     vars_index = vars_index or {}
 
-    print('Estoy aca', inside_array)
     if _type.is_pointer:
         klass = PointerVarSprite
     elif isinstance(_type, ayed_types.ArrayOf):
         klass = ArraySprite
     else:
         klass = VariableSprite
-    print('La clase seleccionada es', klass)
     if inside_array:
         class element_klass(ArrayElementMixin, klass):    # type: ignore
             pass
