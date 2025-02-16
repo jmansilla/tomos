@@ -112,6 +112,22 @@ class SentenceEvaluator(NodeVisitor):
             next_sent = sentence.next_instruction
         return state, next_sent
 
+    def visit_for(self, for_sent, state, **kw):
+        var = for_sent.loop_variable
+        if not for_sent.loop_in_progress:
+            next_value = self.visit_expr(for_sent.start, state=state)
+        else:
+            next_value = for_sent.next_value(state.get_variable_value(var))
+        end_value = self.visit_expr(for_sent.end, state=state)
+        if for_sent.has_iterations_left(next_value, end_value):
+            state.set_variable_value(var, next_value)
+            for_sent.loop_in_progress = True
+            next_sent = for_sent.sentences[0]
+        else:
+            for_sent.loop_in_progress = False
+            next_sent = for_sent.next_instruction
+        return state, next_sent
+
     def visit_expr(self, expr, state, **kw):
         value = self.expression_evaluator.eval(expr, state)
         self.intermediate_evaluated_expressions[expr] = value
