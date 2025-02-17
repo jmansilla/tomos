@@ -56,6 +56,13 @@ class State:
         stack_cell.value = UnknownValue
 
     def cell_after_traversal(self, var):
+        # AST Variables have a traversal_path attribute which is a list of steps.
+        # Example: if the expression is days[i+1].year, a traversal path should start
+        # with the "days" variable, first step should be an ArrayIndexing for (i+1),
+        # and following step should be an AccessedField step for "year".
+
+        # Returns the memory cell resulting of walking each of the mentioned steps.
+
         name = var.name
         if name not in self.stack:
             raise UndeclaredVariableError(f"Can't access variable \"{name}\". It was not declared.")
@@ -83,9 +90,9 @@ class State:
                 assert isinstance(cell.var_type, Tuple)
                 field = step.argument
                 try:
-                    cell = cell.fields_mapping[field]
+                    cell = cell.sub_cells[field]
                 except KeyError:
-                    msg = f"Accessing var {var}. Can't access field {field}."
+                    msg = f"For var {var}. Can't access field {field}."
                     raise MemoryInfrigementError(msg)
             else:
                 raise NotImplementedError(f"Unknown step kind {step.kind}")

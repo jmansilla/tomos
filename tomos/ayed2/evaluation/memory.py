@@ -59,9 +59,6 @@ class MemoryCell:
     can_get_set_values_directly = True
     cell_count = 1
 
-    def __repr__(self):
-        return f"MemoryCell({self.address}, {self.var_type}, value={self.value})"
-
     def __init__(self, address, var_type, value=None):
         assert isinstance(address, MemoryAddress)
         self.address = address
@@ -70,6 +67,9 @@ class MemoryCell:
             self.value = UnknownValue
         else:
             self.value = value
+
+    def __repr__(self):
+        return f"MemoryCell({self.address}, {self.var_type}, value={self.value})"
 
 
 class ArrayCellCluster:
@@ -97,7 +97,7 @@ class ArrayCellCluster:
 
     @property
     def value(self):
-        # used by the UIs. Because of that, only imported if needed
+        # used by the UIs. Because of that, only importing here
         from functools import reduce
         from operator import mul
 
@@ -125,6 +125,10 @@ class TupleCellCluster:
         self.sub_cells = sub_cells
 
     @property
+    def var_type(self):
+        return self.tuple_type
+
+    @property
     def address(self):
         # used by the UIs
         if not hasattr(self, "_address"):
@@ -133,4 +137,9 @@ class TupleCellCluster:
 
     @property
     def cell_count(self):
-        return sum(cell.cell_count for cell in self.sub_cells)
+        return sum(cell.cell_count for cell in self.sub_cells.values())
+
+    @property
+    def value(self):
+        # used by the UIs & testing
+        return {str(k):sc.value for k, sc in self.sub_cells.items()}

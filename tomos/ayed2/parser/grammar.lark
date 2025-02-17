@@ -62,12 +62,14 @@ variable              : VAR_NAME
                       | variable_indexed
                       | variable_accessed
                       | variable_dereferenced
+                      | variable_deref_n_access
 VAR_NAME              : L_NAME
 
-variable_indexed      : variable "[" expr ("," expr)* "]"
-variable_accessed     : variable "." fieldname
-variable_dereferenced : "*" variable
-fieldname             : L_NAME
+variable_indexed         : variable "[" expr ("," expr)* "]"
+variable_accessed        : variable "." fieldname
+variable_dereferenced    : "*" variable
+variable_deref_n_access  : variable "->" fieldname
+fieldname                : L_NAME
 
 
 type              : BASIC_TYPE | pointer_of | array_of | custom_type
