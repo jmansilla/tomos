@@ -83,7 +83,7 @@ class State:
                 assert isinstance(cell.var_type, Tuple)
                 field = step.argument
                 try:
-                    cell = cell.fields_mapping[field]
+                    cell = cell.sub_cells[field]
                 except KeyError:
                     msg = f"Accessing var {var}. Can't access field {field}."
                     raise MemoryInfrigementError(msg)
