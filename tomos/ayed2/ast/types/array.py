@@ -50,7 +50,7 @@ class ArrayOf(Ayed2Type):
     def flatten_index(self, indexes):
         # If array is declated a[1..5, 10..15] and it's requested to access to position
         # a[4, 12], we need to decode that internally that's (in the flatten array) the
-        # position a[3*5 + (12-10)] = a[3*5 + 2] = a[17]
+        # position a[(4-1)*5 + (12-10)] = a[3*5 + 2] = a[17]
         if len(indexes) != len(self.axes):
             raise TomosTypeError(f"Wrong number of indexes. Expected {len(self.axes)}, got {len(indexes)}")
         if not all(isinstance(idx, int) for idx in indexes):
