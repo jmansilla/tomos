@@ -133,4 +133,4 @@ class TupleCellCluster:
 
     @property
     def cell_count(self):
-        return sum(cell.cell_count for cell in self.sub_cells)
+        return sum(cell.cell_count for cell in self.sub_cells.values())
