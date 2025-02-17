@@ -125,6 +125,10 @@ class TupleCellCluster:
         self.sub_cells = sub_cells
 
     @property
+    def var_type(self):
+        return self.tuple_type
+
+    @property
     def address(self):
         # used by the UIs
         if not hasattr(self, "_address"):
@@ -134,3 +138,8 @@ class TupleCellCluster:
     @property
     def cell_count(self):
         return sum(cell.cell_count for cell in self.sub_cells.values())
+
+    @property
+    def value(self):
+        # used by the UIs & testing
+        return {str(k):sc.value for k, sc in self.sub_cells.items()}
