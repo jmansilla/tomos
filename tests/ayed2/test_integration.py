@@ -2,10 +2,12 @@ import ast
 import pathlib
 from unittest import TestCase
 
+from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.ayed2.parser import parser
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ayed2.evaluation.memory import MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
+
 
 
 integrations_folder = pathlib.Path(__file__).parent.resolve() / "integrations"
@@ -64,6 +66,7 @@ class IntegrationMeta(type):
             dict[test_name] = gen_test(file)
         return type.__new__(mcs, name, bases, dict)
 
+
 class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
 
     def setUp(self):
@@ -85,12 +88,25 @@ class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
             self.assertTrue(expected_value.startswith('H') or expected_value.startswith('S'), msg)
             address = str(actual_value)
             actual_value = self.addresses_translation.setdefault(address, expected_value)  # translation made.
-        if isinstance(expected_value, list):
+        if isinstance(actual_value, EnumConstant):
+            self.assertEqual(str(actual_value), expected_value)
+        elif isinstance(expected_value, list):
             self.assertIsInstance(actual_value, list, f'{base_msg}, Expected {actual_value} to be a list')
-            self.assertEqual(len(actual_value), len(expected_value), f'List lenghts. {base_msg}.')
+            l_a, l_e = len(actual_value), len(expected_value)
+            self.assertEqual(l_a, l_e,
+                             f'List lengths differ {l_a} != {l_e}. {base_msg}.')
             for idx, (a, e) in enumerate(zip(actual_value, expected_value)):
                 self.assertMemoryEqual(a, e, f'{block_name}:{key} list', idx)
+        elif isinstance(expected_value, dict):
+            self.assertIsInstance(actual_value, dict, f'{base_msg}, Expected {actual_value} to be a dict')
+            k_a, k_e = actual_value.keys(), expected_value.keys()  # type: ignore
+            self.assertEqual(k_a, k_e,
+                             f'Dict keys differ {k_a} != {k_e}. {base_msg}.')
+            for subkey in expected_value.keys():
+                self.assertMemoryEqual(actual_value[subkey], expected_value[subkey],
+                                       f'{block_name}:{key} dict', subkey)
         else:
+            print(type(actual_value))
             self.assertEqual(actual_value, expected_value, base_msg)
 
     def assertHeapEqual(self, actual, expected):
