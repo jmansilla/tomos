@@ -203,6 +203,13 @@ class TreeToAST(Transformer):
         var.traverse_append(Variable.DEREFERENCE)
         return var
 
+    def variable_deref_n_access(self, args):
+        var = args[0]
+        field_name = args[1]
+        var.traverse_append(Variable.DEREFERENCE)
+        var.traverse_append(Variable.ACCESSED_FIELD, field_name)
+        return var
+
     def variable_indexed(self, args):
         var = args[0]
         indexing = args[1:]
