@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from tomos.ayed2.ast import types as ayed_types
+from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
@@ -73,6 +74,8 @@ class VariableSprite(Container):
         return rect
 
     def set_value(self, value):
+        if isinstance(value, EnumConstant):
+            value = value.name
         new_value_sprite = self.build_value_sprite(value)
         old_value_sprite = getattr(self, 'value_sprite', None)  # shall be None only for the first time
         if old_value_sprite is not None:
