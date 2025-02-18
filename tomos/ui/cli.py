@@ -14,6 +14,7 @@ Options:
     --no-run          Skips executing the program. Useful for debugging.
     --no-final-state  Skips printing the final state.
     --showast         Show the abstract syntax tree.
+    --cfg=<configs>   Overrides configurations one by one.
     --version         Show version and exit.
     -h --help         Show this message and exit.
 """
