@@ -13,6 +13,23 @@ from skitso.shapes import Rectangle, RoundedRectangle, Arrow, DeadArrow
 thickness = 2  #configs.THICKNESS
 
 
+class ColorAssigner:
+    cache = deepcopy(configs.COLOR_BY_TYPE)
+
+    @classmethod
+    def get(cls, _type):
+        if isinstance(_type, type):
+            type_name = _type.__name__
+        else:
+            type_name = type(_type).__name__
+        if type_name in cls.cache:
+            return cls.cache[type_name]
+        else:
+            new_color = configs.UNNAMED_COLORS.pop()
+            cls.cache[type_name] = new_color
+            return new_color
+
+
 def create_variable_sprite(
         name, _type, value, vars_index=None, in_heap=False,
         inside_array=False):
@@ -45,14 +62,7 @@ class VariableSprite(Container):
         self.set_value(value)
 
     def get_color_by_type(self, _type):
-        if isinstance(_type, type):
-            type_name = _type.__name__
-        else:
-            type_name = type(_type).__name__
-        if type_name in configs.COLOR_BY_TYPE:
-            return configs.COLOR_BY_TYPE[type_name]
-        else:
-            return configs.UNNAMED_COLORS.pop()
+        return ColorAssigner.get(_type)
 
     def add_name_sprite(self, name):
         # Create the name sprite, adds it to self,
