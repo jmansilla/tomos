@@ -1,29 +1,16 @@
 from copy import deepcopy
 from os import getenv
 from pathlib import Path
-import tomllib
+
+from buttons_and_dials import ConfigSet
 
 from tomos.exceptions import (ArraySizeLimitExceededError, ArrayDimensionsLimitExceededError,
                         TupleSizeLimitExceededError, ExecutionStepsLimitExceededError, MemoryLimitExceededError,
                         TypeCompositionLimitExceededError)
 
 
-# Load default settings first
 here = Path(__file__).parent.resolve()
-with open(here / "limits.toml", "rb") as f:
-    _LIMITS = tomllib.load(f)
-
-# If we have a limits.toml in the current working directory, load it
-cwd = Path.cwd()
-cwd_l = cwd / "limits.toml"
-if cwd_l.is_file():
-    with open(cwd_l, "rb") as f:
-        _LIMITS.update(tomllib.load(f))
-
-# Finally, if there is an environment variable AYED2_LIMITS_FILE, load it
-if env := getenv("AYED2_LIMITS_FILE"):
-    with open(env, "rb") as f:
-        _LIMITS.update(tomllib.load(f))
+limits_configs = ConfigSet('AYED_LIMITS', here/'limits.toml', check_cwd=False, argv_prefix='--cfg')
 
 
 class Limiter:
@@ -39,7 +26,7 @@ class Limiter:
         # otherwise raises an exception.
 
         # check depth
-        lim_depth = self._limits["TYPE_COMPOSITION_DEPTH_LIMIT"]
+        lim_depth = self._limits.TYPE_COMPOSITION_DEPTH_LIMIT
         if lim_depth is not None and depth > lim_depth:
             raise TypeCompositionLimitExceededError()
 
@@ -54,8 +41,8 @@ class Limiter:
             return self.check_type_sizing_limits(_type.of, depth=depth)
 
         if isinstance(_type, ArrayOf):
-            lim_adim = self._limits["MAXIMUM_ARRAY_DIMENSIONS"]
-            lim_asize = self._limits["MAXIMUM_ARRAY_SIZE"]
+            lim_adim = self._limits.MAXIMUM_ARRAY_DIMENSIONS
+            lim_asize = self._limits.MAXIMUM_ARRAY_SIZE
 
             if lim_adim is not None and len(_type.axes) > lim_adim:
                 raise ArrayDimensionsLimitExceededError()
@@ -64,7 +51,7 @@ class Limiter:
             self.check_type_sizing_limits(_type.of, depth + 1)
 
         if isinstance(_type, Tuple):
-            lim_tsize = self._limits["MAXIMUM_TUPLE_SIZE"]
+            lim_tsize = self._limits.MAXIMUM_TUPLE_SIZE
             if lim_tsize is not None and len(_type.fields_mapping) > lim_tsize:
                 raise TupleSizeLimitExceededError()
             for t in _type.fields_mapping.values():
@@ -72,8 +59,8 @@ class Limiter:
 
     def check_memory_size_limits(self, state_object):
         # checks that the memory size is not exceeded both in stack and heap
-        lim_stack = self._limits["MAXIMUM_STACK_CELLS"]
-        lim_heap = self._limits["MAXIMUM_HEAP_CELLS"]
+        lim_stack = self._limits.MAXIMUM_STACK_CELLS
+        lim_heap = self._limits.MAXIMUM_HEAP_CELLS
         if lim_stack is not None:
             count = sum(cell.cell_count for cell in state_object.stack.values())
             if count > lim_stack:
@@ -86,9 +73,9 @@ class Limiter:
         pass
 
     def check_execution_counter_limits(self, interpreter):
-        lim_steps = self._limits["EXECUTION_STEPS_LIMIT"]
+        lim_steps = self._limits.EXECUTION_STEPS_LIMIT
         if lim_steps is not None and interpreter.execution_counter > lim_steps:
             raise ExecutionStepsLimitExceededError()
 
 
-LIMITER = Limiter(_LIMITS)
+LIMITER = Limiter(limits_configs)
