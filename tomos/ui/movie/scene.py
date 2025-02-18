@@ -31,15 +31,18 @@ class TomosScene(Scene):
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
     def render(self):
+        code_block = TomosCode(self.source_code)
+        self.add(code_block)
+
         memory_block = MemoryBlock()
         self.add(memory_block)
         memory_block.shift(movement.RIGHT * (self.width / 2))
 
-        code_block = TomosCode(self.source_code)
         code_block.center_respect_to(self)
         code_block.to_edge(self, movement.LEFT_EDGE)
         code_block.shift(movement.RIGHT * (configs.PADDING))
-        self.add(code_block)
+        code_block.shift(movement.DOWN * (configs.PADDING))
+
         self.tick()
 
         for i, snapshot in enumerate(self.timeline.timeline):

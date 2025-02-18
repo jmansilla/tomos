@@ -14,8 +14,9 @@ VAR_BOX_MIN_CHAR_RATIO = [80, 30]
 
 ARRAY_ORIENTATION = "vertical"  # "vertical" or "horizontal"
 TUPLE_ORIENTATION = "vertical"  # "vertical" or "horizontal"
+TUPLE_FIELD_NAME_MAX_LEN = 7
 
-UNNAMED_COLORS = ["red", "blue", "orange", "purple", "black", "pink"]
+UNNAMED_COLORS = ["red", "blue", "orange", "purple", "black", "#4700b3"]
 
 CODEBOX_BGCOLOR = "#000000"
 CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
@@ -27,5 +28,5 @@ BoolType = "#00337C"
 RealType = "#1C82AD"
 CharType = "#005B41"
 PointerOf = "#289e84"
-ArrayOf = "#F4D345"
-Tuple = "#A4D345"
+ArrayOf = "#4d4d00"
+Tuple = "#004d00"

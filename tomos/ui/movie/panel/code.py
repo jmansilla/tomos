@@ -9,17 +9,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import ImageFormatter
 from pygments_ayed2.style import Ayed2Style
 
-from tomos.ui.movie.texts import build_text
 from tomos.ui.movie import configs
-
-
-class PatchedStyle(Ayed2Style):
-    # on black background, ansibrightblue is not visible
-    styles = {
-        k: v if v != 'ansibrightblue' else '#0099ff'
-        for k, v in Ayed2Style.styles.items()
-    }
-
 
 
 logger = getLogger(__name__)
@@ -92,7 +82,7 @@ class CodeBox(BaseImgElem):
 
     @property
     def formatter(self):
-        style = PatchedStyle
+        style = Ayed2Style
         style.background_color = self.bg_color
         kw = {"font_size": self.font_size,
               "line_pad": self.line_pad,
