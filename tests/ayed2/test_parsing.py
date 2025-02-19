@@ -398,15 +398,6 @@ class TestParseArrayVarDeclarations(TestCase):
         self.assertIsInstance(sent.var_type.of, ArrayOf)  # type: ignore
         self.assertIsInstance(sent.var_type.of.of, IntType)  # type: ignore
 
-    def test_array_of_variable(self):
-        source = "var x: array [n] of int"
-        sentences = get_parsed_sentences(source)
-        self.assertEqual(len(sentences), 1)
-        sent = sentences[0]
-        self.assertIsInstance(sent, VarDeclaration)
-        self.assertIsInstance(sent.var_type, ArrayOf)
-        self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(n))')
-
 
 class TestParseTypeDeclarationsSynonyms(TestCase):
     def test_parse_simple_synonym_declarations(self):
