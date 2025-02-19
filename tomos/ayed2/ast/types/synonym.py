@@ -12,6 +12,9 @@ class Synonym(UserDefinedType):
     def __call__(self):
         return self
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}:{self.underlying_type}"
+
     @property
     def SIZE(self):
         return self.underlying_type.SIZE
