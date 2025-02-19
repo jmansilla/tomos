@@ -236,6 +236,28 @@ class TestParseExpressions(TestCase):
             expected = self.parsed_expr(parenthesed)
             self.assertExpressionEquals(expr, expected)
 
+    def test_parse_variable_modifiers_precedence(self):
+        AI, AF, D = Variable.ARRAY_INDEXING, Variable.ACCESSED_FIELD, Variable.DEREFERENCE
+        for source, expected_kinds in [
+            ("*x.field_x[1]", [D, AF, AI]),
+            ("*x.field_x[1].field_z", [D, AF, AI, AF]),
+            ("*x.field_x[1][2][3]", [D, AF, AI, AI, AI]),
+            ("(*x.field_x)[1]", [D, AF, AI]),
+            ("*(x.field_x)[1]", [AF, D, AI]),
+            ("*x.field_x", [D, AF]),
+            ("x->field_x", [D, AF]),
+            ("x->field_x[4]", [D, AF, AI]),
+            ("**x", [D, D]),
+        ]:
+            expr = self.parsed_expr(source)
+            self.assertIsInstance(expr, Variable)
+            var = expr
+            self.assertEqual(var.name, "x")
+            self.assertEqual(len(var.traverse_path), len(expected_kinds))
+            kinds = [step.kind for step in var.traverse_path]
+            print('testing for', source)
+            self.assertListEqual(kinds, expected_kinds)
+
 
 class TestParseIfSentences(TestCase):
 
