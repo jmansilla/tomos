@@ -261,7 +261,11 @@ class TreeToAST(Transformer):
 
     def array_of(self, args):
         if len(args) == 2:
-            return ArrayOf(of=args[1], axes=args[0])
+            array_type = ArrayOf(of=args[1], axes=args[0])
+            array_type.eval_axes_expressions(ExpressionEvaluator(), None)
+            return array_type
+        else:
+            raise TomosSyntaxError(f"Invalid array type definition with args: {args}")
 
     def array_axes(self, args):
         return tuple(args)
