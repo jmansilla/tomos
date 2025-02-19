@@ -3,7 +3,7 @@ Tomos, the Ayed2 interpreter.
     Interprets the program, and prints the final state.
 
 Usage:
-  tomos [options] <source>
+  tomos [options] <source> [--cfg=<conf>]...
   tomos -h | --help
   tomos --version
 
@@ -14,7 +14,7 @@ Options:
     --no-run          Skips executing the program. Useful for debugging.
     --no-final-state  Skips printing the final state.
     --showast         Show the abstract syntax tree.
-    --cfg=<configs>   Overrides configurations one by one.
+    --cfg=<conf>      Overrides configurations one by one.
     --version         Show version and exit.
     -h --help         Show this message and exit.
 """

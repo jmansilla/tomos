@@ -18,7 +18,7 @@ moviepy = "^2.1.2"
 
 six = "^1.17.0"  # dont know why pygments does not solve this
 
-buttons-and-dials = "^0.1.1"
+buttons-and-dials = "^0.1.2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
 factory-boy = "^3.3.1"
