@@ -19,7 +19,8 @@ padding = configs.PADDING
 
 
 class Blackboard(Container):
-    def __init__(self, x, y, fill_color):
+    def __init__(self, name, x, y, fill_color):
+        self.name = name
         position = Point(x, y)
         super().__init__(position)
         self.rect = Rectangle(x, y, board_width, board_height, fill_color=fill_color,
@@ -29,7 +30,10 @@ class Blackboard(Container):
 
     def add_var(self, var):
         var.to_edge(self, movement.LEFT_EDGE)
-        var.shift(movement.RIGHT * padding)
+        if self.name == 'heap':
+            var.shift(movement.RIGHT * padding * 3)
+        else:
+            var.shift(movement.RIGHT * padding)
 
         if not self.last_block:
             var.to_edge(self, movement.TOP_EDGE)
@@ -54,9 +58,9 @@ class MemoryBlock(Container):
         self.add(heap_title)
 
         boards_y = stack_title.box_height + padding
-        self.stack_blackboard = Blackboard(0, boards_y, fill_color="#3B1C32")
+        self.stack_blackboard = Blackboard('stack', 0, boards_y, fill_color="#3B1C32")
         self.heap_blackboard = Blackboard(
-            heap_title.position.x, boards_y, fill_color="#6A1E55"
+            'heap', heap_title.position.x, boards_y, fill_color="#6A1E55"
         )
 
         self.add(self.heap_blackboard)
