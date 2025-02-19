@@ -355,16 +355,13 @@ class TestParsePointerVarDeclarations(TestCase):
 class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
-        IL = lambda x: IntegerLiteralFactory(token__value=str(x))
-        IL10 = IL(10)
-        IL4 = IL(4)
         for declaration, expectation in [
-            ["array [10] of int", (ArrayAxis(0, IL10), )],
-            ["array [4..10] of int", (ArrayAxis(IL4, IL10), )],
-            ["array [4] of int", (ArrayAxis(0, IL4), )],
-            ["array [4, 10] of int", (ArrayAxis(0, IL4), ArrayAxis(0, IL10), )],
+            ["array [10] of int", (ArrayAxis(0, 10), )],
+            ["array [4..10] of int", (ArrayAxis(4, 10), )],
+            ["array [4] of int", (ArrayAxis(0, 4), )],
+            ["array [4, 10] of int", (ArrayAxis(0, 4), ArrayAxis(0, 10), )],
             ["array [4, 10, 4, 10] of int",
-                (ArrayAxis(0, IL4), ArrayAxis(0, IL10), ArrayAxis(0, IL4), ArrayAxis(0, IL10),)],
+                (ArrayAxis(0, 4), ArrayAxis(0, 10), ArrayAxis(0, 4), ArrayAxis(0, 10),)],
         ]:
             source = f"var x: {declaration}"
             sent = get_parsed_sentences(source, single_sentence=True)
