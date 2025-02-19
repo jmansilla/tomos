@@ -1,12 +1,12 @@
 var row_number: int
 var col_number: int
 var aux: int
-var matrix: array [2, 2] of int
+var matrix: array [5, 5] of int
 
 row_number := 0
-while row_number < 2 do
+while row_number < 5 do
     col_number := 0
-    while col_number < 2 do
+    while col_number < 5 do
         aux := row_number * 10 + col_number
         matrix[row_number, col_number] := aux
         col_number := col_number + 1
@@ -17,10 +17,12 @@ od
 // EXPECTATION
 // {
 //  'stack': {
-//     'row_number': 2,
-//     'col_number': 2,
-//     'aux': 11,
-//     'matrix': [[0, 1], [10, 11]],
+//     'row_number': 5,
+//     'col_number': 5,
+//     'aux': 44,
+//     'matrix': [[0, 1, 2, 3, 4], [10, 11, 12, 13, 14],
+//                [20, 21, 22, 23, 24], [30, 31, 32, 33, 34],
+//                [40, 41, 42, 43, 44], ],
 //  },
 //  'heap': {},
 // }
