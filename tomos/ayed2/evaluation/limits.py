@@ -32,9 +32,8 @@ class Limiter:
 
         from tomos.ayed2.ast.types import ArrayOf, PointerOf, Synonym, Tuple  # cyclic import
         # if synonym, traverse untill we reach the actual type
-        while isinstance(_type, Synonym):
-            # complexity depth not increased
-            _type = _type.underlying_type
+        if isinstance(_type, Synonym):
+            _type = _type.underlying_type_closure()
 
         if isinstance(_type, PointerOf):
             # depth not increased
