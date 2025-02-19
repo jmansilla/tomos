@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import ArrayOf, Tuple
+from tomos.ayed2.ast.types import ArrayOf, Tuple, Synonym
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
@@ -37,7 +37,10 @@ class State:
         stack_cell = self.cell_after_traversal(var)
         if not stack_cell.var_type.is_pointer:
             raise TomosTypeError(f"Cannot allocate. Variable {var} is not a pointer.")
-        new_cell = self.allocator.allocate(MemoryAddress.HEAP, stack_cell.var_type.of)
+        new_cell_type = stack_cell.var_type.of
+        if isinstance(new_cell_type, Synonym):
+            new_cell_type = new_cell_type.underlying_type_closure()
+        new_cell = self.allocator.allocate(MemoryAddress.HEAP, new_cell_type)
         stack_cell.value = new_cell.address
         self.heap[new_cell.address] = new_cell
         LIMITER.check_memory_size_limits(self)
