@@ -6,10 +6,10 @@ from skitso import movement
 
 from tomos.ayed2.ast.sentences import Assignment, If, While
 from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
+from tomos.ayed2.evaluation.state import MemoryAddress
 from tomos.ui.movie import configs
 from tomos.ui.movie.panel.code import TomosCode
 from tomos.ui.movie.panel.memory import MemoryBlock
-
 
 logger = getLogger(__name__)
 STOP_AT = getenv("STOP_AT", "")
@@ -20,7 +20,19 @@ class TomosScene(Scene):
     def __init__(self, source_code, timeline, output_path):
         self.source_code = source_code
         self.timeline = timeline
+        self.uses_heap = False
+        self.pointers_heap_to_heap = False
+        self.extract_configs_from_timeline()
         super().__init__(configs.CANVAS_SIZE, output_path, color=configs.CANVAS_COLOR)
+
+    def extract_configs_from_timeline(self):
+        for snapshot in self.timeline.timeline:
+            for name_or_addr in snapshot.diff.new_cells:
+                if isinstance(name_or_addr, MemoryAddress):
+                    self.uses_heap = True
+                    cell = snapshot.state.heap[name_or_addr]
+                    if cell.var_type.is_pointer:
+                        self.pointers_heap_to_heap = True
 
     def build_folder(self, base_folder_path):
         # Removing "NameOfSceneClass" from folder path, which is added by skitso
@@ -34,7 +46,7 @@ class TomosScene(Scene):
         code_block = TomosCode(self.source_code)
         self.add(code_block)
 
-        memory_block = MemoryBlock()
+        memory_block = MemoryBlock(self.uses_heap, self.pointers_heap_to_heap)
         self.add(memory_block)
         memory_block.shift(movement.RIGHT * (self.width / 2))
 

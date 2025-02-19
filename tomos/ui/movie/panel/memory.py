@@ -47,8 +47,12 @@ class Blackboard(Container):
 
 class MemoryBlock(Container):
 
-    def __init__(self):
+    def __init__(self, uses_heap, pointers_heap_to_heap):
         super().__init__(Point(0, 0))  # placed at origin. Will be shifted later.
+
+        # These attrs could be used to create different layouts. TODO
+        self.uses_heap = uses_heap
+        self.pointers_heap_to_heap = pointers_heap_to_heap
 
         title_size = configs.BASE_FONT_SIZE * 1.5
         stack_title = build_text("STACK", font_size=title_size, bold=True)
