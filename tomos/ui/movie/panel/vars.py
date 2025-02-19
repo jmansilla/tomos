@@ -31,9 +31,8 @@ class ColorAssigner:
 
 
 def create_variable_sprite(
-        name, _type, value, vars_index=None, in_heap=False,
+        name, _type, value, vars_index, in_heap=False,
         mixin_to_use=None):
-    vars_index = vars_index or {}
 
     while isinstance(_type, ayed_types.Synonym):
         _type = _type.underlying_type
