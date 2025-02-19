@@ -1,0 +1,21 @@
+var e: int
+var f: int
+var g: int
+var h: int
+
+e := 10
+f := 20
+g := e * 2 + f * 3 // 80
+h := e * (2 + f) * 3 // 10 * 22 * 3 = 660
+
+
+// EXPECTATION
+// {
+//  'stack': {
+//     'e': 10,
+//     'f': 20,
+//     'g': 80,
+//     'h': 660,
+//  },
+//  'heap': {}
+// }
