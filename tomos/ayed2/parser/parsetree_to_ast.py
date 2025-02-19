@@ -191,25 +191,34 @@ class TreeToAST(Transformer):
             return args[0]
         return Variable(name_token=args[0])
 
-    def variable_accessed(self, args):
+    def VAR_NAME(self, token):
+        return Variable(name_token=token)
+
+    def v_accessed(self, args):
+        if len(args) != 2:
+            raise TomosSyntaxError(f"Invalid variable field access: {args}")
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.ACCESSED_FIELD, field_name)
         return var
 
-    def variable_dereferenced(self, args):
+    def v_deref(self, args):
         var = args[0]
         var.traverse_append(Variable.DEREFERENCE)
         return var
 
-    def variable_deref_n_access(self, args):
+    def v_arrow_access(self, args):
+        if len(args) != 2:
+            raise TomosSyntaxError(f"Invalid variable field arrow access: {args}")
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.DEREFERENCE)
         var.traverse_append(Variable.ACCESSED_FIELD, field_name)
         return var
 
-    def variable_indexed(self, args):
+    def v_indexed(self, args):
+        if len(args) == 1:
+            raise TomosSyntaxError(f"Invalid variable indexing: {args}")
         var = args[0]
         indexing = args[1:]
         var.traverse_append(Variable.ARRAY_INDEXING, indexing)

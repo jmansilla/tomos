@@ -58,18 +58,21 @@ TERM_SYMBOL        : ( "-" | "+" )
 FACTOR_SYMBOL      : ( "/" | "*" | "%" )
 UNARY_SYMBOL       : ( "!" | "-" )
 
-variable              : VAR_NAME
-                      | variable_indexed
-                      | variable_accessed
-                      | variable_dereferenced
-                      | variable_deref_n_access
+
+variable              : v_indexed
+                      | v_accessed
+                      | v_arrow_access
+                      | _v_primary
 VAR_NAME              : L_NAME
 
-variable_indexed         : variable "[" expr ("," expr)* "]"
-variable_accessed        : variable "." fieldname
-variable_dereferenced    : "*" variable
-variable_deref_n_access  : variable "->" fieldname
-fieldname                : L_NAME
+
+v_indexed         : variable "[" expr ("," expr)* "]"
+v_accessed        : variable "." fieldname
+v_arrow_access    : variable "->" fieldname
+
+_v_primary        : VAR_NAME | v_deref | "(" variable ")"
+v_deref           : "*" _v_primary
+fieldname         : L_NAME
 
 
 type              : BASIC_TYPE | pointer_of | array_of | custom_type
