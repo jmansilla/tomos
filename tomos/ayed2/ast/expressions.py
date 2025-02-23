@@ -67,7 +67,7 @@ class Variable(Expr):
     ACCESSED_FIELD = TraverseStep.ACCESSED_FIELD
 
     def __init__(self, name_token):
-        assert isinstance(name_token, Token)
+        assert isinstance(name_token, Token), f'Expected token, got {type(name_token)}, {name_token}'
         self.name_token = name_token
         self.traverse_path = []
 

@@ -3,6 +3,7 @@ from .basic import Ayed2Type, UserDefinedType
 
 
 class Synonym(UserDefinedType):
+    CLOSURE_LIMIT = 10
     def __init__(self, underlying_type):
         if not isinstance(underlying_type, Ayed2Type):
             raise SynonymError(f"Cant create a synonym of {underlying_type},"
@@ -11,6 +12,19 @@ class Synonym(UserDefinedType):
 
     def __call__(self):
         return self
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}:{self.underlying_type}"
+
+    def underlying_type_closure(self):
+        u_type = self.underlying_type
+        i = 0
+        while isinstance(u_type, Synonym):
+            u_type = u_type.underlying_type
+            i += 1
+            if i >= self.CLOSURE_LIMIT:
+                raise SynonymError(f"Synonym closure limit ({self.CLOSURE_LIMIT}) exceeded")
+        return u_type
 
     @property
     def SIZE(self):

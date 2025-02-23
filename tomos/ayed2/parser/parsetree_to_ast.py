@@ -1,5 +1,4 @@
 from lark import Transformer, Token
-from lark.exceptions import UnexpectedInput
 
 from tomos.ayed2.ast.types import *
 from tomos.ayed2.ast.expressions import *
@@ -7,7 +6,7 @@ from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
 from tomos.ayed2.ast.program import *
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
-from tomos.exceptions import TomosTypeError
+from tomos.exceptions import TomosTypeError, TomosSyntaxError
 
 from .reserved_words import KEYWORDS
 
@@ -99,7 +98,7 @@ class TreeToAST(Transformer):
             # we are in case c)
             return arg0
         else:
-            raise UnexpectedInput(f"Invalid type {arg0}")
+            raise TomosSyntaxError(f"Invalid type {arg0}")
 
     def custom_type(self, args):
         assert len(args) == 1
@@ -115,7 +114,7 @@ class TreeToAST(Transformer):
         values = []
         for arg in args:
             if not isinstance(arg, Token):
-                raise UnexpectedInput(f"Invalid enum literal {arg}. Expected token, got {type(arg)} instead.")
+                raise TomosSyntaxError(f"Invalid enum literal {arg}. Expected token, got {type(arg)} instead.")
             values.append(arg.value)
         return Enum(values)
 
@@ -132,7 +131,7 @@ class TreeToAST(Transformer):
         fields_mapping = {}
         for arg in args:
             if not isinstance(arg, tuple):
-                raise UnexpectedInput(f"Invalid tuple field {arg}. Expected tuple, got {type(arg)} instead.")
+                raise TomosSyntaxError(f"Invalid tuple field {arg}. Expected tuple, got {type(arg)} instead.")
             fields_mapping[arg[0]] = arg[1]
         return Tuple(fields_mapping=fields_mapping)
 
@@ -169,7 +168,7 @@ class TreeToAST(Transformer):
             sub_expr = BinaryOp(left_expr=left, op_token=op, right_expr=right)
             return self.expr_binary([sub_expr] + rest)
         else:
-            raise UnexpectedInput(f"Invalid binary expression: {args}")
+            raise TomosSyntaxError(f"Invalid binary expression: {args}")
 
     expr_term = expr_binary
     expr_factor = expr_binary
@@ -192,25 +191,34 @@ class TreeToAST(Transformer):
             return args[0]
         return Variable(name_token=args[0])
 
-    def variable_accessed(self, args):
+    def VAR_NAME(self, token):
+        return Variable(name_token=token)
+
+    def v_accessed(self, args):
+        if len(args) != 2:
+            raise TomosSyntaxError(f"Invalid variable field access: {args}")
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.ACCESSED_FIELD, field_name)
         return var
 
-    def variable_dereferenced(self, args):
+    def v_deref(self, args):
         var = args[0]
         var.traverse_append(Variable.DEREFERENCE)
         return var
 
-    def variable_deref_n_access(self, args):
+    def v_arrow_access(self, args):
+        if len(args) != 2:
+            raise TomosSyntaxError(f"Invalid variable field arrow access: {args}")
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.DEREFERENCE)
         var.traverse_append(Variable.ACCESSED_FIELD, field_name)
         return var
 
-    def variable_indexed(self, args):
+    def v_indexed(self, args):
+        if len(args) == 1:
+            raise TomosSyntaxError(f"Invalid variable indexing: {args}")
         var = args[0]
         indexing = args[1:]
         var.traverse_append(Variable.ARRAY_INDEXING, indexing)
@@ -218,7 +226,7 @@ class TreeToAST(Transformer):
 
     def expr(self, args):
         if len(args) != 1:
-            raise UnexpectedInput(f"Invalid expression: {args}")
+            raise TomosSyntaxError(f"Invalid expression: {args}")
         return args[0]
 
     # LITERALS
@@ -230,7 +238,7 @@ class TreeToAST(Transformer):
                 evaluator.eval(literal, state=None)
             except Exception as e:
                 type_name = _class._type.__name__
-                raise UnexpectedInput(f"Invalid literal for {type_name}: {token.value}")
+                raise TomosSyntaxError(f"Invalid literal for {type_name}: {token.value}")
         return literal
 
     def INT(self, token):
@@ -258,11 +266,15 @@ class TreeToAST(Transformer):
                 if ttype.is_valid_value(token.value):
                     return EnumLiteral(token)
 
-        raise UnexpectedInput(f"Invalid enum literal: {token}")
+        raise TomosSyntaxError(f"Invalid enum literal: {token}")
 
     def array_of(self, args):
         if len(args) == 2:
-            return ArrayOf(of=args[1], axes=args[0])
+            array_type = ArrayOf(of=args[1], axes=args[0])
+            array_type.eval_axes_expressions(ExpressionEvaluator(), None)
+            return array_type
+        else:
+            raise TomosSyntaxError(f"Invalid array type definition with args: {args}")
 
     def array_axes(self, args):
         return tuple(args)
@@ -273,17 +285,17 @@ class TreeToAST(Transformer):
         elif len(args) == 2:
             return ArrayAxis(args[0], args[1])
         else:
-            raise UnexpectedInput(f"Invalid array size. Axis {args}")
+            raise TomosSyntaxError(f"Invalid array size. Axis {args}")
 
     def array_axis_from(self, args):
         if len(args) == 1:
             return args[0]
         else:
-            raise UnexpectedInput(f"Invalid array size. Axis from {args}")
+            raise TomosSyntaxError(f"Invalid array size. Axis from {args}")
 
     def array_axis_to(self, args):
         if len(args) == 1:
             return args[0]
         else:
-            raise UnexpectedInput(f"Invalid array size. Axis to {args}")
+            raise TomosSyntaxError(f"Invalid array size. Axis to {args}")
 

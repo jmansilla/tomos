@@ -236,6 +236,28 @@ class TestParseExpressions(TestCase):
             expected = self.parsed_expr(parenthesed)
             self.assertExpressionEquals(expr, expected)
 
+    def test_parse_variable_modifiers_precedence(self):
+        AI, AF, D = Variable.ARRAY_INDEXING, Variable.ACCESSED_FIELD, Variable.DEREFERENCE
+        for source, expected_kinds in [
+            ("*x.field_x[1]", [D, AF, AI]),
+            ("*x.field_x[1].field_z", [D, AF, AI, AF]),
+            ("*x.field_x[1][2][3]", [D, AF, AI, AI, AI]),
+            ("(*x.field_x)[1]", [D, AF, AI]),
+            ("*(x.field_x)[1]", [AF, D, AI]),
+            ("*x.field_x", [D, AF]),
+            ("x->field_x", [D, AF]),
+            ("x->field_x[4]", [D, AF, AI]),
+            ("**x", [D, D]),
+        ]:
+            expr = self.parsed_expr(source)
+            self.assertIsInstance(expr, Variable)
+            var = expr
+            self.assertEqual(var.name, "x")
+            self.assertEqual(len(var.traverse_path), len(expected_kinds))
+            kinds = [step.kind for step in var.traverse_path]
+            print('testing for', source)
+            self.assertListEqual(kinds, expected_kinds)
+
 
 class TestParseIfSentences(TestCase):
 
@@ -355,16 +377,13 @@ class TestParsePointerVarDeclarations(TestCase):
 class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
-        IL = lambda x: IntegerLiteralFactory(token__value=str(x))
-        IL10 = IL(10)
-        IL4 = IL(4)
         for declaration, expectation in [
-            ["array [10] of int", (ArrayAxis(0, IL10), )],
-            ["array [4..10] of int", (ArrayAxis(IL4, IL10), )],
-            ["array [4] of int", (ArrayAxis(0, IL4), )],
-            ["array [4, 10] of int", (ArrayAxis(0, IL4), ArrayAxis(0, IL10), )],
+            ["array [10] of int", (ArrayAxis(0, 10), )],
+            ["array [4..10] of int", (ArrayAxis(4, 10), )],
+            ["array [4] of int", (ArrayAxis(0, 4), )],
+            ["array [4, 10] of int", (ArrayAxis(0, 4), ArrayAxis(0, 10), )],
             ["array [4, 10, 4, 10] of int",
-                (ArrayAxis(0, IL4), ArrayAxis(0, IL10), ArrayAxis(0, IL4), ArrayAxis(0, IL10),)],
+                (ArrayAxis(0, 4), ArrayAxis(0, 10), ArrayAxis(0, 4), ArrayAxis(0, 10),)],
         ]:
             source = f"var x: {declaration}"
             sent = get_parsed_sentences(source, single_sentence=True)
@@ -397,15 +416,6 @@ class TestParseArrayVarDeclarations(TestCase):
         self.assertIsInstance(sent.var_type, ArrayOf)
         self.assertIsInstance(sent.var_type.of, ArrayOf)  # type: ignore
         self.assertIsInstance(sent.var_type.of.of, IntType)  # type: ignore
-
-    def test_array_of_variable(self):
-        source = "var x: array [n] of int"
-        sentences = get_parsed_sentences(source)
-        self.assertEqual(len(sentences), 1)
-        sent = sentences[0]
-        self.assertIsInstance(sent, VarDeclaration)
-        self.assertIsInstance(sent.var_type, ArrayOf)
-        self.assertEqual(str(sent.var_type.axes[0]), 'ArrayAxis(0, Variable(n))')
 
 
 class TestParseTypeDeclarationsSynonyms(TestCase):

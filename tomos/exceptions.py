@@ -43,6 +43,7 @@ class SynonymError(TomosException):
 class CantDrawError(TomosException):
     pass
 
+
 # LIMIT ERRORS
 class LimitError(TomosException):
     # base class, not to be raised directly

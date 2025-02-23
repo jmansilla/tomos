@@ -30,13 +30,11 @@ class ColorAssigner:
             return new_color
 
 
-def create_variable_sprite(
-        name, _type, value, vars_index=None, in_heap=False,
-        mixin_to_use=None):
-    vars_index = vars_index or {}
+def create_variable_sprite(name, _type, value, vars_index, in_heap=False,
+                           mixin_to_use=None):
 
-    while isinstance(_type, ayed_types.Synonym):
-        _type = _type.underlying_type
+    if isinstance(_type, ayed_types.Synonym):
+        _type = _type.underlying_type_closure()
 
     if _type.is_pointer:
         klass = PointerVarSprite
@@ -268,8 +266,8 @@ class ArraySprite(ComposedSprite):
         if not isinstance(_type, ayed_types.ArrayOf):
             raise CantDrawError(f"Cannot draw a '{type(_type)}' as an array.")
         of = _type.of
-        while isinstance(of, ayed_types.Synonym):
-            of = of.underlying_type
+        if isinstance(of, ayed_types.Synonym):
+            of = of.underlying_type_closure()
         if not isinstance(of, (ayed_types.PointerOf, ayed_types.Enum, ayed_types.BasicType)):
             raise CantDrawError(f"Cannot draw an array of type '{type(of)}'.")
         shape = _type.shape()
@@ -299,8 +297,8 @@ class TupleSprite(ComposedSprite):
             raise CantDrawError(f"Cannot draw a '{type(_type)}' as a tuple.")
 
         for fname, ftype in _type.fields_mapping.items():
-            while isinstance(ftype, ayed_types.Synonym):
-                ftype = ftype.underlying_type
+            if isinstance(ftype, ayed_types.Synonym):
+                ftype = ftype.underlying_type_closure()
             if not isinstance(ftype, (ayed_types.PointerOf, ayed_types.Enum, ayed_types.BasicType)):
                 raise CantDrawError(f"Cannot draw an tuple with field of type '{type(ftype)}'.")
 

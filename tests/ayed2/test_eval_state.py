@@ -117,7 +117,8 @@ class TestEvalStateForSynonyms(TestCase):
         self.assertRaises(Exception, state.set_variable_value, var, "c")
 
     def test_alloc_free_for_synonym_pointer_variable(self):
-        numberType = Synonym(IntType())
+        int_type = IntType()
+        numberType = Synonym(int_type)
         state = State()
         state.declare_static_variable("x", PointerOf(numberType))
         var = Var("x")
@@ -126,7 +127,7 @@ class TestEvalStateForSynonyms(TestCase):
         value = state.get_variable_value(var)
         self.assertNotEqual(value, UnknownValue)
         self.assertIsInstance(value, MemoryAddress)
-        self.assertEqual(state.heap[value].var_type, numberType)
+        self.assertEqual(state.heap[value].var_type, int_type)  # the underlying type
         state.free(var)
         self.assertEqual(state.get_variable_value(var), UnknownValue)
         self.assertNotIn(value, state.heap)
