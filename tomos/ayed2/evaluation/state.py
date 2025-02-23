@@ -35,13 +35,16 @@ class State:
         # After the allocation, the variable will "point" to the allocated memory,
         # where "pointing" means that in the stack it will be saved the address of the allocated memory.
         stack_cell = self.cell_after_traversal(var)
-        if not stack_cell.var_type.is_pointer:
-            raise TomosTypeError(f"Cannot allocate. Variable {var} is not a pointer.")
+
         # We need to get ride of Synonyms twice. One for the type, another for the pointed type.
         var_type = stack_cell.var_type
         if isinstance(var_type, Synonym):
             var_type = var_type.underlying_type_closure()
-        new_cell_type = var_type.of
+        new_cell_type = var_type.of  # type: ignore
+
+        if not var_type.is_pointer:
+            raise TomosTypeError(f"Cannot allocate. Variable {var} is not a pointer.")
+
         if isinstance(new_cell_type, Synonym):
             new_cell_type = new_cell_type.underlying_type_closure()
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, new_cell_type)
