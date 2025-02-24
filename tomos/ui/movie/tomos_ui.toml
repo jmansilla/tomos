@@ -20,14 +20,15 @@ CODEBOX_BGCOLOR = "#000000"
 CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
 CODEBOX_PREV_LINE_BGCOLOR = "#004d00"
 
-# one for CustomType, other for pointer-of-CustomType
+# Colors to pick for CustomTypes (to be consumed, one per each
+# CustomType). The order is important. Last will be used forever if list
+# is consumed completely
 UNNAMED_COLORS = [
-    "#999900", # golden
-    "#8c8c8c", # gray
-    "#00cccc", # cyan
+    "#737373", # gray
     "#800000", # maroon
-    "#9933ff", # purple
-    "#00ccff", # sky-blue
+    "#6600cc", # purple
+    "#00b3b3", # cyan
+    "#999900", # golden
     "#404040", # black
 ]
 
@@ -36,4 +37,5 @@ IntType = "#3333ff"  # blue
 BoolType = "#994d00" # brown
 RealType = "#ff80ff" # pink
 CharType = "#e60000" # red
-ArrayOf = "#d9d9d9"  # light-gray
+ArrayOf = "#ffbb99"  # orange
+Tuple = "#009900"    # green
