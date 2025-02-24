@@ -8,15 +8,17 @@ Usage:
   tomos --version
 
 Options:
-    --movie=<fname>   Generates a movie with the execution (implicitly cancels --no-run if set).
-                      Must be a .mp4 file.
-    --autoplay        Autoplay the movie. Implicitly sets --movie=movie.mp4 if not set.
-    --no-run          Skips executing the program. Useful for debugging.
-    --no-final-state  Skips printing the final state.
-    --showast         Show the abstract syntax tree.
-    --cfg=<conf>      Overrides configurations one by one.
-    --version         Show version and exit.
-    -h --help         Show this message and exit.
+    --movie=<fname>       Generates a movie with the execution (implicitly cancels --no-run if set).
+                          Must be a .mp4 file.
+    --autoplay            Autoplay the movie. Implicitly sets --movie=movie.mp4 if not set.
+    --no-run              Skips executing the program. Useful for debugging.
+    --no-final-state      Skips printing the final state.
+    --showast             Show the abstract syntax tree.
+    --save-state=<fname>  Save the final state to a file.
+    --load-state=<fname>  Load the state from a file.
+    --cfg=<conf>          Overrides configurations one by one.
+    --version             Show version and exit.
+    -h --help             Show this message and exit.
 """
 import importlib.metadata
 from pathlib import Path
@@ -53,6 +55,9 @@ def main():
     if opts["--run"]:
         pre_hooks = []
         post_hooks = []
+
+        load_state_from = opts["--load-state"]
+
         if opts["--movie"]:
             if not opts["--movie"].endswith(".mp4"):
                 print("Movie must be a .mp4 file.")
@@ -63,7 +68,7 @@ def main():
         interpreter = Interpreter(ast,
                                   pre_hooks=pre_hooks,
                                   post_hooks=post_hooks)
-        final_state = interpreter.run()
+        final_state = interpreter.run(load_state_from=load_state_from)
 
         if opts["--movie"]:
             # slow import. Only needed if --movie is set
@@ -76,7 +81,12 @@ def main():
                     exit(1)
                 play_movie(movie_path)
 
-        print(final_state)
+        if opts["--save-state"]:
+            final_state.save_to_file(opts["--save-state"])
+
+        if not opts["--no-final-state"]:
+            # Hard to follow. Double negation means DO SHOW IT.
+            print(final_state)
 
 
 def play_movie(movie_path):
