@@ -23,6 +23,10 @@ class ColorAssigner:
         # synonyms are ignored
         if isinstance(_type, ayed_types.Synonym):
             _type = _type.underlying_type_closure()
+        if isinstance(_type, ayed_types.ArrayOf):
+            return cls.get_color('ArrayOf')
+        if isinstance(_type, ayed_types.Tuple):
+            return cls.get_color('Tuple')
 
         type_name = str(_type)
         if type_name in cls.cache:
@@ -90,7 +94,8 @@ class SubVarMixin:
         name = str(name)
         if len(name) > max_len:
             name = name[:max_len] + "…"
-        self.name_sprite = build_text(str(name), bold=not self.in_heap)  # type: ignore
+        self.name_sprite = build_text(str(name), bold=not self.in_heap, color='black')  # type: ignore
+
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
 
