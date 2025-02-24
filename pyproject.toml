@@ -12,7 +12,7 @@ lark = "^1.2.2"
 docopt = "^0.6.2"
 pygments = "^2.18.0"
 pygments-ayed2 = "^0.1.0"
-skitso = "^0.1.8"
+skitso = "^0.1.9"
 prettytable = "^3.11.0"
 moviepy = "^2.1.2"
 

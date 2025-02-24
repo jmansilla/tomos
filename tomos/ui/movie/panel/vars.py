@@ -1,16 +1,17 @@
 import colorsys
 from copy import deepcopy
 
+from PIL import ImageColor
+from skitso.atom import Container, Point
+from skitso import movement
+from skitso.shapes import Rectangle, RoundedRectangle, Arrow
+
 from tomos.ayed2.ast import types as ayed_types
 from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-
-from PIL import ImageColor
-from skitso.atom import Container, Point
-from skitso import movement
-from skitso.shapes import Rectangle, RoundedRectangle, Arrow, DeadArrow
+from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow
 
 thickness = 2  #configs.THICKNESS
 
@@ -166,7 +167,11 @@ class VariableSprite(Container):
         value_sprite.shift(movement.UP * value_sprite.box_height * .1)
         return value_sprite
 
-    def point_to_receive_arrow(self):
+    def point_to_receive_arrow(self, heap_to_heap=False):
+        if heap_to_heap:
+            x, y = self.name_sprite.end
+            y += self.name_sprite.box_height / 2
+            return Point(x, y)
         x, y = self.rect.position
         y += self.rect.box_height / 2
         return Point(x, y)
@@ -197,8 +202,11 @@ class PointerVarSprite(VariableSprite):
 
     def build_arrow_to_var(self, var):
         x, y = self.arrow_start_point
-        to_x, to_y = var.point_to_receive_arrow()
-        arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
+        to_x, to_y = var.point_to_receive_arrow(heap_to_heap=self.in_heap)
+        if self.in_heap:
+            arrow = CShapedArrow(x, y, to_x, to_y, 15, self.arrow_color, thickness, self.tip_height)
+        else:
+            arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
                       thickness=thickness, tip_height=self.tip_height)
         return arrow
 
