@@ -19,12 +19,12 @@ padding = configs.PADDING
 
 
 class Blackboard(Container):
-    def __init__(self, name, x, y, fill_color):
+    def __init__(self, name, x, y, fill_color, adjust_width=1.0):
         self.name = name
         position = Point(x, y)
         super().__init__(position)
-        self.rect = Rectangle(x, y, board_width, board_height, fill_color=fill_color,
-                             stroke_color="gray", stroke_width=3)
+        self.rect = Rectangle(x, y, board_width * adjust_width, board_height,
+                             fill_color=fill_color, stroke_color="gray", stroke_width=3)
         self.add(self.rect)
         self.last_block = []
 
@@ -50,24 +50,32 @@ class MemoryBlock(Container):
     def __init__(self, uses_heap, pointers_heap_to_heap):
         super().__init__(Point(0, 0))  # placed at origin. Will be shifted later.
 
-        # These attrs could be used to create different layouts. TODO
         self.uses_heap = uses_heap
         self.pointers_heap_to_heap = pointers_heap_to_heap
+        if not self.uses_heap:
+            stack_adj = 2; heap_adj = 0
+        elif self.pointers_heap_to_heap:
+            stack_adj = .7; heap_adj = 1.3
+        else:
+            stack_adj = 1; heap_adj = 1
 
         title_size = configs.BASE_FONT_SIZE * 1.5
         stack_title = build_text("STACK", font_size=title_size, bold=True)
         self.add(stack_title)
-        heap_title = build_text("HEAP", font_size=title_size, bold=True)
-        heap_title.shift(movement.RIGHT * (board_width + padding))
-        self.add(heap_title)
+        if self.uses_heap:
+            heap_title = build_text("HEAP", font_size=title_size, bold=True)
+            heap_title.shift(movement.RIGHT * (board_width * stack_adj + padding))
+            self.add(heap_title)
 
         boards_y = stack_title.box_height + padding
-        self.stack_blackboard = Blackboard('stack', 0, boards_y, fill_color="#3B1C32")
-        self.heap_blackboard = Blackboard(
-            'heap', heap_title.position.x, boards_y, fill_color="#6A1E55"
-        )
+        self.stack_blackboard = Blackboard('stack', 0, boards_y, fill_color="#3B1C32", adjust_width=stack_adj)
+        if self.uses_heap:
+            self.heap_blackboard = Blackboard(
+                'heap', heap_title.position.x, boards_y, fill_color="#6A1E55",
+                adjust_width=heap_adj
+            )
+            self.add(self.heap_blackboard)
 
-        self.add(self.heap_blackboard)
         self.add(self.stack_blackboard)
 
         self.vars_by_name = {}  # the index of the vars in the memory
