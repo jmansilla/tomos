@@ -99,7 +99,10 @@ class State:
                     msg = f"Accessing var {var}. Can't access array at index {indexing}."
                     raise MemoryInfrigementError(msg)
             elif step.kind == var.ACCESSED_FIELD:
-                assert isinstance(cell.var_type, Tuple)
+                if not isinstance(cell.var_type, Tuple):
+                    raise MemoryInfrigementError(
+                        f"Accessing var {var}, {cell}, {cell.var_type}. Can't access field {step.argument}."
+                    )
                 field = step.argument
                 try:
                     cell = cell.sub_cells[field]
