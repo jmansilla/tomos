@@ -58,6 +58,9 @@ class ColorAssigner:
         as_ints = ImageColor.getcolor(color, 'RGB')
         rgb_as_float = [x/255 for x in as_ints]  # type: ignore
         hls = colorsys.rgb_to_hls(*rgb_as_float)  # type: ignore
+        while amount > 0.05 and hls[1] <= amount*2:
+            # if color has low ligth, reduce the darkening
+            amount = amount - 0.05
         dhls = (hls[0], max(0, hls[1]-amount), hls[2])
         darken = colorsys.hls_to_rgb(*dhls)
         d_rgb = [int(x * 255) for x in darken]  # type: ignore
