@@ -26,13 +26,23 @@ class TomosScene(Scene):
         super().__init__(configs.CANVAS_SIZE, output_path, color=configs.CANVAS_COLOR)
 
     def extract_configs_from_timeline(self):
+        def check_cell_is_or_contains_pointer(cell):
+            if cell.var_type.is_pointer:
+                return True
+            elif hasattr(cell, "sub_cells"):
+                scs = cell.sub_cells
+                if isinstance(scs, dict):
+                    scs = list(scs.values())
+                return any(check_cell_is_or_contains_pointer(sc) for sc in scs)
+
         for snapshot in self.timeline.timeline:
             for name_or_addr in snapshot.diff.new_cells:
                 if isinstance(name_or_addr, MemoryAddress):
                     self.uses_heap = True
                     cell = snapshot.state.heap[name_or_addr]
-                    if cell.var_type.is_pointer:
+                    if check_cell_is_or_contains_pointer(cell):
                         self.pointers_heap_to_heap = True
+                        return  # no need to continue
 
     def build_folder(self, base_folder_path):
         # Removing "NameOfSceneClass" from folder path, which is added by skitso
