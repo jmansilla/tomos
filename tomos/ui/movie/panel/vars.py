@@ -243,8 +243,8 @@ class ComposedSprite(VariableSprite):
         else:
             w *= self.length
 
-        m2 = self.margin * 2
-        rect = Rectangle(x, y, w + m2, h + m2, fill_color=self.color,
+        rect = Rectangle(x, y, w + self.margin, h + self.margin * 2,
+                         fill_color=self.color,
                          stroke_color="gray", stroke_width=1)
         self.add(rect)
         self.rect = rect
