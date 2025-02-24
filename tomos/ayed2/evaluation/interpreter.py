@@ -36,7 +36,6 @@ class Interpreter:
         else:
             state = State()
         state.set_expressions_evaluator(self.sent_evaluator.expression_evaluator)
-        logger.info('Running Body section')
         next_sent = self.get_entry_point()
         while next_sent is not None:
             state, next_sent = self._run_sentence(next_sent, state)
