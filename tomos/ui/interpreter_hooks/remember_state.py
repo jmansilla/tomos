@@ -54,6 +54,12 @@ class Frame:
     expression_values: dict
     diff: StateDiff
 
+    def get_cell(self, name_or_addr):
+        from tomos.ayed2.evaluation.state import MemoryAddress
+        if isinstance(name_or_addr, MemoryAddress):
+            return self.state.heap[name_or_addr]   # type: ignore
+        else:
+            return self.state.stack[name_or_addr]  # type: ignore
 
 
 class RememberState:
