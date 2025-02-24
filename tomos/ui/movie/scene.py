@@ -57,7 +57,7 @@ class TomosScene(Scene):
         tl = self.timeline.timeline
         if tl and tl[0].last_executed == self.timeline.STATE_LOADED_FROM_FILE:
             initial_snapshot = tl.pop(0)
-            memory_block.process_snapshot(initial_snapshot)
+            memory_block.load_initial_snapshot(initial_snapshot)
         self.tick()
 
         for i, snapshot in enumerate(tl):

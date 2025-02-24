@@ -110,3 +110,14 @@ class MemoryBlock(Container):
     def set_value(self, name, value):
         var = self.vars_by_name[name]
         var.set_value(value)
+
+    def load_initial_snapshot(self, snapshot):
+        self.process_snapshot(snapshot)
+        # and now, refresh values, so pointers arrows are drawn correctly
+        for name_or_addr in snapshot.diff.new_cells:
+            var = self.vars_by_name[name_or_addr]
+            if hasattr(var, "cached_value"):
+                # make sure ComposedSprite is refreshed
+                del var.cached_value
+            cell = snapshot.get_cell(name_or_addr)
+            var.set_value(cell.value)
