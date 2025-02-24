@@ -22,15 +22,19 @@ class Interpreter:
         self.pre_hooks = pre_hooks or []
         self.post_hooks = post_hooks or []
 
-    def run(self):
+    def run(self, load_state_from=None):
         # Type Definitions are processed at parsing time. No need to run them here now.
         # Section for funcprocdefs are not implemented yet. No need to run them here now.
 
         # So far, we just need to run the body.
         self.execution_counter = 0
         self.sent_evaluator = SentenceEvaluator()
-        state = State()
         self.last_executed_sentence = None  # For hooks
+        if load_state_from:
+            state = State.load_from_file(load_state_from)
+            self._run_post_hooks(state)
+        else:
+            state = State()
         state.set_expressions_evaluator(self.sent_evaluator.expression_evaluator)
         logger.info('Running Body section')
         next_sent = self.get_entry_point()
@@ -58,6 +62,8 @@ class Interpreter:
             hook(self.last_executed_sentence, state, next_sentence)
 
     def _run_post_hooks(self, state):
+        # Hooks need to handle the case of last_executed_sentence == None
+        # which happens when loading a state from file.
         expr_cache = self.sent_evaluator.flush_intermediate_evaluated_expressions()
         for hook in self.post_hooks:
             hook(self.last_executed_sentence, state, expr_cache)
