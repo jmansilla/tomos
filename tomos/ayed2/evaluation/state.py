@@ -1,3 +1,5 @@
+import pickle
+
 from tomos.ayed2.ast.types import ArrayOf, Tuple, Synonym
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
@@ -40,11 +42,11 @@ class State:
         var_type = stack_cell.var_type
         if isinstance(var_type, Synonym):
             var_type = var_type.underlying_type_closure()
-        new_cell_type = var_type.of  # type: ignore
 
         if not var_type.is_pointer:
             raise TomosTypeError(f"Cannot allocate. Variable {var} is not a pointer.")
 
+        new_cell_type = var_type.of  # type: ignore
         if isinstance(new_cell_type, Synonym):
             new_cell_type = new_cell_type.underlying_type_closure()
         new_cell = self.allocator.allocate(MemoryAddress.HEAP, new_cell_type)
@@ -97,7 +99,10 @@ class State:
                     msg = f"Accessing var {var}. Can't access array at index {indexing}."
                     raise MemoryInfrigementError(msg)
             elif step.kind == var.ACCESSED_FIELD:
-                assert isinstance(cell.var_type, Tuple)
+                if not isinstance(cell.var_type, Tuple):
+                    raise MemoryInfrigementError(
+                        f"Accessing var {var}, {cell}, {cell.var_type}. Can't access field {step.argument}."
+                    )
                 field = step.argument
                 try:
                     cell = cell.sub_cells[field]
@@ -129,3 +134,11 @@ class State:
     def list_declared_variables(self):
         return {name: cell.var_type for name, cell in self.stack.items()}
 
+    def save_to_file(self, fname):
+        with open(fname, 'wb') as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def load_from_file(fname):
+        with open(fname, 'rb') as f:
+            return pickle.load(f)

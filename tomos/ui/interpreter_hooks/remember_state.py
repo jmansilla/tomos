@@ -42,22 +42,38 @@ class StateDiff:
         return diff
 
 
+class LoadedFromFile:
+    line_number = 0
+
+
 @dataclass
 class Frame:
     line_number: int
-    last_sentence: object
+    last_executed: object
     state: object
     expression_values: dict
     diff: StateDiff
 
+    def get_cell(self, name_or_addr):
+        from tomos.ayed2.evaluation.state import MemoryAddress
+        if isinstance(name_or_addr, MemoryAddress):
+            return self.state.heap[name_or_addr]   # type: ignore
+        else:
+            return self.state.stack[name_or_addr]  # type: ignore
+
 
 class RememberState:
+    STATE_LOADED_FROM_FILE = LoadedFromFile()
 
     def __init__(self):
         self.timeline = []
 
     def __call__(self, last_sentence, state, expression_values):
         if not self.timeline:
+            # only in the case that the first call is with last_sentence==None
+            # we will asume that the state was loaded from a file
+            if last_sentence is None:
+                last_sentence = self.STATE_LOADED_FROM_FILE
             diff = StateDiff.create_diff(type(state)(), state)
         else:
             diff = StateDiff.create_diff(self.timeline[-1].state, state)

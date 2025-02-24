@@ -53,24 +53,29 @@ class TomosScene(Scene):
         code_block.to_edge(self, movement.LEFT_EDGE)
         code_block.shift(movement.RIGHT * (configs.PADDING))
         self.add(code_block)
+
+        tl = self.timeline.timeline
+        if tl and tl[0].last_executed == self.timeline.STATE_LOADED_FROM_FILE:
+            initial_snapshot = tl.pop(0)
+            memory_block.load_initial_snapshot(initial_snapshot)
         self.tick()
 
-        for i, snapshot in enumerate(self.timeline.timeline):
-            if isinstance(snapshot.last_sentence, TypeDeclaration):
+        for i, snapshot in enumerate(tl):
+            if isinstance(snapshot.last_executed, TypeDeclaration):
                 continue
-            if isinstance(snapshot.last_sentence, VarDeclaration):
+            if isinstance(snapshot.last_executed, VarDeclaration):
                 memory_block.process_snapshot(snapshot)
                 continue
             code_block.focus_line(snapshot.line_number)
             self.tick()
 
-            if isinstance(snapshot.last_sentence, (If, While)):
-                guard = snapshot.last_sentence.guard
+            if isinstance(snapshot.last_executed, (If, While)):
+                guard = snapshot.last_executed.guard
                 guard_value = snapshot.expression_values[guard]
                 guard_hint = code_block.build_hint(guard_value)
 
-            if isinstance(snapshot.last_sentence, Assignment):
-                expr = snapshot.last_sentence.expr
+            if isinstance(snapshot.last_executed, Assignment):
+                expr = snapshot.last_executed.expr
                 expr_value = snapshot.expression_values[expr]
                 expr_hint = code_block.build_hint(expr_value)
 

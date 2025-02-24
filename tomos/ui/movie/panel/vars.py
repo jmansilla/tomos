@@ -1,3 +1,4 @@
+import colorsys
 from copy import deepcopy
 
 from tomos.ayed2.ast import types as ayed_types
@@ -6,6 +7,7 @@ from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
 
+from PIL import ImageColor
 from skitso.atom import Container, Point
 from skitso import movement
 from skitso.shapes import Rectangle, RoundedRectangle, Arrow, DeadArrow
@@ -17,17 +19,52 @@ class ColorAssigner:
     cache = deepcopy(configs.COLOR_BY_TYPE)
 
     @classmethod
-    def get(cls, _type):
-        if isinstance(_type, type):
-            type_name = _type.__name__
-        else:
-            type_name = type(_type).__name__
+    def get_color(cls, _type):
+        # synonyms are ignored
+        if isinstance(_type, ayed_types.Synonym):
+            _type = _type.underlying_type_closure()
+        if isinstance(_type, ayed_types.ArrayOf):
+            return cls.get_color('ArrayOf')
+        if isinstance(_type, ayed_types.Tuple):
+            return cls.get_color('Tuple')
+
+        type_name = str(_type)
         if type_name in cls.cache:
             return cls.cache[type_name]
         else:
-            new_color = configs.UNNAMED_COLORS.pop()
+            pointer, pointed_type = cls.is_pointer_of(_type)
+            if pointer:
+                orig = cls.get_color(pointed_type)
+                darkened = cls.darken_it(orig)
+                cls.cache[type_name] = darkened
+                return darkened
+            new_color = configs.UNNAMED_COLORS[0]
+            if len(configs.UNNAMED_COLORS) > 1:
+                configs.UNNAMED_COLORS.pop(0)
             cls.cache[type_name] = new_color
             return new_color
+
+    @classmethod
+    def is_pointer_of(cls, _type):
+        # We will only return True if its a Pointer (and not a Synonym of a pointer)
+        # Returns boolean (true/false), and the pointed-type
+        if isinstance(_type, ayed_types.PointerOf):
+            return True, _type.of
+        else:
+            return False, None
+
+    @classmethod
+    def darken_it(cls, color, amount=0.2):
+        as_ints = ImageColor.getcolor(color, 'RGB')
+        rgb_as_float = [x/255 for x in as_ints]  # type: ignore
+        hls = colorsys.rgb_to_hls(*rgb_as_float)  # type: ignore
+        while amount > 0.05 and hls[1] <= amount*2:
+            # if color has low ligth, reduce the darkening
+            amount = amount - 0.05
+        dhls = (hls[0], max(0, hls[1]-amount), hls[2])
+        darken = colorsys.hls_to_rgb(*dhls)
+        d_rgb = [int(x * 255) for x in darken]  # type: ignore
+        return "#{:02x}{:02x}{:02x}".format(*d_rgb)
 
 
 def create_variable_sprite(name, _type, value, vars_index, in_heap=False,
@@ -60,7 +97,8 @@ class SubVarMixin:
         name = str(name)
         if len(name) > max_len:
             name = name[:max_len] + "…"
-        self.name_sprite = build_text(str(name), bold=not self.in_heap)  # type: ignore
+        self.name_sprite = build_text(str(name), bold=not self.in_heap, color='black')  # type: ignore
+
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
 
@@ -86,7 +124,7 @@ class VariableSprite(Container):
         self.set_value(value)
 
     def get_color_by_type(self, _type):
-        return ColorAssigner.get(_type)
+        return ColorAssigner.get_color(_type)
 
     def add_name_sprite(self, name):
         # Create the name sprite, adds it to self,

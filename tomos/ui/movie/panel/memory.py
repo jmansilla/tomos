@@ -76,18 +76,12 @@ class MemoryBlock(Container):
         logger.debug('PROCESSING SNAPSHOT')
         for name_or_addr in snapshot.diff.new_cells:
             logger.debug("Adding", name_or_addr)
-            if isinstance(name_or_addr, MemoryAddress):
-                cell = snapshot.state.heap[name_or_addr]
-                self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=True)
-            else:
-                cell = snapshot.state.stack[name_or_addr]
-                self.add_var(name_or_addr, cell.var_type, cell.value)
+            cell = snapshot.get_cell(name_or_addr)
+            in_heap = isinstance(name_or_addr, MemoryAddress)
+            self.add_var(name_or_addr, cell.var_type, cell.value, in_heap=in_heap)
         for name_or_addr in snapshot.diff.changed_cells:
             logger.debug("Changing", name_or_addr)
-            if isinstance(name_or_addr, MemoryAddress):
-                cell = snapshot.state.heap[name_or_addr]
-            else:
-                cell = snapshot.state.stack[name_or_addr]
+            cell = snapshot.get_cell(name_or_addr)
             self.set_value(name_or_addr, cell.value)
         for name_or_addr in snapshot.diff.deleted_cells:
             logger.debug("Deleting", name_or_addr)
@@ -116,3 +110,14 @@ class MemoryBlock(Container):
     def set_value(self, name, value):
         var = self.vars_by_name[name]
         var.set_value(value)
+
+    def load_initial_snapshot(self, snapshot):
+        self.process_snapshot(snapshot)
+        # and now, refresh values, so pointers arrows are drawn correctly
+        for name_or_addr in snapshot.diff.new_cells:
+            var = self.vars_by_name[name_or_addr]
+            if hasattr(var, "cached_value"):
+                # make sure ComposedSprite is refreshed
+                del var.cached_value
+            cell = snapshot.get_cell(name_or_addr)
+            var.set_value(cell.value)
