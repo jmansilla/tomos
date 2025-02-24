@@ -4,8 +4,6 @@ from tomos.ui.movie import configs
 
 
 def build_text(text, **kwargs):
-    # if "weight" not in kwargs:
-    #     kwargs["weight"] = configs.TEXT_WEIGHT
     font_name = kwargs.pop("font_name", "Monospace")
     font_size = kwargs.pop("font_size", configs.BASE_FONT_SIZE * configs.SCALE)
     x = kwargs.pop("x", 0)
