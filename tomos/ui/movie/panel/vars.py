@@ -262,18 +262,18 @@ class ComposedSprite(VariableSprite):
             first_time = True
         for k, val in value.items():
             if first_time or val != self.cached_value[k]:
-                self.element_sprites[k].set_value(val)  # type: ignore
+                self.subsprites[k].set_value(val)  # type: ignore
                 self.cached_value[k] = val
 
     def build_subsprites(self, x, y, vertical):
         x, y = x + self.margin, y + self.margin
-        self.element_sprites = {}
+        self.subsprites = {}
         max_x = 0
         for i, (fname, ftype) in enumerate(self.iterate_fields()):
             sub_var = create_variable_sprite(fname, ftype, '--', self.vars_index,
                                          in_heap=self.in_heap,
                                          mixin_to_use=SubVarMixin)
-            self.element_sprites[fname] = sub_var
+            self.subsprites[fname] = sub_var
             self.add(sub_var)
             sub_var.move_to(Point(x, y))
             if vertical:
@@ -284,7 +284,7 @@ class ComposedSprite(VariableSprite):
 
         # and now, adjust the alignment
         max_delta = 0
-        for sub_var in self.element_sprites.values():
+        for sub_var in self.subsprites.values():
             if sub_var.rect.position.x < max_x:
                 delta = max_x - sub_var.rect.position.x
                 max_delta = max(delta, max_delta)
