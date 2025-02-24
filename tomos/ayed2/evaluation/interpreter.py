@@ -29,8 +29,8 @@ class Interpreter:
         # So far, we just need to run the body.
         self.execution_counter = 0
         self.sent_evaluator = SentenceEvaluator()
-        self.last_executed_sentece = None  # For hooks
         state = State()
+        self.last_executed_sentence = None  # For hooks
         state.set_expressions_evaluator(self.sent_evaluator.expression_evaluator)
         logger.info('Running Body section')
         next_sent = self.get_entry_point()
@@ -49,18 +49,18 @@ class Interpreter:
 
         new_state, next_sent = self.sent_evaluator.eval(sentence_to_run, state=state)
 
-        self.last_executed_sentece = sentence_to_run
+        self.last_executed_sentence = sentence_to_run
         self._run_post_hooks(new_state)
         return new_state, next_sent
 
     def _run_pre_hooks(self, next_sentence, state):
         for hook in self.pre_hooks:
-            hook(self.last_executed_sentece, state, next_sentence)
+            hook(self.last_executed_sentence, state, next_sentence)
 
     def _run_post_hooks(self, state):
         expr_cache = self.sent_evaluator.flush_intermediate_evaluated_expressions()
         for hook in self.post_hooks:
-            hook(self.last_executed_sentece, state, expr_cache)
+            hook(self.last_executed_sentence, state, expr_cache)
 
 
 class SentenceEvaluator(NodeVisitor):
