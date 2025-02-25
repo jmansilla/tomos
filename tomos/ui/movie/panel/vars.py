@@ -1,16 +1,17 @@
 import colorsys
 from copy import deepcopy
 
+from PIL import ImageColor
+from skitso.atom import Container, Point
+from skitso import movement
+from skitso.shapes import Rectangle, RoundedRectangle, Arrow
+
 from tomos.ayed2.ast import types as ayed_types
 from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-
-from PIL import ImageColor
-from skitso.atom import Container, Point
-from skitso import movement
-from skitso.shapes import Rectangle, RoundedRectangle, Arrow, DeadArrow
+from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow, HeapToHeapArrowManager
 
 thickness = 2  #configs.THICKNESS
 
@@ -54,11 +55,11 @@ class ColorAssigner:
             return False, None
 
     @classmethod
-    def darken_it(cls, color, amount=0.2):
+    def darken_it(cls, color, amount=0.2, smooth=True):
         as_ints = ImageColor.getcolor(color, 'RGB')
         rgb_as_float = [x/255 for x in as_ints]  # type: ignore
         hls = colorsys.rgb_to_hls(*rgb_as_float)  # type: ignore
-        while amount > 0.05 and hls[1] <= amount*2:
+        while smooth and amount > 0.05 and hls[1] <= amount*2:
             # if color has low ligth, reduce the darkening
             amount = amount - 0.05
         dhls = (hls[0], max(0, hls[1]-amount), hls[2])
@@ -166,13 +167,19 @@ class VariableSprite(Container):
         value_sprite.shift(movement.UP * value_sprite.box_height * .1)
         return value_sprite
 
-    def point_to_receive_arrow(self):
+    def point_to_receive_arrow(self, heap_to_heap=False):
+        if heap_to_heap:
+            x, y = self.name_sprite.end
+            y -= self.name_sprite.box_height * 0.55
+            x += configs.PADDING / 2
+            return Point(x, y)
         x, y = self.rect.position
         y += self.rect.box_height / 2
         return Point(x, y)
 
 
 class PointerVarSprite(VariableSprite):
+    heap_arrow_manager = HeapToHeapArrowManager()
 
     @property
     def arrow_start_point(self):
@@ -183,8 +190,7 @@ class PointerVarSprite(VariableSprite):
 
     @property
     def arrow_color(self):
-        # ideally shall return a color based on the cell it points to
-        return "white"  #self.get_color_by_type(self._type.of)
+        return "#ffffff"
 
     @property
     def tip_height(self):
@@ -197,8 +203,11 @@ class PointerVarSprite(VariableSprite):
 
     def build_arrow_to_var(self, var):
         x, y = self.arrow_start_point
-        to_x, to_y = var.point_to_receive_arrow()
-        arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
+        to_x, to_y = var.point_to_receive_arrow(heap_to_heap=self.in_heap)
+        if self.in_heap:
+            arrow = self.heap_arrow_manager.add_arrow(x, y, to_x, to_y, self.arrow_color, thickness, self.tip_height)
+        else:
+            arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
                       thickness=thickness, tip_height=self.tip_height)
         return arrow
 
@@ -243,8 +252,8 @@ class ComposedSprite(VariableSprite):
         else:
             w *= self.length
 
-        m2 = self.margin * 2
-        rect = Rectangle(x, y, w + m2, h + m2, fill_color=self.color,
+        rect = Rectangle(x, y, w + self.margin, h + self.margin * 2,
+                         fill_color=self.color,
                          stroke_color="gray", stroke_width=1)
         self.add(rect)
         self.rect = rect
@@ -262,18 +271,18 @@ class ComposedSprite(VariableSprite):
             first_time = True
         for k, val in value.items():
             if first_time or val != self.cached_value[k]:
-                self.element_sprites[k].set_value(val)  # type: ignore
+                self.subsprites[k].set_value(val)  # type: ignore
                 self.cached_value[k] = val
 
     def build_subsprites(self, x, y, vertical):
         x, y = x + self.margin, y + self.margin
-        self.element_sprites = {}
+        self.subsprites = {}
         max_x = 0
         for i, (fname, ftype) in enumerate(self.iterate_fields()):
             sub_var = create_variable_sprite(fname, ftype, '--', self.vars_index,
                                          in_heap=self.in_heap,
                                          mixin_to_use=SubVarMixin)
-            self.element_sprites[fname] = sub_var
+            self.subsprites[fname] = sub_var
             self.add(sub_var)
             sub_var.move_to(Point(x, y))
             if vertical:
@@ -284,7 +293,7 @@ class ComposedSprite(VariableSprite):
 
         # and now, adjust the alignment
         max_delta = 0
-        for sub_var in self.element_sprites.values():
+        for sub_var in self.subsprites.values():
             if sub_var.rect.position.x < max_x:
                 delta = max_x - sub_var.rect.position.x
                 max_delta = max(delta, max_delta)

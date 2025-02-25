@@ -11,10 +11,10 @@ class MemoryAllocator:
     def allocate(self, partition, var_type):
         assert partition in MemoryAddress.PARTITIONS
         if isinstance(var_type, ArrayOf):
-            elements = []
+            sub_cells = []
             for _ in range(var_type.number_of_elements()):
-                elements.append(self.allocate(partition, var_type.of))
-            return ArrayCellCluster(var_type, elements)
+                sub_cells.append(self.allocate(partition, var_type.of))
+            return ArrayCellCluster(var_type, sub_cells)
         elif isinstance(var_type, Tuple):
             sub_cells = {}
             for field_name, field_type in var_type.fields_mapping.items():
@@ -78,10 +78,10 @@ class ArrayCellCluster:
     def __init__(self, array_type, elements):
         assert isinstance(array_type, ArrayOf)
         self.array_type = array_type
-        self.elements = elements
+        self.sub_cells = elements
 
     def __repr__(self):
-        return f"ArrayCellCluster({self.array_type}, {self.elements})"
+        return f"ArrayCellCluster({self.array_type}, {self.sub_cells})"
 
     @property
     def var_type(self):
@@ -89,11 +89,11 @@ class ArrayCellCluster:
 
     @property
     def address(self):
-        return self.elements[0].address
+        return self.sub_cells[0].address
 
     @property
     def cell_count(self):
-        return sum(cell.cell_count for cell in self.elements)
+        return sum(cell.cell_count for cell in self.sub_cells)
 
     @property
     def value(self):
@@ -107,13 +107,13 @@ class ArrayCellCluster:
             n = reduce(mul, shape[1:])
             return [reshape(lst[i*n:(i+1)*n], shape[1:]) for i in range(len(lst)//n)]
 
-        values = [cell.value for cell in self.elements]
+        values = [cell.value for cell in self.sub_cells]
         needed_shape = self.array_type.shape()
         return reshape(values, needed_shape)
 
     def __getitem__(self, key):
         idx = self.array_type.flatten_index(key)
-        return self.elements[idx]
+        return self.sub_cells[idx]
 
 
 class TupleCellCluster:
