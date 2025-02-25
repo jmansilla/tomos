@@ -3,7 +3,6 @@ from skitso.atom import Container, Point, BaseImgElem
 from skitso.shapes import Arrow, Line
 
 from tomos.ui.movie import configs
-from tomos.ui.movie.texts import build_text
 
 
 class RoundChamfer(BaseImgElem):
@@ -153,17 +152,28 @@ class DeadArrow(Container):
 
 class HeapToHeapArrowManager:
 
-    def __init__(self, step=15):
+    def __init__(self, offset_step=15):
         self.base = 10
-        self.step = step
+        self.offset_step = offset_step
         self.heap_arrows = []
 
     def add_arrow(self, sx, sy, ex, ey, color, thickness, tip_height):
-        new_offset = self.base + self.step
+        new_offset = self.base + self.offset_step
         # check previously existing arrows
         for parrow in sorted(self.heap_arrows, key=lambda a: (a.offset, a.c_height())):
             if parrow.offset == new_offset and any(parrow.c_crosses_y_at(_y) for _y in [sy, ey]):
-                new_offset += self.step
-        new_arrow = CShapedArrow(sx, sy, ex, ey, new_offset, color, thickness, tip_height)
+                new_offset += self.offset_step
+        darken_color = self.arrow_color(color, new_offset)
+        new_arrow = CShapedArrow(sx, sy, ex, ey, new_offset, darken_color, thickness, tip_height)
         self.heap_arrows.append(new_arrow)
         return new_arrow
+
+    def arrow_color(self, base_color, final_offset):
+        # depends on offset, base_color is darkened
+        darken_step = 0.25
+        steps = (final_offset - self.base) / self.offset_step
+        darken_amount = darken_step * (steps - 1)
+        from tomos.ui.movie.panel.vars import ColorAssigner
+        darkened = ColorAssigner.darken_it(base_color, darken_amount, smooth=False)
+        print('Base', base_color, 'Darken amount', darken_amount, 'darkened', darkened)
+        return darkened
