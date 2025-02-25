@@ -190,8 +190,7 @@ class PointerVarSprite(VariableSprite):
 
     @property
     def arrow_color(self):
-        # ideally shall return a color based on the cell it points to
-        return "white"  #self.get_color_by_type(self._type.of)
+        return "#ffffff"
 
     @property
     def tip_height(self):
