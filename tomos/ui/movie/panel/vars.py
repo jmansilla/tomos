@@ -11,7 +11,7 @@ from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow
+from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow, HeapToHeapArrowManager
 
 thickness = 2  #configs.THICKNESS
 
@@ -170,7 +170,8 @@ class VariableSprite(Container):
     def point_to_receive_arrow(self, heap_to_heap=False):
         if heap_to_heap:
             x, y = self.name_sprite.end
-            y += self.name_sprite.box_height / 2
+            y -= self.name_sprite.box_height * 0.55
+            x += configs.PADDING / 2
             return Point(x, y)
         x, y = self.rect.position
         y += self.rect.box_height / 2
@@ -178,6 +179,7 @@ class VariableSprite(Container):
 
 
 class PointerVarSprite(VariableSprite):
+    heap_arrow_manager = HeapToHeapArrowManager()
 
     @property
     def arrow_start_point(self):
@@ -204,7 +206,7 @@ class PointerVarSprite(VariableSprite):
         x, y = self.arrow_start_point
         to_x, to_y = var.point_to_receive_arrow(heap_to_heap=self.in_heap)
         if self.in_heap:
-            arrow = CShapedArrow(x, y, to_x, to_y, 15, self.arrow_color, thickness, self.tip_height)
+            arrow = self.heap_arrow_manager.add_arrow(x, y, to_x, to_y, self.arrow_color, thickness, self.tip_height)
         else:
             arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
                       thickness=thickness, tip_height=self.tip_height)
