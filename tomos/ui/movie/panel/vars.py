@@ -55,11 +55,11 @@ class ColorAssigner:
             return False, None
 
     @classmethod
-    def darken_it(cls, color, amount=0.2):
+    def darken_it(cls, color, amount=0.2, smooth=True):
         as_ints = ImageColor.getcolor(color, 'RGB')
         rgb_as_float = [x/255 for x in as_ints]  # type: ignore
         hls = colorsys.rgb_to_hls(*rgb_as_float)  # type: ignore
-        while amount > 0.05 and hls[1] <= amount*2:
+        while smooth and amount > 0.05 and hls[1] <= amount*2:
             # if color has low ligth, reduce the darkening
             amount = amount - 0.05
         dhls = (hls[0], max(0, hls[1]-amount), hls[2])
