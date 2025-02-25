@@ -57,6 +57,10 @@ class ASTPrettyFormatter(NodeVisitor):
         title = self.generic_visit(node)
         return self.stuff_with_children(title, node.sentences)
 
+    def visit_for(self, node, *args, **kwargs):
+        title = self.generic_visit(node)
+        return self.stuff_with_children(title, node.sentences)
+
     def visit_if(self, node, *args, **kwargs):
         sections = {
             "then": node.then_sentences,
