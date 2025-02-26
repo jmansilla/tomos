@@ -11,9 +11,25 @@ from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow, HeapToHeapArrowManager
+from tomos.ui.movie.panel.pointer_arrows import DeadArrow, HeapToHeapArrowManager
 
-thickness = 2  #configs.THICKNESS
+thickness = configs.THICKNESS
+
+
+class Switch:
+    def __init__(self):
+        self._state = True
+    def turn_on(self):
+        self._state = True
+    def turn_off(self):
+        self._state = False
+    def flip(self):
+        self._state = not self._state
+    @property
+    def is_on(self):
+        return self._state
+
+HIGHLIGHTING_SWITCH = Switch()
 
 
 class ColorAssigner:
@@ -98,7 +114,7 @@ class SubVarMixin:
         name = str(name)
         if len(name) > max_len:
             name = name[:max_len] + "…"
-        self.name_sprite = build_text(str(name), bold=not self.in_heap, color='black')  # type: ignore
+        self.name_sprite = build_text(str(name), color='black')  # type: ignore
 
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
@@ -130,7 +146,7 @@ class VariableSprite(Container):
     def add_name_sprite(self, name):
         # Create the name sprite, adds it to self,
         # and returns (dx, dy) delta for value rect object
-        self.name_sprite = build_text(str(name), bold=not self.in_heap)
+        self.name_sprite = build_text(str(name))
         self.add(self.name_sprite)
         return 0, self.name_sprite.box_height + configs.PADDING*.5
 
@@ -158,10 +174,12 @@ class VariableSprite(Container):
         if old_value_sprite is not None:
             self.remove(self.value_sprite)
         self.value_sprite = new_value_sprite
+        if HIGHLIGHTING_SWITCH.is_on:
+            self.value_sprite.is_highlighted = True  # type: ignore
         self.add(self.value_sprite)
 
     def build_value_sprite(self, value):
-        value_sprite = build_text(str(value))
+        value_sprite = build_text(str(value), highlightable=True)
         value_sprite.center_respect_to(self.rect)
         # centering text in pillow is not so easy
         value_sprite.shift(movement.UP * value_sprite.box_height * .1)

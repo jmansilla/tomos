@@ -169,11 +169,10 @@ class HeapToHeapArrowManager:
         return new_arrow
 
     def arrow_color(self, base_color, final_offset):
-        # depends on offset, base_color is darkened
+        # depending on offset, base_color is darkened
+        from tomos.ui.movie.panel.vars import ColorAssigner  # avoid circular import
         darken_step = 0.25
         steps = (final_offset - self.base) / self.offset_step
         darken_amount = darken_step * (steps - 1)
-        from tomos.ui.movie.panel.vars import ColorAssigner
         darkened = ColorAssigner.darken_it(base_color, darken_amount, smooth=False)
-        print('Base', base_color, 'Darken amount', darken_amount, 'darkened', darkened)
         return darkened

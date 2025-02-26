@@ -7,7 +7,15 @@ CANVAS_COLOR = "#1A1A1D"
 MEMORY_BOARD_SIZE = [300, 650] # we'll have one for stack and one for heap
 PADDING = 12
 
+THICKNESS = 2
+
 BASE_FONT_SIZE = 20
+
+# Text highlighting
+HIGHLIGHT_COLOR = "#ffde00"
+HIGHLIGHT_OUTLINE_COLOR = "#0f0f0f"
+HIGHLIGHT_OUTLINE_WIDTH = 3
+AUTO_DE_HIGHLIGHT = true
 
 # Variable Boxes
 VAR_BOX_MIN_CHAR_RATIO = [80, 30]

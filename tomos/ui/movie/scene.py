@@ -4,8 +4,6 @@ from os import getenv
 from skitso.scene import Scene
 from skitso import movement
 
-from tomos.ayed2.ast.sentences import Assignment, If, While
-from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
 from tomos.ayed2.evaluation.state import MemoryAddress
 from tomos.ui.movie import configs
 from tomos.ui.movie.panel.code import TomosCode
@@ -52,7 +50,7 @@ class TomosScene(Scene):
         )
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
-    def render(self):
+    def render(self, explicit_frames_only):
         memory_block = MemoryBlock(self.uses_heap, self.pointers_heap_to_heap)
         memory_block.z_index = 1
         self.add(memory_block)
@@ -64,38 +62,33 @@ class TomosScene(Scene):
         code_block.shift(movement.RIGHT * (configs.PADDING))
         self.add(code_block)
 
-        tl = self.timeline.timeline
-        if tl and tl[0].last_executed == self.timeline.STATE_LOADED_FROM_FILE:
-            initial_snapshot = tl.pop(0)
-            memory_block.load_initial_snapshot(initial_snapshot)
+        loaded = self.timeline.loaded_initial_snapshot()
+        if loaded:
+            memory_block.load_initial_snapshot(loaded)
+
+        shots_declarations = self.timeline.list_declaration_snapshots()
+        for shot in shots_declarations:
+            memory_block.process_snapshot(shot)
+        shots_sentences = self.timeline.list_sentence_snapshots()
+        if shots_sentences:
+            code_block.mark_next_line(shots_sentences[0].line_number)
+        # Initial tick. Empty canvas (or with imported state if loaded from file).
         self.tick()
 
-        for i, snapshot in enumerate(tl):
-            if isinstance(snapshot.last_executed, TypeDeclaration):
-                continue
-            if isinstance(snapshot.last_executed, VarDeclaration):
-                memory_block.process_snapshot(snapshot)
-                continue
-            code_block.focus_line(snapshot.line_number)
-            self.tick()
-
-            if isinstance(snapshot.last_executed, (If, While)):
-                guard = snapshot.last_executed.guard
-                guard_value = snapshot.expression_values[guard]
-                guard_hint = code_block.build_hint(guard_value)
-
-            if isinstance(snapshot.last_executed, Assignment):
-                expr = snapshot.last_executed.expr
-                expr_value = snapshot.expression_values[expr]
-                expr_hint = code_block.build_hint(expr_value)
-
-            memory_block.process_snapshot(snapshot)
+        for i, shot in enumerate(shots_sentences):
+            memory_block.process_snapshot(shot)
+            code_block.mark_next_line(getattr(shot.next, "line_number", None))
+            if not explicit_frames_only:
+                self.tick()
+            elif shot.explicit_checkpoint:
+                self.tick()
 
             logger.info(f"Processing snapshot {i}")
             if STOP_AT == str(i):
                 print("STOP at", i)
                 break
-        code_block.focus_line(None)
+
+        # Final tick. Always here.
         self.tick()
 
         number_of_generated_frames = self.next_tick_id
