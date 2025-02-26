@@ -4,8 +4,6 @@ from os import getenv
 from skitso.scene import Scene
 from skitso import movement
 
-from tomos.ayed2.ast.sentences import Assignment, If, While
-from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
 from tomos.ayed2.evaluation.state import MemoryAddress
 from tomos.ui.movie import configs
 from tomos.ui.movie.panel.code import TomosCode
@@ -64,32 +62,25 @@ class TomosScene(Scene):
         code_block.shift(movement.RIGHT * (configs.PADDING))
         self.add(code_block)
 
-        tl = self.timeline.timeline
-        if tl and tl[0].last_executed == self.timeline.STATE_LOADED_FROM_FILE:
-            initial_snapshot = tl.pop(0)
-            memory_block.load_initial_snapshot(initial_snapshot)
+        loaded = self.timeline.loaded_initial_snapshot()
+        if loaded:
+            memory_block.load_initial_snapshot(loaded)
+
+        shots_declarations = self.timeline.list_declaration_snapshots()
+        for shot in shots_declarations:
+            memory_block.process_snapshot(shot)
+        shots_sentences = self.timeline.list_sentence_snapshots()
+        if shots_sentences:
+            code_block.mark_next_line(shots_sentences[0].line_number)
         # Initial tick. Empty canvas (or with imported state if loaded from file).
         self.tick()
 
-        # Iterate now snapshots until all Type & Var declarations are processed.
-        at_least_one_declaration = False
-        declarations_finished = False
-        for i, snapshot in enumerate(tl):
-            if isinstance(snapshot.last_executed, (TypeDeclaration, VarDeclaration)):
-                at_least_one_declaration = True
-                memory_block.process_snapshot(snapshot)
-                continue
-            if not declarations_finished:
-                declarations_finished = True
-                # All declarations finished. Let's tick that first.
-                if at_least_one_declaration:
-                    self.tick()
-            code_block.focus_line(snapshot.line_number)  # always focus the last executed line
-            memory_block.process_snapshot(snapshot)
-            sentence = snapshot.last_executed
+        for i, shot in enumerate(shots_sentences):
+            memory_block.process_snapshot(shot)
+            code_block.mark_next_line(getattr(shot.next, "line_number", None))
             if not explicit_frames_only:
                 self.tick()
-            elif sentence.get_parsing_metadata("checkpoint"):
+            elif shot.explicit_checkpoint:
                 self.tick()
 
             logger.info(f"Processing snapshot {i}")
@@ -98,7 +89,6 @@ class TomosScene(Scene):
                 break
 
         # Final tick. Always here.
-        code_block.focus_line(None)
         self.tick()
 
         number_of_generated_frames = self.next_tick_id

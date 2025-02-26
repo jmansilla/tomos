@@ -1,6 +1,9 @@
 from copy import deepcopy
 from dataclasses import dataclass
 
+from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
+
+
 
 @dataclass
 class StateDiff:
@@ -49,10 +52,11 @@ class LoadedFromFile:
 @dataclass
 class Frame:
     line_number: int
-    last_executed: object
+    just_executed: object
     state: object
     expression_values: dict
     diff: StateDiff
+    next: object | None
 
     def get_cell(self, name_or_addr):
         from tomos.ayed2.evaluation.state import MemoryAddress
@@ -60,6 +64,12 @@ class Frame:
             return self.state.heap[name_or_addr]   # type: ignore
         else:
             return self.state.stack[name_or_addr]  # type: ignore
+
+    @property
+    def explicit_checkpoint(self):
+        if not hasattr(self.just_executed, "get_parsing_metadata"):
+            return False
+        return self.just_executed.get_parsing_metadata("checkpoint")
 
 
 class RememberState:
@@ -79,6 +89,21 @@ class RememberState:
             diff = StateDiff.create_diff(self.timeline[-1].state, state)
         f = Frame(last_sentence.line_number, last_sentence,
                   deepcopy(state),
-                  expression_values, diff)
+                  expression_values, diff, None)
+        if self.timeline:
+            self.timeline[-1].next = f
         self.timeline.append(f)
 
+    def loaded_initial_snapshot(self):
+        if self.timeline and self.timeline[0].just_executed == self.STATE_LOADED_FROM_FILE:
+            return self.timeline[0]
+        else:
+            return None
+
+    def list_declaration_snapshots(self):
+        return [frame for frame in self.timeline
+                if isinstance(frame.just_executed, (TypeDeclaration, VarDeclaration))]
+
+    def list_sentence_snapshots(self):
+        return [frame for frame in self.timeline
+                if not isinstance(frame.just_executed, (TypeDeclaration, VarDeclaration, LoadedFromFile))]
