@@ -120,7 +120,7 @@ class TomosCode(Container):
         self.code_generator.position = position
         self.add(self.code_generator)
 
-    def focus_line(self, line_number):
+    def mark_next_line(self, line_number):
         self.code_generator.update_next_line_nr(line_number)
 
     def build_hint(self, msg):
