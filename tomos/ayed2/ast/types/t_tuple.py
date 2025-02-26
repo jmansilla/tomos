@@ -25,3 +25,15 @@ class Tuple(UserDefinedType):
     @property
     def SIZE(self):
         return self.tuple_size
+
+    def has_deferrals(self, crumbs):
+        for key, subtype in self.fields_mapping.items():
+            if subtype.has_deferrals(crumbs + [self]):
+                return True
+        return False
+
+    def resolve_deferrals(self, crumbs):
+        for key, subtype in list(self.fields_mapping.items()):
+            if subtype.has_deferrals(crumbs + [self]):
+                self.fields_mapping[key] = subtype.resolve_deferrals(crumbs + [self])
+        return self
