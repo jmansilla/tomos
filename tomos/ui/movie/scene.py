@@ -52,7 +52,7 @@ class TomosScene(Scene):
         )
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
-    def render(self):
+    def render(self, explicit_frames_only):
         memory_block = MemoryBlock(self.uses_heap, self.pointers_heap_to_heap)
         memory_block.z_index = 1
         self.add(memory_block)
@@ -68,33 +68,36 @@ class TomosScene(Scene):
         if tl and tl[0].last_executed == self.timeline.STATE_LOADED_FROM_FILE:
             initial_snapshot = tl.pop(0)
             memory_block.load_initial_snapshot(initial_snapshot)
+        # Initial tick. Empty canvas (or with imported state if loaded from file).
         self.tick()
 
+        # Iterate now snapshots until all Type & Var declarations are processed.
+        at_least_one_declaration = False
+        declarations_finished = False
         for i, snapshot in enumerate(tl):
-            if isinstance(snapshot.last_executed, TypeDeclaration):
-                continue
-            if isinstance(snapshot.last_executed, VarDeclaration):
+            if isinstance(snapshot.last_executed, (TypeDeclaration, VarDeclaration)):
+                at_least_one_declaration = True
                 memory_block.process_snapshot(snapshot)
                 continue
-            code_block.focus_line(snapshot.line_number)
-            self.tick()
-
-            if isinstance(snapshot.last_executed, (If, While)):
-                guard = snapshot.last_executed.guard
-                guard_value = snapshot.expression_values[guard]
-                guard_hint = code_block.build_hint(guard_value)
-
-            if isinstance(snapshot.last_executed, Assignment):
-                expr = snapshot.last_executed.expr
-                expr_value = snapshot.expression_values[expr]
-                expr_hint = code_block.build_hint(expr_value)
-
+            if not declarations_finished:
+                declarations_finished = True
+                # All declarations finished. Let's tick that first.
+                if at_least_one_declaration:
+                    self.tick()
+            code_block.focus_line(snapshot.line_number)  # always focus the last executed line
             memory_block.process_snapshot(snapshot)
+            sentence = snapshot.last_executed
+            if not explicit_frames_only:
+                self.tick()
+            elif sentence.get_parsing_metadata("checkpoint"):
+                self.tick()
 
             logger.info(f"Processing snapshot {i}")
             if STOP_AT == str(i):
                 print("STOP at", i)
                 break
+
+        # Final tick. Always here.
         code_block.focus_line(None)
         self.tick()
 

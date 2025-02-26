@@ -16,20 +16,20 @@ else:
     FRAMES_PARENT_PATH = Path.cwd() / "output_tomos"
 
 
-def build_movie_from_file(source_code_path, movie_path, timeline):
+def build_movie_from_file(source_code_path, movie_path, timeline, explicit_frames_only=False):
     frames_path = FRAMES_PARENT_PATH / Path(source_code_path).name
     source_code = open(source_code_path, 'r').read()
-    build_movie_frames(source_code, timeline, frames_path)
+    build_movie_frames(source_code, timeline, frames_path, explicit_frames_only)
     generate_mp4(frames_path, movie_path)
     return
 
 
-def build_movie_frames(code, timeline, frames_path):
+def build_movie_frames(code, timeline, frames_path, explicit_frames_only=False):
     frames_path = Path(frames_path)
     clean_folder(frames_path)
     scene = TomosScene(code, timeline=timeline, output_path=frames_path)
     logger.info(f"Rendering movie frames to {frames_path}")
-    return scene.render()
+    return scene.render(explicit_frames_only=explicit_frames_only)
 
 
 def generate_mp4(frames_path, movie_path):
