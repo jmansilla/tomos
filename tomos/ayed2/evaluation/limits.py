@@ -21,9 +21,14 @@ class Limiter:
     def __init__(self, data):
         self._limits = deepcopy(data)
 
-    def check_type_sizing_limits(self, _type, depth=1):
+    def check_type_sizing_limits(self, _type, depth=1, crumbs=[]):
         # Checks that the type is not too complex. Returns None if the type is ok,
         # otherwise raises an exception.
+        if _type in crumbs:
+            # avoid clashing in recursive types
+            return
+
+        crumbs = crumbs[:] + [_type]
 
         # check depth
         lim_depth = self._limits.TYPE_COMPOSITION_DEPTH_LIMIT
@@ -37,7 +42,7 @@ class Limiter:
 
         if isinstance(_type, PointerOf):
             # depth not increased
-            return self.check_type_sizing_limits(_type.of, depth=depth)
+            return self.check_type_sizing_limits(_type.of, depth=depth, crumbs=crumbs)
 
         if isinstance(_type, ArrayOf):
             lim_adim = self._limits.MAXIMUM_ARRAY_DIMENSIONS
@@ -54,7 +59,7 @@ class Limiter:
             if lim_tsize is not None and len(_type.fields_mapping) > lim_tsize:
                 raise TupleSizeLimitExceededError()
             for t in _type.fields_mapping.values():
-                self.check_type_sizing_limits(t, depth + 1)
+                self.check_type_sizing_limits(t, depth + 1, crumbs=crumbs)
 
     def check_memory_size_limits(self, state_object):
         # checks that the memory size is not exceeded both in stack and heap
