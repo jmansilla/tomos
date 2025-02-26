@@ -158,10 +158,11 @@ class VariableSprite(Container):
         if old_value_sprite is not None:
             self.remove(self.value_sprite)
         self.value_sprite = new_value_sprite
+        self.value_sprite.is_highlighted = True
         self.add(self.value_sprite)
 
     def build_value_sprite(self, value):
-        value_sprite = build_text(str(value))
+        value_sprite = build_text(str(value), highlightable=True)
         value_sprite.center_respect_to(self.rect)
         # centering text in pillow is not so easy
         value_sprite.shift(movement.UP * value_sprite.box_height * .1)
