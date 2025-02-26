@@ -11,9 +11,25 @@ from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow, HeapToHeapArrowManager
+from tomos.ui.movie.panel.pointer_arrows import DeadArrow, HeapToHeapArrowManager
 
 thickness = configs.THICKNESS
+
+
+class Switch:
+    def __init__(self):
+        self._state = True
+    def turn_on(self):
+        self._state = True
+    def turn_off(self):
+        self._state = False
+    def flip(self):
+        self._state = not self._state
+    @property
+    def is_on(self):
+        return self._state
+
+HIGHLIGHTING_SWITCH = Switch()
 
 
 class ColorAssigner:
@@ -158,7 +174,8 @@ class VariableSprite(Container):
         if old_value_sprite is not None:
             self.remove(self.value_sprite)
         self.value_sprite = new_value_sprite
-        self.value_sprite.is_highlighted = True
+        if HIGHLIGHTING_SWITCH.is_on:
+            self.value_sprite.is_highlighted = True  # type: ignore
         self.add(self.value_sprite)
 
     def build_value_sprite(self, value):

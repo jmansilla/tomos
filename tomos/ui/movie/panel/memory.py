@@ -8,7 +8,7 @@ from tomos.ayed2.evaluation.state import MemoryAddress
 
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.vars import create_variable_sprite
+from tomos.ui.movie.panel.vars import create_variable_sprite, HIGHLIGHTING_SWITCH
 
 
 logger = getLogger(__name__)
@@ -120,6 +120,7 @@ class MemoryBlock(Container):
         var.set_value(value)
 
     def load_initial_snapshot(self, snapshot):
+        HIGHLIGHTING_SWITCH.turn_off()
         self.process_snapshot(snapshot)
         # and now, refresh values, so pointers arrows are drawn correctly
         for name_or_addr in snapshot.diff.new_cells:
@@ -129,3 +130,4 @@ class MemoryBlock(Container):
                 del var.cached_value
             cell = snapshot.get_cell(name_or_addr)
             var.set_value(cell.value)
+        HIGHLIGHTING_SWITCH.turn_on()
