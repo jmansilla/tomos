@@ -83,8 +83,8 @@ class TypeRegistry:
         for name, factory in list(self.type_map.items()):
             if isinstance(factory, self.Deferred):
                 raise TomosTypeError(f"Deferred type {name} has not been resolved yet.")
-            if factory.has_deferrals([]):
-                self.type_map[name] = factory.resolve_deferrals([])
+            if factory.has_deferrals():
+                self.type_map[name] = factory.resolve_deferrals()
 
 
 type_registry = TypeRegistry()  # Global type registry

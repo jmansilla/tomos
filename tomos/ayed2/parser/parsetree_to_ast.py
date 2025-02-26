@@ -75,7 +75,7 @@ class TreeToAST(Transformer):
         var, var_type = args
         if var.name in KEYWORDS:
             raise TomosTypeError(f"Cant use {var.name} as variable name because it is reserved")
-        if isinstance(var_type, type_registry.Deferred):
+        if var_type.is_deferred:
             var_type = var_type.resolve()
         return VarDeclaration(variable=var, var_type=var_type)
 

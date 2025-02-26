@@ -10,10 +10,10 @@ class Ayed2Type:
         raise NotImplementedError()
 
     @staticmethod
-    def has_deferrals(crumbs):
+    def has_deferrals(crumbs=[]):
         return False
 
-    def resolve_deferrals(self, crumbs):
+    def resolve_deferrals(self, crumbs=[]):
         return self
 
 
@@ -91,7 +91,7 @@ class PointerOf(BasicType):
         from tomos.ayed2.evaluation.state import MemoryAddress  # FIXME
         return value in cls.NAMED_LITERALS.values() or isinstance(value, MemoryAddress)
 
-    def has_deferrals(self, crumbs):
+    def has_deferrals(self, crumbs=[]):
         if self.of.is_deferred:
             return True
         elif self in crumbs:
@@ -99,7 +99,7 @@ class PointerOf(BasicType):
         else:
             return self.of.has_deferrals(crumbs + [self]) # type: ignore
 
-    def resolve_deferrals(self, crumbs):
+    def resolve_deferrals(self, crumbs=[]):
         if self.of.is_deferred:
             self.of = self.of.resolve()  # type: ignore
         elif self.of.has_deferrals(crumbs + [self]):    # type: ignore

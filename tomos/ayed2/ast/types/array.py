@@ -65,7 +65,7 @@ class ArrayOf(Ayed2Type):
             previous_size *= axis.to_value - axis.from_value
         return flatten_value
 
-    def has_deferrals(self, crumbs):
+    def has_deferrals(self, crumbs=[]):
         if self in crumbs:
             return False  # avoid infinite loop
         return self.of.has_deferrals(crumbs + [self])

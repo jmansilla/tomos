@@ -37,12 +37,12 @@ class Synonym(UserDefinedType):
     def is_valid_value(self, value):
         return self.underlying_type.is_valid_value(value)
 
-    def has_deferrals(self, crumbs):
+    def has_deferrals(self, crumbs=[]):
         if self in crumbs:
             return False  # avoid infinite loop
         return self.underlying_type.has_deferrals(crumbs + [self])
 
-    def resolve_deferrals(self, crumbs):
+    def resolve_deferrals(self, crumbs=[]):
         if self.underlying_type.has_deferrals(crumbs + [self]):
             self.underlying_type.resolve_deferrals(crumbs + [self])
         return self
