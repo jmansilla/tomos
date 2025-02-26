@@ -9,7 +9,6 @@ from tomos.ayed2.evaluation.memory import MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
 
-
 integrations_folder = pathlib.Path(__file__).parent.resolve() / "integrations"
 splitter = "// EXPECTATION\n"
 

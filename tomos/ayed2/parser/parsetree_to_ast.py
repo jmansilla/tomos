@@ -1,4 +1,4 @@
-from lark import Transformer, Token
+from lark import Transformer
 
 from tomos.ayed2.ast.types import *
 from tomos.ayed2.ast.expressions import *
@@ -6,7 +6,9 @@ from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
 from tomos.ayed2.ast.program import *
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
+from tomos.ayed2.parser.token import Token
 from tomos.exceptions import TomosTypeError, TomosSyntaxError
+
 
 from .reserved_words import KEYWORDS
 

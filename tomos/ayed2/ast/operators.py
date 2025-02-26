@@ -1,5 +1,5 @@
-from lark.lexer import Token
 from tomos.ayed2.ast.expressions import Expr
+from tomos.ayed2.parser.token import Token
 
 
 UnaryOpTable = {
