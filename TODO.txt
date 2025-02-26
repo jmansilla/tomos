@@ -77,15 +77,16 @@ t10) [x] Test that complex variable compositions works. Examples:
 
 
 Not-gonna-happen in this verison (extra features):
-ex.1) [ ] Add support for procs and functions
-ex.2) [ ] Change the definition of entry-point
-ex.3) [ ] Static Type Checking
-ex.4) [ ] Type Coercion
-ex.5) [ ] Classes Ord & Eq
-ex.6) [ ] Add support for multi-module programs (imports)
-ex.7) [ ] Interactive interpreter
-ex.8) [ ] Generate video only with frames explicitly requested (new builtin?)
-ex.9) [ ] If program uses only stack, only draw stack area and not heap
+ex.1)  [ ] Add support for procs and functions
+ex.2)  [ ] Change the definition of entry-point
+ex.3)  [ ] Static Type Checking
+ex.4)  [ ] Type Coercion
+ex.5)  [ ] Classes Ord & Eq
+ex.6)  [ ] Add support for multi-module programs (imports)
+ex.7)  [ ] Interactive interpreter
+ex.8)  [x] Generate video only with frames explicitly requested ( // checkpoint comment)
+ex.9)  [x] If program uses only stack, only draw stack area and not heap
+ex.10) [ ] Mark unreachable cells on Heap
 
 misc:
  - strings?
