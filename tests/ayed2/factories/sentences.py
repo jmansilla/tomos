@@ -23,7 +23,7 @@ class VarDeclarationFactory(factory.Factory):
         )
 
     variable = factory.SubFactory("tests.ayed2.factories.expressions.VariableFactory")
-    var_type = factory.LazyAttribute(lambda ob: ob.faker_type)
+    var_type = factory.LazyAttribute(lambda ob: ob.faker_type())
 
 
 class IfFactory(factory.Factory):

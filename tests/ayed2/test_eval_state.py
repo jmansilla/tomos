@@ -55,8 +55,9 @@ class TestEvalState(TestCase):
 class TestEvalStateAllocFree(TestCase):
 
     def test_alloc_for_pointer_variable(self):
-        for base_type in [IntType, BoolType, RealType, CharType]:
+        for base_type_class in [IntType, BoolType, RealType, CharType]:
             state = State()
+            base_type = base_type_class()
             state.declare_static_variable("x", PointerOf(base_type))
             var = Var("x")
             self.assertEqual(state.get_variable_value(var), UnknownValue)
@@ -81,7 +82,7 @@ class TestEvalStateAllocFree(TestCase):
 
     def test_free_for_pointer_variable(self):
         state = State()
-        state.declare_static_variable("x", PointerOf(IntType))
+        state.declare_static_variable("x", PointerOf(IntType()))
         var = Var("x")
         state.alloc(var)
         value = state.get_variable_value(var)
@@ -91,7 +92,7 @@ class TestEvalStateAllocFree(TestCase):
 
     def test_free_twice_raises_exception(self):
         state = State()
-        state.declare_static_variable("x", PointerOf(IntType))
+        state.declare_static_variable("x", PointerOf(IntType()))
         var = Var("x")
         state.alloc(Var("x"))
         state.free(Var("x"))

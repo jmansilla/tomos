@@ -105,7 +105,6 @@ class TestIntegrationsRunner(TestCase, metaclass=IntegrationMeta):
                 self.assertMemoryEqual(actual_value[subkey], expected_value[subkey],
                                        f'{block_name}:{key} dict', subkey)
         else:
-            print(type(actual_value))
             self.assertEqual(actual_value, expected_value, base_msg)
 
     def assertHeapEqual(self, actual, expected):
