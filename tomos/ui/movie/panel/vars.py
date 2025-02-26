@@ -13,7 +13,7 @@ from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
 from tomos.ui.movie.panel.pointer_arrows import CShapedArrow, DeadArrow, HeapToHeapArrowManager
 
-thickness = 2  #configs.THICKNESS
+thickness = configs.THICKNESS
 
 
 class ColorAssigner:
