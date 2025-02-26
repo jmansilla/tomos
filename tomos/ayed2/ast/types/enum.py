@@ -3,6 +3,8 @@ from tomos.exceptions import EnumerationError
 
 
 class Enum(UserDefinedType):
+    name = None
+
     def __init__(self, constant_names):
         self.underlying_type = IntType
         for value in constant_names:

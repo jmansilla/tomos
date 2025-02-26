@@ -89,7 +89,7 @@ class TestEvalVariableExpressions(TestCase):
     def test_eval_pointer_variable(self):
         var_pointer = VariableFactory()
         state = StateFactory()
-        state.declare_static_variable(var_pointer.name, PointerOf(of=IntType))
+        state.declare_static_variable(var_pointer.name, PointerOf(of=IntType()))
         state.alloc(var_pointer)
         self.assertIsInstance(run_eval(var_pointer, state), MemoryAddress)
         var_pointer.traverse_append(var_pointer.DEREFERENCE)  # deref, not getting the address, but the value

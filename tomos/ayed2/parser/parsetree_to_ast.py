@@ -1,4 +1,4 @@
-from lark import Transformer, Token
+from lark import Transformer
 
 from tomos.ayed2.ast.types import *
 from tomos.ayed2.ast.expressions import *
@@ -6,7 +6,9 @@ from tomos.ayed2.ast.sentences import *
 from tomos.ayed2.ast.operators import *
 from tomos.ayed2.ast.program import *
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
+from tomos.ayed2.parser.token import Token
 from tomos.exceptions import TomosTypeError, TomosSyntaxError
+
 
 from .reserved_words import KEYWORDS
 
@@ -73,10 +75,12 @@ class TreeToAST(Transformer):
         var, var_type = args
         if var.name in KEYWORDS:
             raise TomosTypeError(f"Cant use {var.name} as variable name because it is reserved")
+        if var_type.is_deferred:
+            var_type = var_type.resolve()
         return VarDeclaration(variable=var, var_type=var_type)
 
     def pointer_of(self, args):
-        assert len(args) == 1 and isinstance(args[0], Ayed2Type)
+        assert len(args) == 1
         pointed_type = args[0]
         return PointerOf(of=pointed_type)
 
@@ -92,8 +96,11 @@ class TreeToAST(Transformer):
         arg0 = args[0]
         if isinstance(arg0, Token):
             # we are in case a) b) or d) described above
-            type_factory = type_registry.get_type(arg0.value)
-            return type_factory()
+            factory = type_registry.get_type_factory(arg0.value, deferred_if_not_found=True)
+            if isinstance(factory, type_registry.Deferred):
+                return factory  # it's a Deferred object. It's not resolved later, will blow up
+            else:
+                return factory()
         elif isinstance(arg0, Ayed2Type):
             # we are in case c)
             return arg0
@@ -106,8 +113,11 @@ class TreeToAST(Transformer):
 
     def syn(self, args):
         # synomym for type
-        assert len(args) == 1 and isinstance(args[0], Ayed2Type)
-        return Synonym(underlying_type=args[0])
+        assert len(args) == 1
+        u_type = args[0]
+        if isinstance(u_type, type_registry.Deferred):
+            u_type = u_type.resolve()
+        return Synonym(underlying_type=u_type)
 
     def enum(self, args):
         assert len(args) >= 1

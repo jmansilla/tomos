@@ -1,7 +1,7 @@
-from lark.lexer import Token
 
 from tomos.ayed2.ast.base import ASTNode
 from tomos.ayed2.ast.types import *
+from tomos.ayed2.parser.token import Token
 
 
 class Expr(ASTNode):

@@ -1,4 +1,8 @@
 from tomos.ayed2.ast.base import ASTNode
+from tomos.ayed2.ast.sentences import Variable
+from tomos.ayed2.ast.types import Ayed2Type
+from tomos.ayed2.parser.token import Token
+from tomos.base_classes.dataclasses import dataclass
 
 
 class ProgramExpression(ASTNode):
@@ -28,10 +32,10 @@ class Body(ProgramExpression):
         yield from self.sentences
 
 
+@dataclass
 class VarDeclaration(ProgramExpression):
-    def __init__(self, variable, var_type):
-        self.variable = variable
-        self.var_type = var_type
+    variable: Variable
+    var_type: Ayed2Type
 
     @property
     def name(self):
@@ -45,10 +49,10 @@ class VarDeclaration(ProgramExpression):
         return f"VarDeclaration(name={self.name}, type={self.var_type})"
 
 
+@dataclass
 class TypeDeclaration(ProgramExpression):
-    def __init__(self, name, new_type):
-        self.name = name
-        self.new_type = new_type
+    name: Token
+    new_type: Ayed2Type
 
     @property
     def line_number(self):

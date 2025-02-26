@@ -1,6 +1,8 @@
 from tomos.ayed2.ast.base import ASTNode
 from tomos.ayed2.ast.expressions import Expr, Variable
+from tomos.ayed2.parser.token import Token
 from tomos.exceptions import TomosSyntaxError
+from tomos.base_classes.dataclasses import dataclass
 
 
 class Sentence(ASTNode):
@@ -26,9 +28,9 @@ class Sentence(ASTNode):
         return self._parsing_metadata.get(key, None)
 
 
+@dataclass
 class Skip(Sentence):
-    def __init__(self, token):
-        self.token = token
+    token: Token
 
     @property
     def line_number(self):

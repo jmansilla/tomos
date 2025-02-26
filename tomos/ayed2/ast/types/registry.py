@@ -1,7 +1,8 @@
 from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.exceptions import TomosTypeError
-from .basic import IntType, RealType, BoolType, CharType, UserDefinedType
+from .basic import IntType, RealType, BoolType, CharType, PointerOf, UserDefinedType
 from .enum import Enum
+from .t_tuple import Tuple
 
 
 class EnumConstantsRegistry:
@@ -23,6 +24,17 @@ class EnumConstantsRegistry:
 
 
 class TypeRegistry:
+    class Deferred:
+        is_deferred = True
+        def __init__(self, name, reg):
+            self.name = name
+            self.registry = reg
+        def resolve(self):
+            factory = self.registry.get_type_factory(self.name)
+            return factory()
+        def __repr__(self):
+            return f"Deferred({self.name})"
+
     def __init__(self):
         self.reset()
 
@@ -39,6 +51,7 @@ class TypeRegistry:
         self._enum_constants = EnumConstantsRegistry()
 
     def register_type(self, name, new_type):
+        name = str(name)  # get rid of Token objects
         if not isinstance(new_type, UserDefinedType):
             raise TomosTypeError(f"Cant register type {new_type} because it does not inherit from UserDefinedType.")
         if name in self.type_map:
@@ -50,11 +63,13 @@ class TypeRegistry:
             else:
                 self._enum_constants.update(new_type.constants)
         LIMITER.check_type_sizing_limits(new_type)
-        new_type.name = name
+        new_type.name = name  # type: ignore
         self.type_map[name] = new_type
 
-    def get_type(self, name):
+    def get_type_factory(self, name, deferred_if_not_found=False):
         if name not in self.type_map:
+            if deferred_if_not_found:
+                return self.Deferred(name, self)
             raise TomosTypeError(f"Unknown type: {name}. Available types are: {list(self.type_map.keys())}")
         return self.type_map[name]
 
@@ -63,6 +78,13 @@ class TypeRegistry:
 
     def get_enum_constant(self, name):
         return self._enum_constants.get_constant(name)
+
+    def resolve_deferred_types(self):
+        for name, factory in list(self.type_map.items()):
+            if isinstance(factory, self.Deferred):
+                raise TomosTypeError(f"Deferred type {name} has not been resolved yet.")
+            if factory.has_deferrals():
+                self.type_map[name] = factory.resolve_deferrals()
 
 
 type_registry = TypeRegistry()  # Global type registry
