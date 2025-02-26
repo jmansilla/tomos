@@ -11,6 +11,7 @@ Options:
     --movie=<fname>       Generates a movie with the execution (implicitly cancels --no-run if set).
                           Must be a .mp4 file.
     --autoplay            Autoplay the movie. Implicitly sets --movie=movie.mp4 if not set.
+    --explicit-frames     Only build frames for sentences that are explicitly requested (ending in //checkpoint).
     --no-run              Skips executing the program. Useful for debugging.
     --no-final-state      Skips printing the final state.
     --showast             Show the abstract syntax tree.
@@ -27,6 +28,7 @@ from sys import exit
 from docopt import docopt
 
 from tomos.ayed2.parser import parser
+from tomos.ayed2.parser.metadata import DetectExplicitCheckpoints
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
@@ -43,6 +45,8 @@ def main():
     opts["--run"] = not opts["--no-run"]
 
     ast = parser.parse(open(source_path).read())
+    if opts["--explicit-frames"]:
+        DetectExplicitCheckpoints(ast, source_path).detect()
 
     if opts["--showast"]:
         print(ASTPrettyFormatter().format(ast))
@@ -74,7 +78,8 @@ def main():
             # slow import. Only needed if --movie is set
             from tomos.ui.movie.builder import build_movie_from_file
             movie_path = Path(opts["--movie"])
-            build_movie_from_file(source_path, movie_path, timeline)
+            build_movie_from_file(source_path, movie_path, timeline,
+                                  explicit_frames_only=opts["--explicit-frames"])
             if opts["--autoplay"]:
                 if not movie_path.exists():
                     print(f"Unable to find movie {movie_path}")
