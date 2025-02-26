@@ -77,6 +77,8 @@ class TreeToAST(Transformer):
             raise TomosTypeError(f"Cant use {var.name} as variable name because it is reserved")
         if var_type.is_deferred:
             var_type = var_type.resolve()
+        elif var_type.has_deferrals():
+            var_type = var_type.resolve_deferrals()
         return VarDeclaration(variable=var, var_type=var_type)
 
     def pointer_of(self, args):
