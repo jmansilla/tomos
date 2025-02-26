@@ -5,6 +5,7 @@ from tomos.exceptions import TomosSyntaxError
 
 class Sentence(ASTNode):
     _next_instruction = None
+    _parsing_metadata = None
 
     @property
     def next_instruction(self):
@@ -13,6 +14,16 @@ class Sentence(ASTNode):
     @next_instruction.setter
     def next_instruction(self, value):
         self._next_instruction = value
+
+    def set_parsing_metadata(self, key, value):
+        if self._parsing_metadata is None:
+            self._parsing_metadata = {}
+        self._parsing_metadata[key] = value
+
+    def get_parsing_metadata(self, key):
+        if self._parsing_metadata is None:
+            return None
+        return self._parsing_metadata.get(key, None)
 
 
 class Skip(Sentence):
@@ -75,7 +86,7 @@ class If(Sentence):
         if self.else_sentences:
             self.else_sentences[-1].next_instruction = value
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"If(guard={self.guard})"
 
 
