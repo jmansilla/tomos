@@ -60,8 +60,13 @@ class CharType(BasicType):
         return isinstance(value, str) and len(value) == 1
 
 
+class NullValue:
+    def __repr__(self) -> str:
+        return "null"
+
+
 class PointerOf(BasicType):
-    NAMED_LITERALS = {"null": None}
+    NAMED_LITERALS = {"null": NullValue()}
     SIZE = 1
     is_pointer = True
 

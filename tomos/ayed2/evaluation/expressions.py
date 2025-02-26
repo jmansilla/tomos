@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType, type_registry
+from tomos.ayed2.ast.types import IntType, RealType, BoolType, CharType, PointerOf, type_registry
 from tomos.exceptions import ExpressionEvaluationError
 from tomos.visit import NodeVisitor
 
@@ -16,6 +16,12 @@ class ExpressionEvaluator(NodeVisitor):
             return BoolType.NAMED_LITERALS[expr.value_str]
         else:
             raise ExpressionEvaluationError(f"Invalid boolean value {expr.value_str}")
+
+    def visit_null_literal(self, expr, children, state):
+        if expr.value_str in PointerOf.NAMED_LITERALS:
+            return PointerOf.NAMED_LITERALS[expr.value_str]
+        else:
+            raise ExpressionEvaluationError(f"Invalid literal for pointers: {expr.value_str}")
 
     def visit_char_literal(self, expr, children, state):
         raw = expr.value_str
