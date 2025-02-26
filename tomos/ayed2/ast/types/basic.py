@@ -66,6 +66,7 @@ class PointerOf(BasicType):
     is_pointer = True
 
     def __init__(self, of):
+        assert isinstance(of, Ayed2Type)
         self.of = of
 
     def __repr__(self) -> str:
