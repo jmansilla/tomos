@@ -7,6 +7,7 @@ from .basic import Ayed2Type
 class ArrayOf(Ayed2Type):
     def __init__(self, of, axes):
         assert all(isinstance(axis, ArrayAxis) for axis in axes)
+        assert isinstance(of, Ayed2Type)
         self.of = of
         self.axes = axes
         self._size = None
@@ -34,7 +35,7 @@ class ArrayOf(Ayed2Type):
 
     @property
     def SIZE(self):
-        return self.number_of_elements() * self.element_size()
+        return self.number_of_elements() * self.element_size()  # type: ignore
 
     def is_valid_value(self, value):
         # In arrays, values are assigned to the elements of the array, not to
@@ -42,10 +43,10 @@ class ArrayOf(Ayed2Type):
         return self.of.is_valid_value(value)
 
     def element_size(self):
-        if hasattr(self.of, 'SIZE'):
-            return self.of.SIZE
+        if hasattr(self.of, 'element_size'):
+            return self.of.element_size()  # type: ignore
         else:
-            return self.of.element_size()
+            return self.of.SIZE
 
     def flatten_index(self, indexes):
         # If array is declated a[1..5, 10..15] and it's requested to access to position
