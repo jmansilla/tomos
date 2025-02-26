@@ -60,10 +60,10 @@ class MemoryBlock(Container):
             stack_adj = 1; heap_adj = 1
 
         title_size = configs.BASE_FONT_SIZE * 1.5
-        stack_title = build_text("STACK", font_size=title_size, bold=True)
+        stack_title = build_text("STACK", font_size=title_size)
         self.add(stack_title)
         if self.uses_heap:
-            heap_title = build_text("HEAP", font_size=title_size, bold=True)
+            heap_title = build_text("HEAP", font_size=title_size)
             heap_title.shift(movement.RIGHT * (board_width * stack_adj + padding))
             self.add(heap_title)
 

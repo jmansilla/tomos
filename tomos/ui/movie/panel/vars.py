@@ -98,7 +98,7 @@ class SubVarMixin:
         name = str(name)
         if len(name) > max_len:
             name = name[:max_len] + "…"
-        self.name_sprite = build_text(str(name), bold=not self.in_heap, color='black')  # type: ignore
+        self.name_sprite = build_text(str(name), color='black')  # type: ignore
 
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
@@ -130,7 +130,7 @@ class VariableSprite(Container):
     def add_name_sprite(self, name):
         # Create the name sprite, adds it to self,
         # and returns (dx, dy) delta for value rect object
-        self.name_sprite = build_text(str(name), bold=not self.in_heap)
+        self.name_sprite = build_text(str(name))
         self.add(self.name_sprite)
         return 0, self.name_sprite.box_height + configs.PADDING*.5
 
