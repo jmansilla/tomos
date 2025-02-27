@@ -30,6 +30,7 @@ from docopt import docopt
 from tomos.ayed2.parser import parser
 from tomos.ayed2.parser.metadata import DetectExplicitCheckpoints
 from tomos.ayed2.evaluation.interpreter import Interpreter
+from tomos.ayed2.evaluation.persistency import Persist
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
 
@@ -44,6 +45,12 @@ def main():
     source_path = opts["<source>"]
     opts["--run"] = not opts["--no-run"]
 
+    # if loading a state, we may need to load some type-definitions
+    # before parsing the program. It's suboptimal, but it works.
+    if opts["--load-state"]:
+        initial_state = Persist.load_from_file(opts["--load-state"])
+    else:
+        initial_state = None
     ast = parser.parse(open(source_path).read())
     if opts["--explicit-frames"]:
         DetectExplicitCheckpoints(ast, source_path).detect()
@@ -72,7 +79,7 @@ def main():
         interpreter = Interpreter(ast,
                                   pre_hooks=pre_hooks,
                                   post_hooks=post_hooks)
-        final_state = interpreter.run(load_state_from=load_state_from)
+        final_state = interpreter.run(initial_state=initial_state)
 
         if opts["--movie"]:
             # slow import. Only needed if --movie is set
@@ -87,10 +94,10 @@ def main():
                 play_movie(movie_path)
 
         if opts["--save-state"]:
-            final_state.save_to_file(opts["--save-state"])
+            Persist.persist(final_state, opts["--save-state"])
 
         if not opts["--no-final-state"]:
-            # Hard to follow. Double negation means DO SHOW IT.
+            # Hard to read this if-guard. Double negation means DO SHOW IT.
             print(final_state)
 
 

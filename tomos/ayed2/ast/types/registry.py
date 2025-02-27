@@ -86,5 +86,12 @@ class TypeRegistry:
             if factory.has_deferrals():
                 self.type_map[name] = factory.resolve_deferrals()
 
+    def merge(self, other):
+        self.type_map.update(other.type_map)
+        new_enum_constants = other._enum_constants.constant_mapping
+        if self._enum_constants.get_overlap(new_enum_constants):
+            raise TomosTypeError(f"Enum constants overlap: {self._enum_constants.get_overlap(new_enum_constants)}")
+        self._enum_constants.update(new_enum_constants)
+
 
 type_registry = TypeRegistry()  # Global type registry
