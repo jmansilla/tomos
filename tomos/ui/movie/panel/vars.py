@@ -216,8 +216,8 @@ class PointerVarSprite(VariableSprite):
 
     def build_dead_arrow(self):
         sp = self.arrow_start_point
-        half_height = self.rect.box_height / 2
-        return DeadArrow(sp.x, sp.y, half_height, self.tip_height, "red", thickness)
+        length = self.rect.box_height
+        return DeadArrow(sp.x, sp.y, length, self.tip_height, "#ff6666", thickness)
 
     def build_null_arrow(self):
         sp = self.arrow_start_point
@@ -236,7 +236,9 @@ class PointerVarSprite(VariableSprite):
 
     def set_value(self, value):
         super().set_value(value)
-        if not value in self.vars_index:
+        if isinstance(value, ayed_types.NullValue):
+            new_arrow = self.build_null_arrow()
+        elif not value in self.vars_index:
             new_arrow = self.build_dead_arrow()
         else:
             pointed_var = self.vars_index[value]
