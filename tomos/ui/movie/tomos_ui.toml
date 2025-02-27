@@ -46,4 +46,4 @@ BoolType = "#994d00" # brown
 RealType = "#ff80ff" # pink
 CharType = "#e60000" # red
 ArrayOf = "#ffbb99"  # orange
-Tuple = "#009900"    # green
+Tuple = "#79d279"    # green

@@ -11,7 +11,7 @@ from tomos.ayed2.ast.types.enum import EnumConstant
 from tomos.exceptions import CantDrawError
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.pointer_arrows import DeadArrow, HeapToHeapArrowManager
+from tomos.ui.movie.panel.pointer_arrows import DeadArrow, NullArrow, HeapToHeapArrowManager
 
 thickness = configs.THICKNESS
 
@@ -216,8 +216,13 @@ class PointerVarSprite(VariableSprite):
 
     def build_dead_arrow(self):
         sp = self.arrow_start_point
+        length = self.rect.box_height
+        return DeadArrow(sp.x, sp.y, length, self.tip_height, "#ff6666", thickness)
+
+    def build_null_arrow(self):
+        sp = self.arrow_start_point
         half_height = self.rect.box_height / 2
-        return DeadArrow(sp.x, sp.y, half_height, self.tip_height, self.arrow_color, thickness)
+        return NullArrow(sp.x, sp.y, half_height, self.tip_height, self.arrow_color, thickness)
 
     def build_arrow_to_var(self, var):
         x, y = self.arrow_start_point
@@ -231,7 +236,9 @@ class PointerVarSprite(VariableSprite):
 
     def set_value(self, value):
         super().set_value(value)
-        if not value in self.vars_index:
+        if isinstance(value, ayed_types.NullValue):
+            new_arrow = self.build_null_arrow()
+        elif not value in self.vars_index:
             new_arrow = self.build_dead_arrow()
         else:
             pointed_var = self.vars_index[value]

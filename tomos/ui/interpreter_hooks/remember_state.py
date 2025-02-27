@@ -69,7 +69,7 @@ class Frame:
     def explicit_checkpoint(self):
         if not hasattr(self.just_executed, "get_parsing_metadata"):
             return False
-        return self.just_executed.get_parsing_metadata("checkpoint")
+        return self.just_executed.get_parsing_metadata("checkpoint")  # type: ignore
 
 
 class RememberState:

@@ -131,7 +131,7 @@ class CShapedArrow(Container):
         return self.c_crosses_y_at(other.start_y) or self.c_crosses_y_at(other.end_y)
 
 
-class DeadArrow(Container):
+class NullArrow(Container):
         # We will create an arrow that will look like this:
         #
         #    (x,y) -|
@@ -148,6 +148,24 @@ class DeadArrow(Container):
         super().__init__(position)
         self.add(self.line)
         self.add(self.arrow)
+
+
+class DeadArrow(Container):
+        # We will create an arrow that will look like this:
+        #
+        #    (x,y) ->
+        #
+    def __init__(self, x, y, length, tip_height, color, thickness):
+        self.color = color
+        self.thickness = thickness
+        position = Point(x, y)
+        end = Point(x + length, y)
+        self.line = Line(x, y, end.x, end.y, color, thickness)
+        self.arrow = Arrow(position.x, position.y, end.x, end.y, color, thickness, tip_height)
+        super().__init__(position)
+        self.add(self.line)
+        self.add(self.arrow)
+
 
 
 class HeapToHeapArrowManager:
