@@ -160,9 +160,9 @@ class For(Sentence):
 class Assignment(Sentence):
     def __init__(self, dest_variable, expr):
         if not isinstance(dest_variable, Variable):
-            raise TomosSyntaxError("dest_variable must be a variable")
+            raise TomosSyntaxError(f"dest_variable must be a variable, not {type(dest_variable)} instead")
         if not isinstance(expr, Expr):
-            raise TomosSyntaxError("expr must be an expression")
+            raise TomosSyntaxError(f"expr must be an expression, not {type(expr)} instead")
         self.dest_variable = dest_variable
         self.expr = expr
 
