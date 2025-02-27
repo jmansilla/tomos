@@ -65,6 +65,21 @@ class ExpressionEvaluator(NodeVisitor):
         assert len(children) == 2
         left = children[0]
         right = children[1]
+        if expr.op == "||":
+            assert left.is_lazy and right.is_lazy
+            actual_left = self.eval(left.expr, state)
+            if actual_left:
+                return True
+            else:
+                return self.eval(right.expr, state)
+        if expr.op == "&&":
+            assert left.is_lazy and right.is_lazy
+            actual_left = self.eval(left.expr, state)
+            if not actual_left:
+                return False
+            else:
+                return self.eval(right.expr, state)
+
         if expr.op == "+":
             return left + right
         if expr.op == "-":
@@ -75,10 +90,6 @@ class ExpressionEvaluator(NodeVisitor):
             return left / right
         if expr.op == "%":
             return left % right
-        if expr.op == "||":
-            return left or right
-        if expr.op == "&&":
-            return left and right
         if expr.op == "==":
             return left == right
         if expr.op == "!=":
@@ -92,6 +103,9 @@ class ExpressionEvaluator(NodeVisitor):
         if expr.op == ">=":
             return left >= right
         raise ExpressionEvaluationError(f"Invalid binary operator {expr.op}")
+
+    def visit_lazy_expr(self, expr, children, state):
+        return expr
 
     def visit_variable(self, var, children, state):
         return state.get_variable_value(var)

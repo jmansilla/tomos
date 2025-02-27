@@ -5,7 +5,18 @@ from tomos.ayed2.parser.token import Token
 
 
 class Expr(ASTNode):
-    pass
+    is_lazy = False
+
+
+class LazyExpr(Expr):
+    is_lazy = True
+    def __init__(self, expr):
+        assert isinstance(expr, Expr)
+        self.expr = expr
+
+    def __repr__(self) -> str:
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.expr})"
 
 
 class _Literal(Expr):
