@@ -71,6 +71,10 @@ class CharType(BasicType):
 class NullValue:
     def __repr__(self) -> str:
         return "null"
+    def __hash__(self):
+        return hash("NullValue instance")
+    def __eq__(self, other):
+        return isinstance(other, NullValue)
 
 
 class PointerOf(BasicType):
