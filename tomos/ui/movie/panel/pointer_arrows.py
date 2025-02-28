@@ -21,6 +21,12 @@ class RoundChamfer(BaseImgElem):
         self.color = color
         self.thickness = thickness
 
+    @property
+    def end(self):
+        # This is actually a non-sense implementation. Given that I'm not interested
+        # on the end of a chamfer, I just return the position. But need to be fixed.
+        return self.position
+
     def arc_center(self):
         x, y = self.position
         r = self.radius
