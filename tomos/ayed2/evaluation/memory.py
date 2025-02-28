@@ -143,3 +143,6 @@ class TupleCellCluster:
     def value(self):
         # used by the UIs & testing
         return {str(k):sc.value for k, sc in self.sub_cells.items()}
+
+    def __repr__(self):
+        return f"TupleCellCluster({self.tuple_type}, value={self.value})"

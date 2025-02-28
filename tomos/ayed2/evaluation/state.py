@@ -1,5 +1,3 @@
-import pickle
-
 from tomos.ayed2.ast.types import ArrayOf, Tuple, Synonym
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
@@ -133,12 +131,3 @@ class State:
 
     def list_declared_variables(self):
         return {name: cell.var_type for name, cell in self.stack.items()}
-
-    def save_to_file(self, fname):
-        with open(fname, 'wb') as f:
-            pickle.dump(self, f)
-
-    @staticmethod
-    def load_from_file(fname):
-        with open(fname, 'rb') as f:
-            return pickle.load(f)

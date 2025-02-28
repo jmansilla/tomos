@@ -43,12 +43,13 @@ expr_factor        : expr_unary ( FACTOR_SYMBOL  expr_unary )*
 expr_unary         : UNARY_SYMBOL expr_unary
                    | _expr_primary
 _expr_primary      : _literal | variable | "(" expr ")"
-_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | INF | NULL | ENUM_LITERAL
+_literal           : INT | bool_literal | "'"CHAR_LITERAL"'" | REAL | INF | NULL | ENUM_LITERAL | getenv
 !bool_literal      : "true" | "false"
 INF                : "inf"
 NULL               : "null"
 CHAR_LITERAL       :  /./
 ENUM_LITERAL       : U_NAME
+getenv             : "getenv" "(" "\""ANY_NAME"\"" ":" BASIC_TYPE ")"
 
 // Expression Symbols
 JUNCTION_SYMBOL    : ( "&&" | "||" )

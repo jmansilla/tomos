@@ -1,4 +1,4 @@
-from tomos.ayed2.ast.expressions import Expr
+from tomos.ayed2.ast.expressions import Expr, LazyExpr
 from tomos.ayed2.parser.token import Token
 
 
@@ -43,6 +43,7 @@ class UnaryOp(Expr):
 
 
 class BinaryOp(Expr):
+
     def __init__(self, left_expr, op_token, right_expr):
         assert isinstance(op_token, Token) and isinstance(left_expr, Expr) and isinstance(right_expr, Expr)
         self.left_expr = left_expr
@@ -68,5 +69,11 @@ class BinaryOp(Expr):
     def __repr__(self) -> str:
         return f"BinaryOp({self.left}, {self.op}, {self.right})"
 
+    def is_boolean(self):
+        return self.op in ["&&", "||"]
+
     def children(self):
-        return [self.left, self.right]
+        if self.is_boolean():
+            return [LazyExpr(self.left), LazyExpr(self.right)]
+        else:
+            return [self.left, self.right]

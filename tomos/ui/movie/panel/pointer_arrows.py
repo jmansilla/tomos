@@ -124,11 +124,19 @@ class CShapedArrow(Container):
     def c_height(self):
         return self.end_y - self.start_y
 
-    def c_crosses_y_at(self, y):
-        return self.start_y <= y and y <= self.end_y
-
     def c_conflicts_with(self, other):
-        return self.c_crosses_y_at(other.start_y) or self.c_crosses_y_at(other.end_y)
+        # compares two CShapedArrows, and returns True if they overlap
+
+        a_from, a_to = sorted([self.start_y, self.end_y])
+        if isinstance(other, CShapedArrow):
+            b_from, b_to = sorted([other.start_y, other.end_y])
+        else:
+            b_from, b_to = sorted(other)
+
+        if a_to < b_from or a_from > b_to:
+            return False
+        else:
+            return True
 
 
 class NullArrow(Container):
@@ -167,7 +175,6 @@ class DeadArrow(Container):
         self.add(self.arrow)
 
 
-
 class HeapToHeapArrowManager:
 
     def __init__(self, offset_step=15):
@@ -179,8 +186,8 @@ class HeapToHeapArrowManager:
         new_offset = self.base + self.offset_step
         # check previously existing arrows
         for parrow in sorted(self.heap_arrows, key=lambda a: (a.offset, a.c_height())):
-            if parrow.offset == new_offset and any(parrow.c_crosses_y_at(_y) for _y in [sy, ey]):
-                new_offset += self.offset_step
+            if parrow.offset == new_offset and parrow.c_conflicts_with((sy, ey)):
+                new_offset = parrow.offset + self.offset_step
         darken_color = self.arrow_color(color, new_offset)
         new_arrow = CShapedArrow(sx, sy, ex, ey, new_offset, darken_color, thickness, tip_height)
         self.heap_arrows.append(new_arrow)

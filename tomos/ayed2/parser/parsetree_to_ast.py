@@ -1,3 +1,5 @@
+import os
+
 from lark import Transformer
 
 from tomos.ayed2.ast.types import *
@@ -197,6 +199,20 @@ class TreeToAST(Transformer):
             op, expr = args
             return UnaryOp(op_token=op, expr=expr)
         return args
+
+    def getenv(self, args):
+        env_variable_name = args[0].value
+        expected_type = args[1].value
+        if env_variable_name not in os.environ:
+            raise TomosSyntaxError(f"Environment variable {env_variable_name} is not defined")
+        made_out_token = Token(expected_type, os.environ[env_variable_name])
+        literal_parsers = {
+            'int': self.INT,
+            'real': self.REAL,
+            'char': self.CHAR_LITERAL,
+            'bool': self.bool_literal
+        }
+        return literal_parsers[expected_type](made_out_token)
 
     def variable(self, args):
         if len(args) == 1 and isinstance(args[0], Variable):
