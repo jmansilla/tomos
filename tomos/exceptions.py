@@ -9,7 +9,35 @@ class TomosTypeError(TomosException):
 
 
 class TomosSyntaxError(TomosException):
-    pass
+    def __init__(self, msg, guess_line_nr_from=None, **kwargs):
+        self.guess_from = guess_line_nr_from
+        self.base_msg = msg
+        msg = self.build_msg()
+        super().__init__(msg, **kwargs)
+
+    def build_msg(self):
+        line_nr = self.guess_line_number(self.guess_from)
+        if line_nr is None:
+            return self.base_msg
+        else:
+            return f'On line {line_nr}: {self.base_msg}.'
+
+    def guess_line_number(self, data):
+        from tomos.ayed2.parser.token import Token
+        from tomos.ayed2.ast.expressions import Expr
+        from tomos.ayed2.ast.program import ProgramExpression
+        from tomos.ayed2.ast.sentences import Sentence
+        if isinstance(data, Token):
+            return data.line
+        elif isinstance(data, (tuple, list)):
+            for item in data:
+                recursive = self.guess_line_number(item)
+                if recursive is not None:
+                    return recursive
+        elif isinstance(data, (Sentence, ProgramExpression, Expr)):
+            return data.line_number
+        else:
+            return None
 
 
 class TomosRuntimeError(TomosException):

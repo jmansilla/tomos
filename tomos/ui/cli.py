@@ -31,6 +31,7 @@ from tomos.ayed2.parser import parser
 from tomos.ayed2.parser.metadata import DetectExplicitCheckpoints
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ayed2.evaluation.persistency import Persist
+from tomos.exceptions import TomosSyntaxError
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
 
@@ -51,7 +52,11 @@ def main():
         initial_state = Persist.load_from_file(opts["--load-state"])
     else:
         initial_state = None
-    ast = parser.parse(open(source_path).read())
+    try:
+        ast = parser.parse(open(source_path).read())
+    except TomosSyntaxError as error:
+        print("Syntax error:", error)
+        exit(1)
     if opts["--explicit-frames"]:
         DetectExplicitCheckpoints(ast, source_path).detect()
 

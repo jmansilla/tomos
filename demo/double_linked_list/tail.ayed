@@ -1,0 +1,7 @@
+my_node := my_list
+if my_list != null then
+    my_list := my_list->next
+    my_list->prev := null
+    free(my_node)
+    my_node := null
+fi

@@ -38,6 +38,10 @@ class UnaryOp(Expr):
     def __repr__(self) -> str:
         return f"UnaryOp({self.op}, {self.expr})"
 
+    @property
+    def line_number(self):
+        return self.expr.line_number
+
     def children(self):
         return [self.expr]
 

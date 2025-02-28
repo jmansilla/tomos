@@ -1,4 +1,3 @@
-from skitso import movement
 from skitso.atom import Container, Point, BaseImgElem
 from skitso.shapes import Arrow, Line
 
@@ -20,6 +19,12 @@ class RoundChamfer(BaseImgElem):
         self.radius = radius
         self.color = color
         self.thickness = thickness
+
+    @property
+    def end(self):
+        # This is actually a non-sense implementation. Given that I'm not interested
+        # on the end of a chamfer, I just return the position. But need to be fixed.
+        return self.position
 
     def arc_center(self):
         x, y = self.position
@@ -120,6 +125,12 @@ class CShapedArrow(Container):
         self.add(self.vertical_line)
         self.add(self.arrow)
 
+    @property
+    def end(self):
+        # Given that we want to allow to overlap with other objects,
+        # we will consider the arrow bounding box as a single point
+        return self.position
+
     # remember that y-coordinates increase going down
     def c_height(self):
         return self.end_y - self.start_y
@@ -182,6 +193,11 @@ class HeapToHeapArrowManager:
         self.offset_step = offset_step
         self.heap_arrows = []
 
+    def clear(self):
+        # This action does not remove the arrows from the scene
+        # But instead, makes manager forget about them
+        self.heap_arrows = []
+
     def add_arrow(self, sx, sy, ex, ey, color, thickness, tip_height):
         new_offset = self.base + self.offset_step
         # check previously existing arrows
@@ -193,11 +209,15 @@ class HeapToHeapArrowManager:
         self.heap_arrows.append(new_arrow)
         return new_arrow
 
+    def remove_arrow_if_heap_to_heap(self, arrow):
+        if arrow in self.heap_arrows:
+            self.heap_arrows.remove(arrow)
+
     def arrow_color(self, base_color, final_offset):
         # depending on offset, base_color is darkened
-        from tomos.ui.movie.panel.vars import ColorAssigner  # avoid circular import
-        darken_step = 0.25
-        steps = (final_offset - self.base) / self.offset_step
-        darken_amount = darken_step * (steps - 1)
-        darkened = ColorAssigner.darken_it(base_color, darken_amount, smooth=False)
-        return darkened
+        colors = configs.POINTER_HEAP_ARROW_COLORS
+        steps = int((final_offset - self.base) / self.offset_step) - 1
+        if steps >= len(colors):
+            steps = len(colors) - 1
+        return colors[steps]
+

@@ -18,6 +18,10 @@ class LazyExpr(Expr):
         class_name = self.__class__.__name__
         return f"{class_name}({self.expr})"
 
+    @property
+    def line_number(self):
+        return self.expr.line_number
+
 
 class _Literal(Expr):
     def __init__(self, token):
@@ -27,6 +31,10 @@ class _Literal(Expr):
     @property
     def value_str(self):
         return self.token.value
+
+    @property
+    def line_number(self):
+        return self.token.line
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__

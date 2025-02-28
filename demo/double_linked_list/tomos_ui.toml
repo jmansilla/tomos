@@ -1,0 +1,2 @@
+CANVAS_SIZE = [1380, 1020]
+MEMORY_BOARD_SIZE = [300, 950] # we'll have one for stack and one for heap

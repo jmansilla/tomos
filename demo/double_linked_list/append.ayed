@@ -1,0 +1,12 @@
+// APPEND
+
+my_node := my_list
+
+while my_node->next != null do
+    my_node := my_node->next
+od
+
+alloc(my_node->next)
+my_node->next->prev := my_node
+my_node->next->data := 88
+my_node->next->next := null

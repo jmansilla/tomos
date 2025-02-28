@@ -1,0 +1,41 @@
+// INSERTS NEW NODE AT THE GIVEN POSITION
+// Notes:
+//  - Inserting at negative position does nothing
+//  - Inserting at position 0 is equal to prepend
+//  - If list has length N
+//      - inserting at N is equal to append
+//      - inserting at N+1 does nothing
+
+var new_data: int
+var position: int
+var prev: pointer of node
+var new: pointer of node
+
+new_data := 77
+position := getenv("POSITION":int)
+
+i := 0
+a_node := my_list
+
+// Travel the list until a the #position-node is found
+// found.
+prev := null
+while (a_node != null) && (i < position) do
+    prev := a_node // prev node stored
+    a_node := a_node->next
+    i := i + 1
+od
+
+if i == position then
+    alloc(new)
+    new->data := new_data
+    new->next := a_node
+    if prev != null then
+        prev->next := new
+    else // was the first elem
+        my_list := new
+    fi
+fi
+a_node := null
+prev := null
+new := null

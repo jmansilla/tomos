@@ -1,0 +1,25 @@
+type node = tuple
+    data: int
+    next: pointer of node
+end tuple
+type list = pointer of node
+
+var i: int
+var my_list: list
+var a_node: pointer of node
+
+i := getenv("LINKED_LIST_LENGTH":int)
+
+alloc(my_list)
+a_node := my_list
+
+while i > 0 do
+    a_node->data := i*10
+    alloc(a_node->next)
+    a_node := a_node->next
+    i := i - 1
+od
+
+a_node->data := 0
+a_node->next := null
+a_node := null

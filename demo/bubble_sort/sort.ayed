@@ -1,0 +1,22 @@
+var i: int
+var j: int
+var max_idx: int
+var aux: int
+var swapped: bool
+
+max_idx := length - 1
+i:=0
+swapped := true // to allow first while-loop to enter.
+while i <= max_idx && swapped do            // checkpoint
+    swapped := false                        // checkpoint
+    for j:=0 to (max_idx - i - 1)  do       // checkpoint
+        if my_array[j] > my_array[j+1] then // checkpoint
+            aux := my_array[j]
+            my_array[j] := my_array[j+1]
+            my_array[j+1] := aux
+            swapped := true                // checkpoint
+        fi
+    od
+    i := i + 1                             // checkpoint
+od
+skip // goodbye

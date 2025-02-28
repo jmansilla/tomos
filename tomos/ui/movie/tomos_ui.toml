@@ -1,11 +1,13 @@
 SCALE = 1
 FPS = 1
 
+PADDING = 12
 CANVAS_SIZE = [1280, 720]
 CANVAS_COLOR = "#1A1A1D"
 
 MEMORY_BOARD_SIZE = [300, 650] # we'll have one for stack and one for heap
-PADDING = 12
+HEAP_CANVAS_COLOR = "#6A1E55"
+STACK_CANVAS_COLOR = "#3B1C32"
 
 THICKNESS = 2
 
@@ -27,6 +29,10 @@ TUPLE_FIELD_NAME_MAX_LEN = 7
 CODEBOX_BGCOLOR = "#000000"
 CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
 CODEBOX_PREV_LINE_BGCOLOR = "#004d00"
+
+POINTER_ARROW_COLOR = "#FFFFFF"
+POINTER_HEAP_ARROW_COLORS = ["#ffffff", "#b3b3b3", "#666666", "#a6a606", "#7b7b04", "#000000"]
+DEAD_ARROW_COLOR = "#ff6666"
 
 # Colors to pick for CustomTypes (to be consumed, one per each
 # CustomType). The order is important. Last will be used forever if list
