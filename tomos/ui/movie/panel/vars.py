@@ -208,7 +208,7 @@ class PointerVarSprite(VariableSprite):
 
     @property
     def arrow_color(self):
-        return "#ffffff"
+        return configs.POINTER_ARROW_COLOR
 
     @property
     def tip_height(self):
@@ -217,7 +217,7 @@ class PointerVarSprite(VariableSprite):
     def build_dead_arrow(self):
         sp = self.arrow_start_point
         length = self.rect.box_height
-        return DeadArrow(sp.x, sp.y, length, self.tip_height, "#ff6666", thickness)
+        return DeadArrow(sp.x, sp.y, length, self.tip_height, configs.DEAD_ARROW_COLOR, thickness)
 
     def build_null_arrow(self):
         sp = self.arrow_start_point

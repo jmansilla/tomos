@@ -8,7 +8,7 @@ from tomos.ayed2.evaluation.state import MemoryAddress
 
 from tomos.ui.movie import configs
 from tomos.ui.movie.texts import build_text
-from tomos.ui.movie.panel.vars import create_variable_sprite, HIGHLIGHTING_SWITCH
+from tomos.ui.movie.panel.vars import create_variable_sprite, HIGHLIGHTING_SWITCH, PointerVarSprite
 
 
 logger = getLogger(__name__)
@@ -68,10 +68,14 @@ class MemoryBlock(Container):
             self.add(heap_title)
 
         boards_y = stack_title.box_height + padding
-        self.stack_blackboard = Blackboard('stack', 0, boards_y, fill_color="#3B1C32", adjust_width=stack_adj)
+        self.stack_blackboard = Blackboard(
+            'stack', 0, boards_y,
+            fill_color=configs.STACK_CANVAS_COLOR,
+            adjust_width=stack_adj)
         if self.uses_heap:
             self.heap_blackboard = Blackboard(
-                'heap', heap_title.position.x, boards_y, fill_color="#6A1E55",
+                'heap', heap_title.position.x, boards_y,
+                fill_color=configs.HEAP_CANVAS_COLOR,
                 adjust_width=heap_adj
             )
             self.add(self.heap_blackboard)

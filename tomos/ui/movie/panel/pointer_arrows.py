@@ -1,4 +1,3 @@
-from skitso import movement
 from skitso.atom import Container, Point, BaseImgElem
 from skitso.shapes import Arrow, Line
 
@@ -216,9 +215,9 @@ class HeapToHeapArrowManager:
 
     def arrow_color(self, base_color, final_offset):
         # depending on offset, base_color is darkened
-        from tomos.ui.movie.panel.vars import ColorAssigner  # avoid circular import
-        darken_step = 0.25
-        steps = (final_offset - self.base) / self.offset_step
-        darken_amount = darken_step * (steps - 1)
-        darkened = ColorAssigner.darken_it(base_color, darken_amount, smooth=False)
-        return darkened
+        colors = configs.POINTER_HEAP_ARROW_COLORS
+        steps = int((final_offset - self.base) / self.offset_step) - 1
+        if steps >= len(colors):
+            steps = len(colors) - 1
+        return colors[steps]
+
