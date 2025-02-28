@@ -126,6 +126,12 @@ class CShapedArrow(Container):
         self.add(self.vertical_line)
         self.add(self.arrow)
 
+    @property
+    def end(self):
+        # Given that we want to allow to overlap with other objects,
+        # we will consider the arrow bounding box as a single point
+        return self.position
+
     # remember that y-coordinates increase going down
     def c_height(self):
         return self.end_y - self.start_y
@@ -188,6 +194,11 @@ class HeapToHeapArrowManager:
         self.offset_step = offset_step
         self.heap_arrows = []
 
+    def clear(self):
+        # This action does not remove the arrows from the scene
+        # But instead, makes manager forget about them
+        self.heap_arrows = []
+
     def add_arrow(self, sx, sy, ex, ey, color, thickness, tip_height):
         new_offset = self.base + self.offset_step
         # check previously existing arrows
@@ -198,6 +209,10 @@ class HeapToHeapArrowManager:
         new_arrow = CShapedArrow(sx, sy, ex, ey, new_offset, darken_color, thickness, tip_height)
         self.heap_arrows.append(new_arrow)
         return new_arrow
+
+    def remove_arrow_if_heap_to_heap(self, arrow):
+        if arrow in self.heap_arrows:
+            self.heap_arrows.remove(arrow)
 
     def arrow_color(self, base_color, final_offset):
         # depending on offset, base_color is darkened

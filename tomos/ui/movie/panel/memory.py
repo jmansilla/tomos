@@ -123,6 +123,7 @@ class MemoryBlock(Container):
         HIGHLIGHTING_SWITCH.turn_off()
         self.process_snapshot(snapshot)
         # and now, refresh values, so pointers arrows are drawn correctly
+        PointerVarSprite.heap_arrow_manager.clear()
         for name_or_addr in snapshot.diff.new_cells:
             var = self.vars_by_name[name_or_addr]
             if hasattr(var, "cached_value"):
