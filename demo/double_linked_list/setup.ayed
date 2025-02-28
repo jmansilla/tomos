@@ -1,0 +1,33 @@
+type node = tuple
+    prev: pointer of node
+    data: int
+    next: pointer of node
+end tuple
+type list = pointer of node
+
+var i: int
+var my_list: list
+var my_node: pointer of node
+var aux_prev: pointer of node
+
+i := getenv("DOUBLE_LIST_LENGTH":int)
+aux_prev := null
+my_list := null
+
+while i > 0 do
+    alloc(my_node)
+    if my_list == null then
+        my_list := my_node
+    fi
+    my_node->data := i*10
+    my_node->next := null
+    if aux_prev != null then
+        aux_prev->next := my_node
+    fi
+    my_node->prev := aux_prev
+    aux_prev := my_node
+    i := i - 1
+od
+
+my_node := null
+aux_prev := null

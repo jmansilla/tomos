@@ -1,0 +1,24 @@
+// REMOVE FIRST OCCURRENCE OF NODE WITH A GIVEN DATA
+
+var to_remove: int
+var aux: pointer of node
+
+to_remove := getenv("TO_REMOVE":int)
+a_node := my_list
+
+// Travel the list until a node with matching data is
+// found.
+while (a_node != null) && (a_node->data != to_remove) do
+    aux := a_node // prev node stored
+    a_node := a_node->next
+od
+
+// Two options. A) a_node needs to be removed, or
+// B) it's a null pointer and data to remove was
+// not found
+if (a_node != null) then
+    aux->next := a_node->next
+    free(a_node)
+    a_node := null
+fi
+skip  // just to draw that program ended

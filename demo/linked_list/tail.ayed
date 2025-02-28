@@ -1,0 +1,4 @@
+a_node := my_list
+my_list := my_list->next
+free(a_node)
+a_node := null

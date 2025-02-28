@@ -1,0 +1,15 @@
+var my_array: array [10] of int
+var length: int
+
+length := 10
+
+my_array[0] := 15
+my_array[1] := 59
+my_array[2] := -99
+my_array[3] := 68
+my_array[4] := -91
+my_array[5] := -62
+my_array[6] := 1
+my_array[7] := -82
+my_array[8] := 8
+my_array[9] := -84
