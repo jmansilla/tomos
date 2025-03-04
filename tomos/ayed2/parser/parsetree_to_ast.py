@@ -275,7 +275,7 @@ class TreeToAST(Transformer):
             evaluator = ExpressionEvaluator()
             try:
                 evaluator.eval(literal, state=None)
-            except Exception as e:
+            except Exception:
                 type_name = _class._type.__name__
                 raise TomosSyntaxError(
                     f"Invalid literal for {type_name}: {token.value}",

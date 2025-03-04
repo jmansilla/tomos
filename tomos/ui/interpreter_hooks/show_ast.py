@@ -16,7 +16,7 @@ class ASTPrettyFormatter(NodeVisitor):
     def stuff_with_children(self, title, children):
         result = f"{title}"
         if children:
-            entries = f"\n".join(
+            entries = "\n".join(
                 map(self.visit, children)
             )
             entries = "\n" + entries
@@ -32,7 +32,7 @@ class ASTPrettyFormatter(NodeVisitor):
         for section_name, section in sections.items():
             sec_result = f"\n{self.indent}{section_name}"
             if section:  # may be an empty list
-                entries = f"\n".join(
+                entries = "\n".join(
                     map(self.visit, section)
                 )
                 entries = "\n" + entries

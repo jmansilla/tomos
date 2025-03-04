@@ -72,8 +72,6 @@ def main():
         pre_hooks = []
         post_hooks = []
 
-        load_state_from = opts["--load-state"]
-
         if opts["--movie"]:
             if not opts["--movie"].endswith(".mp4"):
                 print("Movie must be a .mp4 file.")

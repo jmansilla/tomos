@@ -112,17 +112,17 @@ class ArrayAxis:
     @property
     def from_value(self):
         if not hasattr(self._from, "value"):
-            raise TomosTypeError(f"Need to evaluate axis expressions first")
+            raise TomosTypeError("Need to evaluate axis expressions first")
         return self._from.value
 
     @property
     def to_value(self):
         if not hasattr(self._to, "value"):
-            raise TomosTypeError(f"Need to evaluate axis expressions first")
+            raise TomosTypeError("Need to evaluate axis expressions first")
         return self._to.value
 
     @property
     def length(self):
         if not hasattr(self._to, "value") or not hasattr(self._from, "value"):
-            raise TomosTypeError(f"Need to evaluate axis expressions first")
+            raise TomosTypeError("Need to evaluate axis expressions first")
         return self.to_value - self.from_value

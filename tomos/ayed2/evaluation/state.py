@@ -123,7 +123,6 @@ class State:
         cell.value = value
 
     def get_variable_value(self, var):
-        name = var.name
         cell = self.cell_after_traversal(var)
         if not cell.can_get_set_values_directly:
             raise MemoryInfrigementError(f"Cell type {type(cell)} can't be accessed directly.")
