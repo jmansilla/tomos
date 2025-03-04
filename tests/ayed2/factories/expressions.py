@@ -29,9 +29,7 @@ class AbstractLiteralFactory(factory.Factory):
 
     token = factory.SubFactory(
         TokenFactory,
-        value=factory.LazyAttribute(
-            lambda ob: str(ob.factory_parent.faker_value).lower()
-        ),
+        value=factory.LazyAttribute(lambda ob: str(ob.factory_parent.faker_value).lower()),
     )
 
 
@@ -65,18 +63,15 @@ class VariableFactory(factory.Factory):
 
     name_token = factory.SubFactory(TokenFactory)
 
+
 class UnaryOpFactory(factory.Factory):
     class Meta:
         model = UnaryOp
 
     class Params:
-        token_faker_value = factory.Faker(
-            "random_element", elements=UnaryOpTable.keys()
-        )
+        token_faker_value = factory.Faker("random_element", elements=UnaryOpTable.keys())
 
-    op_token = factory.SubFactory(
-        TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
-    )
+    op_token = factory.SubFactory(TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value))
 
     expr = factory.SubFactory(IntegerLiteralFactory)
 
@@ -86,13 +81,9 @@ class BinaryOpFactory(factory.Factory):
         model = BinaryOp
 
     class Params:
-        token_faker_value = factory.Faker(
-            "random_element", elements=BinaryOpTable.keys()
-        )
+        token_faker_value = factory.Faker("random_element", elements=BinaryOpTable.keys())
 
-    op_token = factory.SubFactory(
-        TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value)
-    )
+    op_token = factory.SubFactory(TokenFactory, value=factory.LazyAttribute(get_tkn_faker_value))
 
     left_expr = factory.SubFactory(IntegerLiteralFactory)
     right_expr = factory.SubFactory(IntegerLiteralFactory)

@@ -14,11 +14,11 @@ class ShowState:
         self.differ = MemoryDiffer()
 
     def __call__(self, last_sentence, state, expression_values):
-        table = PrettyTable(['Name', 'Type', 'Size', 'Address', 'Value', 'Pointed value'])
-        table.align['Name'] = 'l'
-        table.align['Type'] = 'l'
-        table.align['Value'] = 'r'
-        table.align['Pointed value'] = 'r'
+        table = PrettyTable(["Name", "Type", "Size", "Address", "Value", "Pointed value"])
+        table.align["Name"] = "l"
+        table.align["Type"] = "l"
+        table.align["Value"] = "r"
+        table.align["Pointed value"] = "r"
         for name, _ in state.list_declared_variables().items():
             cell = state.stack[name]
             table.add_row(self.build_cell_row(name, cell, state))
@@ -26,16 +26,16 @@ class ShowState:
         table._dividers[-1] = True
 
         for cell in state.heap.values():
-            table.add_row(self.build_cell_row(name='', cell=cell, state=state))
+            table.add_row(self.build_cell_row(name="", cell=cell, state=state))
         self.dump_to_file(table)
 
     def dump_to_file(self, table):
-        with open(self.filename, 'w') as f:
+        with open(self.filename, "w") as f:
             print(table, file=f)
 
     def build_cell_row(self, name, cell, state):
         fmt_value = self.formated_cell_value(cell)
-        row = [name, cell.var_type, cell.var_type.SIZE, cell.address, fmt_value, '']
+        row = [name, cell.var_type, cell.var_type.SIZE, cell.address, fmt_value, ""]
 
         if cell.var_type.is_pointer:
             # pointers always point to a heap cell
@@ -57,19 +57,13 @@ class ShowState:
         return value
 
     def format_array(self, cell):
-        value = [
-            self.formated_cell_value(sub_cell)
-            for sub_cell in cell.elements
-        ]
+        value = [self.formated_cell_value(sub_cell) for sub_cell in cell.elements]
         if len(cell.var_type.axes) == 2:
-           # Matrix. Plot it accordling
-           len_1 = cell.var_type.axes[0].length
-           len_2 = cell.var_type.axes[1].length
-           matrix = [
-               value[i * len_2:(i + 1) * len_2]
-               for i in range(len_1)
-           ]
-           value = pprint.pformat(matrix, width=40)
+            # Matrix. Plot it accordling
+            len_1 = cell.var_type.axes[0].length
+            len_2 = cell.var_type.axes[1].length
+            matrix = [value[i * len_2 : (i + 1) * len_2] for i in range(len_1)]
+            value = pprint.pformat(matrix, width=40)
 
         return value
 
@@ -78,6 +72,7 @@ class MemoryDiffer:
     class Changed:
         def __init__(self, value):
             self.value = value
+
         def __repr__(self):
             return f"{bcolors.OKGREEN}{self.value}{bcolors.ENDC}"
 

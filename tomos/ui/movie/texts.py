@@ -4,7 +4,7 @@ from tomos.ui.movie import configs
 
 
 class HighlightableText(Text):
-    # Similar to skitso.shapes.Text, but with an is_highlighted attribute
+    # Similar to skitso.shapes.Text, but with an is_highlighted attribute
     # Each time is drawn, if is_highlighted is True, there will be applied an outline
     # grabbed from configs.HIGHLIGHT_COLOR and configs.HIGHLIGHT_OUTLINE_WIDTH
     # Also, bear in mind that if configs.AUTO_DE_HIGHLIGHT is True, is_highlighted will be

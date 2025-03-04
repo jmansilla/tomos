@@ -18,6 +18,7 @@ class TomosParser(Lark):
 
     def parse(self, *args, **kwargs):
         from tomos.ayed2.ast.types.registry import type_registry  # avoid circular import
+
         parse_results = super().parse(*args, **kwargs)
         type_registry.resolve_deferred_types()
         return parse_results

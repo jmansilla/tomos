@@ -1,5 +1,6 @@
 from tomos.visit import NodeVisitor
 
+
 class ASTPrettyFormatter(NodeVisitor):
     indent = "    "
     show_next = False
@@ -16,9 +17,7 @@ class ASTPrettyFormatter(NodeVisitor):
     def stuff_with_children(self, title, children):
         result = f"{title}"
         if children:
-            entries = "\n".join(
-                map(self.visit, children)
-            )
+            entries = "\n".join(map(self.visit, children))
             entries = "\n" + entries
             entries = entries.replace("\n", "\n" + self.indent)
             result += entries
@@ -31,10 +30,8 @@ class ASTPrettyFormatter(NodeVisitor):
 
         for section_name, section in sections.items():
             sec_result = f"\n{self.indent}{section_name}"
-            if section:  # may be an empty list
-                entries = "\n".join(
-                    map(self.visit, section)
-                )
+            if section:  # may be an empty list
+                entries = "\n".join(map(self.visit, section))
                 entries = "\n" + entries
                 entries = entries.replace("\n", "\n" + self.indent * 2)
                 sec_result += entries
@@ -48,9 +45,7 @@ class ASTPrettyFormatter(NodeVisitor):
         return result
 
     def visit_program(self, node, *args, **kwargs):
-        sections = {
-            n: getattr(node, n) for n in ["typedef_section", "funprocdef_section", "body"]
-        }
+        sections = {n: getattr(node, n) for n in ["typedef_section", "funprocdef_section", "body"]}
         return self.stuff_with_sections("Program", sections)
 
     def visit_while(self, node, *args, **kwargs):

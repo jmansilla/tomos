@@ -24,6 +24,7 @@ class Body(ProgramExpression):
         assert all(isinstance(v, VarDeclaration) for v in var_declarations)
         self.var_declarations = var_declarations
         from tomos.ayed2.ast.sentences import Sentence  # avoid circular import
+
         assert all(isinstance(s, Sentence) for s in sentences)
         self.sentences = sentences
 

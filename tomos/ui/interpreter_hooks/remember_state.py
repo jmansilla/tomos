@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from tomos.ayed2.ast.program import TypeDeclaration, VarDeclaration
 
 
-
 @dataclass
 class StateDiff:
     new_cells: list
@@ -29,7 +28,7 @@ class StateDiff:
                 if val != a_stack[name]:
                     diff.changed_cells.append(name)
                 a_stack.pop(name)
-        # what is still in a_stack, needs to be deleted cells
+        # what is still in a_stack, needs to be deleted cells
         diff.deleted_cells = list(a_stack.keys())
 
         for addr, val in b_heap.items():
@@ -39,7 +38,7 @@ class StateDiff:
                 if val != a_heap[addr]:
                     diff.changed_cells.append(addr)
                 a_heap.pop(addr)
-        # what is still in a_heap, needs to be deleted cells
+        # what is still in a_heap, needs to be deleted cells
         diff.deleted_cells += list(a_heap.keys())
 
         return diff
@@ -60,8 +59,9 @@ class Frame:
 
     def get_cell(self, name_or_addr):
         from tomos.ayed2.evaluation.state import MemoryAddress
+
         if isinstance(name_or_addr, MemoryAddress):
-            return self.state.heap[name_or_addr]   # type: ignore
+            return self.state.heap[name_or_addr]  # type: ignore
         else:
             return self.state.stack[name_or_addr]  # type: ignore
 
@@ -87,9 +87,9 @@ class RememberState:
             diff = StateDiff.create_diff(type(state)(), state)
         else:
             diff = StateDiff.create_diff(self.timeline[-1].state, state)
-        f = Frame(last_sentence.line_number, last_sentence,
-                  deepcopy(state),
-                  expression_values, diff, None)
+        f = Frame(
+            last_sentence.line_number, last_sentence, deepcopy(state), expression_values, diff, None
+        )
         if self.timeline:
             self.timeline[-1].next = f
         self.timeline.append(f)
@@ -101,9 +101,17 @@ class RememberState:
             return None
 
     def list_declaration_snapshots(self):
-        return [frame for frame in self.timeline
-                if isinstance(frame.just_executed, (TypeDeclaration, VarDeclaration))]
+        return [
+            frame
+            for frame in self.timeline
+            if isinstance(frame.just_executed, (TypeDeclaration, VarDeclaration))
+        ]
 
     def list_sentence_snapshots(self):
-        return [frame for frame in self.timeline
-                if not isinstance(frame.just_executed, (TypeDeclaration, VarDeclaration, LoadedFromFile))]
+        return [
+            frame
+            for frame in self.timeline
+            if not isinstance(
+                frame.just_executed, (TypeDeclaration, VarDeclaration, LoadedFromFile)
+            )
+        ]

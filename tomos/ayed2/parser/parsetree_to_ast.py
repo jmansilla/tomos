@@ -33,7 +33,8 @@ class TreeToAST(Transformer):
         return Program(
             typedef_section=chain_instructions(tdef.children),
             funprocdef_section=chain_instructions(fdef.children),
-            body=body)
+            body=body,
+        )
 
     def sentences(self, args):
         sents = chain_instructions(list(args))
@@ -89,7 +90,7 @@ class TreeToAST(Transformer):
         return PointerOf(of=pointed_type)
 
     def type(self, args):
-        # This production is used in several different places.
+        # This production is used in several different places.
         # a) when declaring a variable of basic type
         # b) when declaring a variable of a custom-type
         # c) when declaring a variable of pointer type or array type
@@ -109,8 +110,7 @@ class TreeToAST(Transformer):
             # we are in case c)
             return arg0
         else:
-            raise TomosSyntaxError(f"Invalid type {arg0}",
-                                   guess_line_nr_from=arg0)
+            raise TomosSyntaxError(f"Invalid type {arg0}", guess_line_nr_from=arg0)
 
     def custom_type(self, args):
         assert len(args) == 1
@@ -131,7 +131,8 @@ class TreeToAST(Transformer):
             if not isinstance(arg, Token):
                 raise TomosSyntaxError(
                     f"Invalid enum literal {arg}. Expected token, got {type(arg)} instead.",
-                    guess_line_nr_from=arg)
+                    guess_line_nr_from=arg,
+                )
             values.append(arg.value)
         return Enum(values)
 
@@ -150,7 +151,8 @@ class TreeToAST(Transformer):
             if not isinstance(arg, tuple):
                 raise TomosSyntaxError(
                     f"Invalid tuple field {arg}. Expected tuple, got {type(arg)} instead.",
-                    guess_line_nr_from=arg)
+                    guess_line_nr_from=arg,
+                )
             fields_mapping[arg[0]] = arg[1]
         return Tuple(fields_mapping=fields_mapping)
 
@@ -187,8 +189,7 @@ class TreeToAST(Transformer):
             sub_expr = BinaryOp(left_expr=left, op_token=op, right_expr=right)
             return self.expr_binary([sub_expr] + rest)
         else:
-            raise TomosSyntaxError(f"Invalid binary expression: {args}",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(f"Invalid binary expression: {args}", guess_line_nr_from=args)
 
     expr_term = expr_binary
     expr_factor = expr_binary
@@ -210,14 +211,15 @@ class TreeToAST(Transformer):
         env_variable_name = args[0].value
         expected_type = args[1].value
         if env_variable_name not in os.environ:
-            raise TomosSyntaxError(f"Environment variable {env_variable_name} is not defined",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(
+                f"Environment variable {env_variable_name} is not defined", guess_line_nr_from=args
+            )
         made_out_token = Token(expected_type, os.environ[env_variable_name], line=args[0].line)
         literal_parsers = {
-            'int': self.INT,
-            'real': self.REAL,
-            'char': self.CHAR_LITERAL,
-            'bool': self.bool_literal
+            "int": self.INT,
+            "real": self.REAL,
+            "char": self.CHAR_LITERAL,
+            "bool": self.bool_literal,
         }
         return literal_parsers[expected_type](made_out_token)
 
@@ -231,8 +233,9 @@ class TreeToAST(Transformer):
 
     def v_accessed(self, args):
         if len(args) != 2:
-            raise TomosSyntaxError(f"Invalid variable field access: {args}",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(
+                f"Invalid variable field access: {args}", guess_line_nr_from=args
+            )
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.ACCESSED_FIELD, field_name)
@@ -245,8 +248,9 @@ class TreeToAST(Transformer):
 
     def v_arrow_access(self, args):
         if len(args) != 2:
-            raise TomosSyntaxError(f"Invalid variable field arrow access: {args}",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(
+                f"Invalid variable field arrow access: {args}", guess_line_nr_from=args
+            )
         var = args[0]
         field_name = args[1]
         var.traverse_append(Variable.DEREFERENCE)
@@ -255,8 +259,7 @@ class TreeToAST(Transformer):
 
     def v_indexed(self, args):
         if len(args) == 1:
-            raise TomosSyntaxError(f"Invalid variable indexing: {args}",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(f"Invalid variable indexing: {args}", guess_line_nr_from=args)
         var = args[0]
         indexing = args[1:]
         var.traverse_append(Variable.ARRAY_INDEXING, indexing)
@@ -264,11 +267,10 @@ class TreeToAST(Transformer):
 
     def expr(self, args):
         if len(args) != 1:
-            raise TomosSyntaxError(f"Invalid expression: {args}",
-                                   guess_line_nr_from=args)
+            raise TomosSyntaxError(f"Invalid expression: {args}", guess_line_nr_from=args)
         return args[0]
 
-    # LITERALS
+    # LITERALS
     def parse_literal(self, _class, token):
         literal = _class(token=token)
         if self.do_eval_literals:
@@ -278,8 +280,8 @@ class TreeToAST(Transformer):
             except Exception:
                 type_name = _class._type.__name__
                 raise TomosSyntaxError(
-                    f"Invalid literal for {type_name}: {token.value}",
-                    guess_line_nr_from=token)
+                    f"Invalid literal for {type_name}: {token.value}", guess_line_nr_from=token
+                )
         return literal
 
     def INT(self, token):
@@ -307,9 +309,7 @@ class TreeToAST(Transformer):
                 if ttype.is_valid_value(token.value):
                     return EnumLiteral(token)
 
-        raise TomosSyntaxError(
-            f"Invalid enum literal: {token}",
-            guess_line_nr_from=token)
+        raise TomosSyntaxError(f"Invalid enum literal: {token}", guess_line_nr_from=token)
 
     def array_of(self, args):
         if len(args) == 2:
@@ -318,8 +318,8 @@ class TreeToAST(Transformer):
             return array_type
         else:
             raise TomosSyntaxError(
-                f"Invalid array type definition with args: {args}",
-                guess_line_nr_from=args)
+                f"Invalid array type definition with args: {args}", guess_line_nr_from=args
+            )
 
     def array_axes(self, args):
         return tuple(args)
@@ -330,23 +330,16 @@ class TreeToAST(Transformer):
         elif len(args) == 2:
             return ArrayAxis(args[0], args[1])
         else:
-            raise TomosSyntaxError(
-                f"Invalid array size. Axis {args}",
-                guess_line_nr_from=args)
+            raise TomosSyntaxError(f"Invalid array size. Axis {args}", guess_line_nr_from=args)
 
     def array_axis_from(self, args):
         if len(args) == 1:
             return args[0]
         else:
-            raise TomosSyntaxError(
-                f"Invalid array size. Axis from {args}",
-                guess_line_nr_from=args)
+            raise TomosSyntaxError(f"Invalid array size. Axis from {args}", guess_line_nr_from=args)
 
     def array_axis_to(self, args):
         if len(args) == 1:
             return args[0]
         else:
-            raise TomosSyntaxError(
-                f"Invalid array size. Axis to {args}",
-                guess_line_nr_from=args)
-
+            raise TomosSyntaxError(f"Invalid array size. Axis to {args}", guess_line_nr_from=args)

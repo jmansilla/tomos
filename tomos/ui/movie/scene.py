@@ -45,9 +45,8 @@ class TomosScene(Scene):
     def build_folder(self, base_folder_path):
         # Removing "NameOfSceneClass" from folder path, which is added by skitso
         from pathlib import Path
-        self.folder_path = (
-            Path(base_folder_path) / "frames"
-        )
+
+        self.folder_path = Path(base_folder_path) / "frames"
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
     def render(self, explicit_frames_only):
@@ -93,4 +92,3 @@ class TomosScene(Scene):
 
         number_of_generated_frames = self.next_tick_id
         return number_of_generated_frames
-

@@ -4,10 +4,13 @@ from .basic import Ayed2Type, UserDefinedType
 
 class Synonym(UserDefinedType):
     CLOSURE_LIMIT = 10
+
     def __init__(self, underlying_type):
         if not isinstance(underlying_type, Ayed2Type):
-            raise SynonymError(f"Cant create a synonym of {underlying_type},"
-                               f" expected Ayed2Type instance, got {type(underlying_type)} instead.")
+            raise SynonymError(
+                f"Cant create a synonym of {underlying_type},"
+                f" expected Ayed2Type instance, got {type(underlying_type)} instead."
+            )
         self.underlying_type = underlying_type
 
     def __call__(self):

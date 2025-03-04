@@ -3,7 +3,15 @@ from unittest import TestCase
 from .factories.expressions import IntegerLiteralFactory
 from .factories.state import StateFactory
 
-from tomos.ayed2.ast.types import ArrayAxis, ArrayOf, IntType, RealType, Synonym, Enum, type_registry
+from tomos.ayed2.ast.types import (
+    ArrayAxis,
+    ArrayOf,
+    IntType,
+    RealType,
+    Synonym,
+    Enum,
+    type_registry,
+)
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from tomos.exceptions import TomosTypeError, SynonymError
 
@@ -79,7 +87,7 @@ class TestArraySizes(TestArray):
         self.assertEqual(at.axes[1].to_value, 15)
         self.assertEqual(at.axes[2].from_value, 8)
         self.assertEqual(at.axes[2].to_value, 12)
-        self.assertEqual(at.number_of_elements(), 5 * (15-10) * (12-8))
+        self.assertEqual(at.number_of_elements(), 5 * (15 - 10) * (12 - 8))
 
 
 class TestArrayIndexing(TestArray):
@@ -95,7 +103,7 @@ class TestArrayIndexing(TestArray):
         self.assertEqual(at.flatten_index([10]), 0)
         for i in range(10, 15):
             idx = at.flatten_index([i])
-            self.assertEqual(idx, i-10)
+            self.assertEqual(idx, i - 10)
 
     def test_several_dimensions_simple(self):
         at = self.eval_expressions(_ArrayType("[5, 10, 8]"))
@@ -126,6 +134,7 @@ class TestSynonym(TestCase):
     def test_underlying_type_must_inherit_from_base(self):
         class Whatever:
             pass
+
         w = Whatever()
         self.assertRaises(SynonymError, Synonym, w)
 
@@ -147,14 +156,16 @@ class TestTypeRegistry(TestCase):
 
     def test_register_simple(self):
         s1_int = Synonym(underlying_type=IntType())
-        self.assertIsNone(getattr(s1_int, 'name'))
+        self.assertIsNone(getattr(s1_int, "name"))
         type_registry.register_type("number", s1_int)
         # after registering, the name should be set
-        self.assertIsNotNone(getattr(s1_int, 'name'))
+        self.assertIsNotNone(getattr(s1_int, "name"))
         self.assertEqual(s1_int.name, "number")
 
     def test_cant_register_something_that_is_not_a_type(self):
-        class Whatever: pass
+        class Whatever:
+            pass
+
         for not_a_type in [1, None, [], Whatever()]:
             with self.assertRaises(TomosTypeError):
                 type_registry.register_type("some_name", not_a_type)

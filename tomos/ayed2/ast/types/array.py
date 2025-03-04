@@ -13,7 +13,7 @@ class ArrayOf(Ayed2Type):
         self._size = None
 
     def __repr__(self) -> str:
-        axes_str = [f'{x._from}..{x._to}' for x in self.axes]
+        axes_str = [f"{x._from}..{x._to}" for x in self.axes]
         return f"ArrayOf({self.of}, [{', '.join(axes_str)}])"
 
     def eval_axes_expressions(self, expr_evaluator, state):
@@ -38,12 +38,12 @@ class ArrayOf(Ayed2Type):
         return self.number_of_elements() * self.element_size()  # type: ignore
 
     def is_valid_value(self, value):
-        # In arrays, values are assigned to the elements of the array, not to
+        # In arrays, values are assigned to the elements of the array, not to
         # the array itself
         return self.of.is_valid_value(value)
 
     def element_size(self):
-        if hasattr(self.of, 'element_size'):
+        if hasattr(self.of, "element_size"):
             return self.of.element_size()  # type: ignore
         else:
             return self.of.SIZE
@@ -53,7 +53,9 @@ class ArrayOf(Ayed2Type):
         # a[4, 12], we need to decode that internally that's (in the flatten array) the
         # position a[(4-1)*5 + (12-10)] = a[3*5 + 2] = a[17]
         if len(indexes) != len(self.axes):
-            raise TomosTypeError(f"Wrong number of indexes. Expected {len(self.axes)}, got {len(indexes)}")
+            raise TomosTypeError(
+                f"Wrong number of indexes. Expected {len(self.axes)}, got {len(indexes)}"
+            )
         if not all(isinstance(idx, int) for idx in indexes):
             raise TomosTypeError(f"Expected integer indexes, got {indexes}")
         flatten_value = 0
@@ -81,15 +83,18 @@ class ArrayAxis:
     class Limit:
         def __init__(self, data):
             from tomos.ayed2.ast.expressions import Expr  # avoid circular import
+
             if isinstance(data, int):
                 self.value = data
             else:
                 assert isinstance(data, Expr)
                 self.expr = data
+
         def __repr__(self):
             if hasattr(self, "value"):
                 return repr(self.value)
             return repr(self.expr)
+
         def eval(self, expr_evaluator, state):
             if hasattr(self, "value"):
                 return

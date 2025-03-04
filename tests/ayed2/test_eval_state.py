@@ -2,7 +2,12 @@ from unittest import TestCase
 
 from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym
 from tomos.ayed2.evaluation.state import State, UnknownValue, MemoryAddress
-from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
+from tomos.exceptions import (
+    AlreadyDeclaredVariableError,
+    MemoryInfrigementError,
+    TomosTypeError,
+    UndeclaredVariableError,
+)
 from .factories.expressions import VariableFactory
 
 
@@ -133,4 +138,3 @@ class TestEvalStateForSynonyms(TestCase):
         state.free(var)
         self.assertEqual(state.get_variable_value(var), UnknownValue)
         self.assertNotIn(value, state.heap)
-

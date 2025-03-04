@@ -22,7 +22,7 @@ class RoundChamfer(BaseImgElem):
 
     @property
     def end(self):
-        # This is actually a non-sense implementation. Given that I'm not interested
+        # This is actually a non-sense implementation. Given that I'm not interested
         # on the end of a chamfer, I just return the position. But need to be fixed.
         return self.position
 
@@ -58,7 +58,7 @@ class RoundChamfer(BaseImgElem):
     def draw_me(self, pencil, relative_to=None):
         x, y = self.arc_center()
         r = self.radius
-        box = [(x-r, y-r), (x+r, y+r)]
+        box = [(x - r, y - r), (x + r, y + r)]
         start_angle, end_angle = self.arc_angles()
         pencil.arc(box, start_angle, end_angle, fill=self.color, width=self.thickness)
 
@@ -73,7 +73,9 @@ class RoundChamfer(BaseImgElem):
 
 class CShapedArrow(Container):
 
-    def __init__(self, start_x, start_y, end_x, end_y, offset, color, thickness, tip_height, round_radius=8):
+    def __init__(
+        self, start_x, start_y, end_x, end_y, offset, color, thickness, tip_height, round_radius=8
+    ):
         # We will create an arrow that will look like this:
         #
         #    (start) ------|   [cor1]
@@ -127,8 +129,8 @@ class CShapedArrow(Container):
 
     @property
     def end(self):
-        # Given that we want to allow to overlap with other objects,
-        # we will consider the arrow bounding box as a single point
+        # Given that we want to allow to overlap with other objects,
+        # we will consider the arrow bounding box as a single point
         return self.position
 
     # remember that y-coordinates increase going down
@@ -136,7 +138,7 @@ class CShapedArrow(Container):
         return self.end_y - self.start_y
 
     def c_conflicts_with(self, other):
-        # compares two CShapedArrows, and returns True if they overlap
+        # compares two CShapedArrows, and returns True if they overlap
 
         a_from, a_to = sorted([self.start_y, self.end_y])
         if isinstance(other, CShapedArrow):
@@ -151,11 +153,11 @@ class CShapedArrow(Container):
 
 
 class NullArrow(Container):
-        # We will create an arrow that will look like this:
-        #
-        #    (x,y) -|
-        #           v
-        #
+    # We will create an arrow that will look like this:
+    #
+    #    (x,y) -|
+    #           v
+    #
     def __init__(self, x, y, length, tip_height, color, thickness):
         self.color = color
         self.thickness = thickness
@@ -170,10 +172,10 @@ class NullArrow(Container):
 
 
 class DeadArrow(Container):
-        # We will create an arrow that will look like this:
-        #
-        #    (x,y) ->
-        #
+    # We will create an arrow that will look like this:
+    #
+    #    (x,y) ->
+    #
     def __init__(self, x, y, length, tip_height, color, thickness):
         self.color = color
         self.thickness = thickness
@@ -220,4 +222,3 @@ class HeapToHeapArrowManager:
         if steps >= len(colors):
             steps = len(colors) - 1
         return colors[steps]
-

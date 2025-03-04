@@ -9,9 +9,7 @@ class Enum(UserDefinedType):
         self.underlying_type = IntType
         for value in constant_names:
             if not isinstance(value, str):
-                raise EnumerationError(
-                    f"Enum constant_names must be strings, not {type(value)}"
-                )
+                raise EnumerationError(f"Enum constant_names must be strings, not {type(value)}")
         self.constants = {
             name: EnumConstant(self, name, value)
             for value, name in enumerate(constant_names, start=1)

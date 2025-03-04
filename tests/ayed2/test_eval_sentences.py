@@ -71,4 +71,3 @@ class TestEvalWhile(BaseSentEval):
             new_state, next_sent = self.run_eval(s_while, state)
             self.assertEqual(new_state, state)
             self.assertEqual(next_sent, s_while.sentences[0])
-

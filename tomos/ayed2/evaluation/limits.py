@@ -3,13 +3,20 @@ from pathlib import Path
 
 from buttons_and_dials import ConfigSet
 
-from tomos.exceptions import (ArraySizeLimitExceededError, ArrayDimensionsLimitExceededError,
-                        TupleSizeLimitExceededError, ExecutionStepsLimitExceededError, MemoryLimitExceededError,
-                        TypeCompositionLimitExceededError)
+from tomos.exceptions import (
+    ArraySizeLimitExceededError,
+    ArrayDimensionsLimitExceededError,
+    TupleSizeLimitExceededError,
+    ExecutionStepsLimitExceededError,
+    MemoryLimitExceededError,
+    TypeCompositionLimitExceededError,
+)
 
 
 here = Path(__file__).parent.resolve()
-limits_configs = ConfigSet('AYED_LIMITS', here/'limits.toml', check_cwd=False, argv_prefix='--cfg')
+limits_configs = ConfigSet(
+    "AYED_LIMITS", here / "limits.toml", check_cwd=False, argv_prefix="--cfg"
+)
 
 
 class Limiter:
@@ -35,6 +42,7 @@ class Limiter:
             raise TypeCompositionLimitExceededError()
 
         from tomos.ayed2.ast.types import ArrayOf, PointerOf, Synonym, Tuple  # cyclic import
+
         # if synonym, traverse untill we reach the actual type
         if isinstance(_type, Synonym):
             _type = _type.underlying_type_closure()

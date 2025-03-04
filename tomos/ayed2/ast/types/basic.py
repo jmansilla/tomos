@@ -19,6 +19,7 @@ class Ayed2Type:
 
 class UserDefinedType(Ayed2Type):
     """Base class for user-defined types."""
+
     name = None
 
     def __repr__(self) -> str:
@@ -71,8 +72,10 @@ class CharType(BasicType):
 class NullValue:
     def __repr__(self) -> str:
         return "null"
+
     def __hash__(self):
         return hash("NullValue instance")
+
     def __eq__(self, other):
         return isinstance(other, NullValue)
 
@@ -84,6 +87,7 @@ class PointerOf(BasicType):
 
     def __init__(self, of):
         from .registry import type_registry  # avoid circular import
+
         assert isinstance(of, (Ayed2Type, type_registry.Deferred))
         self.of = of
 
@@ -93,6 +97,7 @@ class PointerOf(BasicType):
     @classmethod
     def is_valid_value(cls, value):
         from tomos.ayed2.evaluation.state import MemoryAddress  # FIXME
+
         return value in cls.NAMED_LITERALS.values() or isinstance(value, MemoryAddress)
 
     def has_deferrals(self, crumbs=[]):
@@ -101,11 +106,11 @@ class PointerOf(BasicType):
         elif self in crumbs:
             return False  # avoid infinite loop
         else:
-            return self.of.has_deferrals(crumbs + [self]) # type: ignore
+            return self.of.has_deferrals(crumbs + [self])  # type: ignore
 
     def resolve_deferrals(self, crumbs=[]):
         if self.of.is_deferred:
             self.of = self.of.resolve()  # type: ignore
-        elif self.of.has_deferrals(crumbs + [self]):    # type: ignore
+        elif self.of.has_deferrals(crumbs + [self]):  # type: ignore
             self.of.resolve_deferrals()  # type: ignore
         return self

@@ -3,11 +3,31 @@ from unittest.mock import patch
 
 from tomos.ayed2.parser import parser
 from tomos.ayed2.parser.reserved_words import KEYWORDS
-from tomos.ayed2.ast.expressions import Expr, _Literal, Variable, IntegerLiteral, NullLiteral, EnumLiteral, CharLiteral
+from tomos.ayed2.ast.expressions import (
+    Expr,
+    _Literal,
+    Variable,
+    IntegerLiteral,
+    NullLiteral,
+    EnumLiteral,
+    CharLiteral,
+)
 from tomos.ayed2.ast.operators import UnaryOp
 from tomos.ayed2.ast.program import Program, VarDeclaration
 from tomos.ayed2.ast.sentences import Sentence, Assignment, If
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, ArrayAxis, ArrayOf, PointerOf, Synonym, type_registry, Enum, Tuple
+from tomos.ayed2.ast.types import (
+    IntType,
+    BoolType,
+    RealType,
+    CharType,
+    ArrayAxis,
+    ArrayOf,
+    PointerOf,
+    Synonym,
+    type_registry,
+    Enum,
+    Tuple,
+)
 from tomos.exceptions import TomosTypeError
 
 from .factories.expressions import IntegerLiteralFactory
@@ -29,7 +49,7 @@ def get_parsed_sentences(source, single_sentence=False, reset_registry=False):
     program = parser.parse(source)
     if single_sentence:
         return next(iter(program.body))  # type: ignore
-    return [s for s in program.body]     # type: ignore
+    return [s for s in program.body]  # type: ignore
 
 
 class TestParseProgram(TestCase):
@@ -60,8 +80,8 @@ class TestParseBasicTypeSentences(TestCase):
         source = "x := 1"
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
-        self.assertEqual(sent.name, "x")         # type: ignore
-        self.assertIsInstance(sent.expr, Expr)   # type: ignore
+        self.assertEqual(sent.name, "x")  # type: ignore
+        self.assertIsInstance(sent.expr, Expr)  # type: ignore
 
     def test_parse_literals(self):
         for value, var_type in [
@@ -104,7 +124,7 @@ class TestParseExpressions(TestCase):
 
     def parsed_expr(self, source):
         # here we'll add "x := " to what we receive as the expression source
-        if ':=' not in source:
+        if ":=" not in source:
             source = "x := " + source
         sent = get_parsed_sentences(source, single_sentence=True)
         self.assertIsInstance(sent, Assignment)
@@ -132,7 +152,8 @@ class TestParseExpressions(TestCase):
             source = f"1 {symbol} 2"
             expr = self.parsed_expr(source)
             self.assertExpressionIs(
-                expr, f"BinaryOp(IntegerLiteral(1), {symbol}, IntegerLiteral(2))")
+                expr, f"BinaryOp(IntegerLiteral(1), {symbol}, IntegerLiteral(2))"
+            )
 
     def test_parse_boolean_binary_ops(self):
         for symbol in ["||", "&&", "==", "!="]:
@@ -191,10 +212,7 @@ class TestParseExpressions(TestCase):
         self.assertEqual(len(var.traverse_path), 1)
         step = var.traverse_path[0]
         self.assertEqual(step.kind, Variable.ARRAY_INDEXING)
-        self.assertListEqual(
-            step.argument,
-            [IL(1), IL(5), IL(18), IL(6), IL(0)]
-        )
+        self.assertListEqual(step.argument, [IL(1), IL(5), IL(18), IL(6), IL(0)])
 
     # Testing Operators Associativity and Precedence
 
@@ -255,7 +273,7 @@ class TestParseExpressions(TestCase):
             self.assertEqual(var.name, "x")
             self.assertEqual(len(var.traverse_path), len(expected_kinds))
             kinds = [step.kind for step in var.traverse_path]
-            print('testing for', source)
+            print("testing for", source)
             self.assertListEqual(kinds, expected_kinds)
 
 
@@ -378,12 +396,25 @@ class TestParseArrayVarDeclarations(TestCase):
 
     def test_parse_array_axes(self):
         for declaration, expectation in [
-            ["array [10] of int", (ArrayAxis(0, 10), )],
-            ["array [4..10] of int", (ArrayAxis(4, 10), )],
-            ["array [4] of int", (ArrayAxis(0, 4), )],
-            ["array [4, 10] of int", (ArrayAxis(0, 4), ArrayAxis(0, 10), )],
-            ["array [4, 10, 4, 10] of int",
-                (ArrayAxis(0, 4), ArrayAxis(0, 10), ArrayAxis(0, 4), ArrayAxis(0, 10),)],
+            ["array [10] of int", (ArrayAxis(0, 10),)],
+            ["array [4..10] of int", (ArrayAxis(4, 10),)],
+            ["array [4] of int", (ArrayAxis(0, 4),)],
+            [
+                "array [4, 10] of int",
+                (
+                    ArrayAxis(0, 4),
+                    ArrayAxis(0, 10),
+                ),
+            ],
+            [
+                "array [4, 10, 4, 10] of int",
+                (
+                    ArrayAxis(0, 4),
+                    ArrayAxis(0, 10),
+                    ArrayAxis(0, 4),
+                    ArrayAxis(0, 10),
+                ),
+            ],
         ]:
             source = f"var x: {declaration}"
             sent = get_parsed_sentences(source, single_sentence=True)
@@ -478,7 +509,9 @@ class TestParseEnum(TestCase):
         source += f"var {var_name}: {new_type};"
         source += f" {var_name} := Uno;"
         sentences = get_parsed_sentences(source)
-        self.assertEqual(len(sentences), 2)  # type declaration is sent to type_registry, and only 2 sents received
+        self.assertEqual(
+            len(sentences), 2
+        )  # type declaration is sent to type_registry, and only 2 sents received
         var_dec_sent = sentences[0]
         self.assertIsInstance(var_dec_sent, VarDeclaration)
         self.assertIsInstance(var_dec_sent.var_type, Enum)
@@ -509,4 +542,3 @@ class TestParseTuple(TestCase):
         assign_sent = sentences[2]
         self.assertIsInstance(assign_sent, Assignment)
         self.assertIsInstance(assign_sent.expr, CharLiteral)
-
