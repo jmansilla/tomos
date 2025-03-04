@@ -1,9 +1,10 @@
 from unittest import TestCase
 
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym, type_registry
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym
 from tomos.ayed2.evaluation.state import State, UnknownValue, MemoryAddress
 from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
 from .factories.expressions import VariableFactory
+
 
 def Var(name):
     return VariableFactory(name_token__value=name)

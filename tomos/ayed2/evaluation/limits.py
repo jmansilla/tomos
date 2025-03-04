@@ -1,5 +1,4 @@
 from copy import deepcopy
-from os import getenv
 from pathlib import Path
 
 from buttons_and_dials import ConfigSet

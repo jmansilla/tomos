@@ -1,7 +1,7 @@
 import pprint
 from prettytable import PrettyTable
 
-from tomos.ayed2.ast.types import ArrayOf, PointerOf, CharType
+from tomos.ayed2.ast.types import ArrayOf, CharType
 from tomos.ayed2.evaluation.state import UnknownValue
 from tomos.ui.colors import bcolors
 

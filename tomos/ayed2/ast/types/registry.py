@@ -1,8 +1,7 @@
 from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.exceptions import TomosTypeError
-from .basic import IntType, RealType, BoolType, CharType, PointerOf, UserDefinedType
+from .basic import IntType, RealType, BoolType, CharType, UserDefinedType
 from .enum import Enum
-from .t_tuple import Tuple
 
 
 class EnumConstantsRegistry:
