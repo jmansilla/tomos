@@ -95,10 +95,10 @@ class TestEvalStateAllocFree(TestCase):
         state = State()
         state.declare_static_variable("x", PointerOf(IntType()))
         var = Var("x")
-        state.alloc(Var("x"))
-        state.free(Var("x"))
+        state.alloc(var)
+        state.free(var)
         with self.assertRaises(MemoryInfrigementError):
-            state.free(Var("x"))
+            state.free(var)
 
     def test_alloc_free_for_not_declared_variable_raises_exception(self):
         state = State()
