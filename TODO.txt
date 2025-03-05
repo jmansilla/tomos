@@ -69,7 +69,7 @@ t5)  [ ] Replace asserts with descriptfull exceptions
 t6)  [ ] Basic Type classes are singletons-like. But weirdly handled.
 t7)  [x] Upgrade syntax highlight with types definitions and for loops
 t8)  [x] On visitors, remove the kw to simply leave "state" argument.
-t9)  [ ] Check can_get_set_values_directly
+t9)  [x] Check can_get_set_values_directly
 t10) [x] Test that complex variable compositions works. Examples:
            array_var[1].field_one works
            array_var[other_var + 2]
