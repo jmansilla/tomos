@@ -29,7 +29,7 @@ class ExpressionEvaluator(NodeVisitor):
             return CharType.NAMED_LITERALS[raw]
         if CharType.is_valid_value(raw):
             return raw
-        raise ExpressionEvaluationError(f"Invalid char value \"{expr.value_str}\"")
+        raise ExpressionEvaluationError(f'Invalid char value "{expr.value_str}"')
 
     def visit_integer_literal(self, expr, children, state):
         raw = expr.value_str

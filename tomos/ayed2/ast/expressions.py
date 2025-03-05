@@ -1,4 +1,3 @@
-
 from tomos.ayed2.ast.base import ASTNode
 from tomos.ayed2.ast.types import *
 from tomos.ayed2.parser.token import Token
@@ -10,6 +9,7 @@ class Expr(ASTNode):
 
 class LazyExpr(Expr):
     is_lazy = True
+
     def __init__(self, expr):
         assert isinstance(expr, Expr)
         self.expr = expr
@@ -66,12 +66,16 @@ class EnumLiteral(_Literal):
 
 
 class TraverseStep:
-    DEREFERENCE = '*'
-    ARRAY_INDEXING = '[%s]'
-    ACCESSED_FIELD = '.%s'
+    DEREFERENCE = "*"
+    ARRAY_INDEXING = "[%s]"
+    ACCESSED_FIELD = ".%s"
 
     def __init__(self, kind, argument=None):
-        assert kind in [TraverseStep.DEREFERENCE, TraverseStep.ARRAY_INDEXING, TraverseStep.ACCESSED_FIELD]
+        assert kind in [
+            TraverseStep.DEREFERENCE,
+            TraverseStep.ARRAY_INDEXING,
+            TraverseStep.ACCESSED_FIELD,
+        ]
         self.kind = kind
         if kind is not TraverseStep.DEREFERENCE:
             assert argument is not None
@@ -86,7 +90,9 @@ class Variable(Expr):
     ACCESSED_FIELD = TraverseStep.ACCESSED_FIELD
 
     def __init__(self, name_token):
-        assert isinstance(name_token, Token), f'Expected token, got {type(name_token)}, {name_token}'
+        assert isinstance(
+            name_token, Token
+        ), f"Expected token, got {type(name_token)}, {name_token}"
         self.name_token = name_token
         self.traverse_path = []
 
@@ -107,7 +113,7 @@ class Variable(Expr):
         for i, step in enumerate(self.traverse_path):
             if step.kind == TraverseStep.DEREFERENCE:
                 if i == 0:
-                    result = "*"+result
+                    result = "*" + result
                 else:
                     result = f"*({result})"
             else:
@@ -120,4 +126,3 @@ class Variable(Expr):
 
     def __repr__(self) -> str:
         return f"Variable({str(self)})"
-

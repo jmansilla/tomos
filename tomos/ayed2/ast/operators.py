@@ -49,7 +49,11 @@ class UnaryOp(Expr):
 class BinaryOp(Expr):
 
     def __init__(self, left_expr, op_token, right_expr):
-        assert isinstance(op_token, Token) and isinstance(left_expr, Expr) and isinstance(right_expr, Expr)
+        assert (
+            isinstance(op_token, Token)
+            and isinstance(left_expr, Expr)
+            and isinstance(right_expr, Expr)
+        )
         self.left_expr = left_expr
         self.op_token = op_token
         self.right_expr = right_expr

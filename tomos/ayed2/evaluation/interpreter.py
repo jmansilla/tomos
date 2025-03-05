@@ -17,6 +17,7 @@ class Interpreter:
     Interpreter for sentences/commands (generally speaking: instructions).
     Exposes the public interface of interpreter.
     """
+
     def __init__(self, ast, pre_hooks=None, post_hooks=None):
         self.ast = ast
         self.pre_hooks = pre_hooks or []
@@ -62,7 +63,7 @@ class Interpreter:
 
     def _run_post_hooks(self, state):
         # Hooks need to handle the case of last_executed_sentence == None
-        # which happens when loading a state from file.
+        # which happens when loading a state from file.
         expr_cache = self.sent_evaluator.flush_intermediate_evaluated_expressions()
         for hook in self.post_hooks:
             hook(self.last_executed_sentence, state, expr_cache)
@@ -72,6 +73,7 @@ class SentenceEvaluator(NodeVisitor):
     """
     Evaluates sentences
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.expression_evaluator = ExpressionEvaluator()
@@ -155,7 +157,7 @@ class SentenceEvaluator(NodeVisitor):
 
     def visit_builtin_call(self, sentence, state, **kw):
         name = sentence.name
-        if name in ['alloc', 'free']:
+        if name in ["alloc", "free"]:
             variable = sentence.args[0]
             method = getattr(state, name)
             method(variable)

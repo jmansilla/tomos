@@ -9,4 +9,3 @@ def highlight(code):
     lexer = Ayed2Lexer()
     formatter = TerminalTrueColorFormatter(style=Ayed2Style)
     return pyg_highlight(code, lexer, formatter)
-

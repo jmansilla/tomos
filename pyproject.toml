@@ -25,9 +25,14 @@ pydantic = "^2.10.6"
 pytest = "^8.3.4"
 factory-boy = "^3.3.1"
 
+pytest-cov = "^6.0.0"
+black = "^25.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 tomos = "tomos.ui.cli:main"
+
+[tool.black]
+line-length = 100

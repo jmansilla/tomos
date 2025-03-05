@@ -19,15 +19,20 @@ thickness = configs.THICKNESS
 class Switch:
     def __init__(self):
         self._state = True
+
     def turn_on(self):
         self._state = True
+
     def turn_off(self):
         self._state = False
+
     def flip(self):
         self._state = not self._state
+
     @property
     def is_on(self):
         return self._state
+
 
 HIGHLIGHTING_SWITCH = Switch()
 
@@ -41,9 +46,9 @@ class ColorAssigner:
         if isinstance(_type, ayed_types.Synonym):
             _type = _type.underlying_type_closure()
         if isinstance(_type, ayed_types.ArrayOf):
-            return cls.get_color('ArrayOf')
+            return cls.get_color("ArrayOf")
         if isinstance(_type, ayed_types.Tuple):
-            return cls.get_color('Tuple')
+            return cls.get_color("Tuple")
 
         type_name = str(_type)
         if type_name in cls.cache:
@@ -63,7 +68,7 @@ class ColorAssigner:
 
     @classmethod
     def is_pointer_of(cls, _type):
-        # We will only return True if its a Pointer (and not a Synonym of a pointer)
+        # We will only return True if its a Pointer (and not a Synonym of a pointer)
         # Returns boolean (true/false), and the pointed-type
         if isinstance(_type, ayed_types.PointerOf):
             return True, _type.of
@@ -72,20 +77,19 @@ class ColorAssigner:
 
     @classmethod
     def darken_it(cls, color, amount=0.2, smooth=True):
-        as_ints = ImageColor.getcolor(color, 'RGB')
-        rgb_as_float = [x/255 for x in as_ints]  # type: ignore
+        as_ints = ImageColor.getcolor(color, "RGB")
+        rgb_as_float = [x / 255 for x in as_ints]  # type: ignore
         hls = colorsys.rgb_to_hls(*rgb_as_float)  # type: ignore
-        while smooth and amount > 0.05 and hls[1] <= amount*2:
+        while smooth and amount > 0.05 and hls[1] <= amount * 2:
             # if color has low ligth, reduce the darkening
             amount = amount - 0.05
-        dhls = (hls[0], max(0, hls[1]-amount), hls[2])
+        dhls = (hls[0], max(0, hls[1] - amount), hls[2])
         darken = colorsys.hls_to_rgb(*dhls)
         d_rgb = [int(x * 255) for x in darken]  # type: ignore
         return "#{:02x}{:02x}{:02x}".format(*d_rgb)
 
 
-def create_variable_sprite(name, _type, value, vars_index, in_heap=False,
-                           mixin_to_use=None):
+def create_variable_sprite(name, _type, value, vars_index, in_heap=False, mixin_to_use=None):
 
     if isinstance(_type, ayed_types.Synonym):
         _type = _type.underlying_type_closure()
@@ -99,8 +103,10 @@ def create_variable_sprite(name, _type, value, vars_index, in_heap=False,
     else:
         klass = VariableSprite
     if mixin_to_use:
-        class element_klass(mixin_to_use, klass):    # type: ignore
+
+        class element_klass(mixin_to_use, klass):  # type: ignore
             pass
+
         klass = element_klass
     return klass(name, _type, value, vars_index, in_heap)  # type: ignore
 
@@ -109,12 +115,12 @@ class SubVarMixin:
 
     def add_name_sprite(self, name):
         if isinstance(name, int):
-            name = '[%d]' % name
+            name = "[%d]" % name
         max_len = configs.TUPLE_FIELD_NAME_MAX_LEN
         name = str(name)
         if len(name) > max_len:
             name = name[:max_len] + "…"
-        self.name_sprite = build_text(str(name), color='black')  # type: ignore
+        self.name_sprite = build_text(str(name), color="black")  # type: ignore
 
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
@@ -130,10 +136,10 @@ class SubVarMixin:
 class VariableSprite(Container):
 
     def __init__(self, name, _type, value, vars_index, in_heap=False):
-        self.name = name    # for debugging.
+        self.name = name  # for debugging.
         self._type = _type
         self.in_heap = in_heap
-        self.vars_index = vars_index # for pointers, to be able to draw arrows
+        self.vars_index = vars_index  # for pointers, to be able to draw arrows
         self.color = self.get_color_by_type(_type)
         super().__init__(Point(0, 0))  # created at origin. Needs to be shifted later.
         dx, dy = self.add_name_sprite(name)
@@ -144,11 +150,11 @@ class VariableSprite(Container):
         return ColorAssigner.get_color(_type)
 
     def add_name_sprite(self, name):
-        # Create the name sprite, adds it to self,
+        # Create the name sprite, adds it to self,
         # and returns (dx, dy) delta for value rect object
         self.name_sprite = build_text(str(name))
         self.add(self.name_sprite)
-        return 0, self.name_sprite.box_height + configs.PADDING*.5
+        return 0, self.name_sprite.box_height + configs.PADDING * 0.5
 
     def get_stroke_with_and_color(self):
         return 2, "white"
@@ -159,10 +165,16 @@ class VariableSprite(Container):
         h *= configs.SCALE
         stk_width, stk_color = self.get_stroke_with_and_color()
         rect = RoundedRectangle(
-            x, y, width=w, height=h,
-            fill_color=self.color, fill_opacity=0.45,
-            stroke_width=stk_width, stroke_color=stk_color,
-            corner_radius=7)
+            x,
+            y,
+            width=w,
+            height=h,
+            fill_color=self.color,
+            fill_opacity=0.45,
+            stroke_width=stk_width,
+            stroke_color=stk_color,
+            corner_radius=7,
+        )
         self.add(rect)
         return rect
 
@@ -170,7 +182,9 @@ class VariableSprite(Container):
         if isinstance(value, EnumConstant):
             value = value.name
         new_value_sprite = self.build_value_sprite(value)
-        old_value_sprite = getattr(self, 'value_sprite', None)  # shall be None only for the first time
+        old_value_sprite = getattr(
+            self, "value_sprite", None
+        )  # shall be None only for the first time
         if old_value_sprite is not None:
             self.remove(self.value_sprite)
         self.value_sprite = new_value_sprite
@@ -182,7 +196,7 @@ class VariableSprite(Container):
         value_sprite = build_text(str(value), highlightable=True)
         value_sprite.center_respect_to(self.rect)
         # centering text in pillow is not so easy
-        value_sprite.shift(movement.UP * value_sprite.box_height * .1)
+        value_sprite.shift(movement.UP * value_sprite.box_height * 0.1)
         return value_sprite
 
     def point_to_receive_arrow(self, heap_to_heap=False):
@@ -228,10 +242,19 @@ class PointerVarSprite(VariableSprite):
         x, y = self.arrow_start_point
         to_x, to_y = var.point_to_receive_arrow(heap_to_heap=self.in_heap)
         if self.in_heap:
-            arrow = self.heap_arrow_manager.add_arrow(x, y, to_x, to_y, self.arrow_color, thickness, self.tip_height)
+            arrow = self.heap_arrow_manager.add_arrow(
+                x, y, to_x, to_y, self.arrow_color, thickness, self.tip_height
+            )
         else:
-            arrow = Arrow(x, y, to_x, to_y, color=self.arrow_color,
-                      thickness=thickness, tip_height=self.tip_height)
+            arrow = Arrow(
+                x,
+                y,
+                to_x,
+                to_y,
+                color=self.arrow_color,
+                thickness=thickness,
+                tip_height=self.tip_height,
+            )
         return arrow
 
     def set_value(self, value):
@@ -243,7 +266,7 @@ class PointerVarSprite(VariableSprite):
         else:
             pointed_var = self.vars_index[value]
             new_arrow = self.build_arrow_to_var(pointed_var)
-        old_arrow = getattr(self, 'arrow', None)  # shall be None only for the first time
+        old_arrow = getattr(self, "arrow", None)  # shall be None only for the first time
         if old_arrow is not None:
             self.heap_arrow_manager.remove_arrow_if_heap_to_heap(old_arrow)
             self.remove(self.arrow)
@@ -278,9 +301,15 @@ class ComposedSprite(VariableSprite):
         else:
             w *= self.length
 
-        rect = Rectangle(x, y, w + self.margin, h + self.margin * 2,
-                         fill_color=self.color,
-                         stroke_color="gray", stroke_width=1)
+        rect = Rectangle(
+            x,
+            y,
+            w + self.margin,
+            h + self.margin * 2,
+            fill_color=self.color,
+            stroke_color="gray",
+            stroke_width=1,
+        )
         self.add(rect)
         self.rect = rect
         self.build_subsprites(x, y, vertical)
@@ -305,9 +334,9 @@ class ComposedSprite(VariableSprite):
         self.subsprites = {}
         max_x = 0
         for i, (fname, ftype) in enumerate(self.iterate_fields()):
-            sub_var = create_variable_sprite(fname, ftype, '--', self.vars_index,
-                                         in_heap=self.in_heap,
-                                         mixin_to_use=SubVarMixin)
+            sub_var = create_variable_sprite(
+                fname, ftype, "--", self.vars_index, in_heap=self.in_heap, mixin_to_use=SubVarMixin
+            )
             self.subsprites[fname] = sub_var
             self.add(sub_var)
             sub_var.move_to(Point(x, y))
@@ -330,7 +359,7 @@ class ComposedSprite(VariableSprite):
 
 
 class ArraySprite(ComposedSprite):
-    # Assumptions:
+    # Assumptions:
     # - the array is of elements of a basic type, enum, pointer, or synonym of them.
     # - the array length is known, does not change, and it's bigger than 0.
     # - the array has a single dimension.
@@ -350,7 +379,7 @@ class ArraySprite(ComposedSprite):
             raise CantDrawError(f"Cannot draw an array with shape '{shape}' and value '{value}'.")
 
     def set_value(self, value):
-        as_dict = {i:v for i, v in enumerate(value)}
+        as_dict = {i: v for i, v in enumerate(value)}
         super().set_value(as_dict)
 
     def vertical_orientation(self):
@@ -362,7 +391,7 @@ class ArraySprite(ComposedSprite):
 
 
 class TupleSprite(ComposedSprite):
-    # Assumptions:
+    # Assumptions:
     # - tuple fields are of basic type, enum, pointer, or synonym of them.
 
     def check_is_drawable(self, _type, value):
@@ -376,7 +405,9 @@ class TupleSprite(ComposedSprite):
                 raise CantDrawError(f"Cannot draw an tuple with field of type '{type(ftype)}'.")
 
         if len(_type.fields_mapping) != len(value):
-            raise CantDrawError(f"Cannot draw a tuple with fields '{_type.fields_mapping}' and value '{value}'.")
+            raise CantDrawError(
+                f"Cannot draw a tuple with fields '{_type.fields_mapping}' and value '{value}'."
+            )
 
     def vertical_orientation(self):
         return configs.TUPLE_ORIENTATION == "vertical"
@@ -384,4 +415,3 @@ class TupleSprite(ComposedSprite):
     def iterate_fields(self):
         for fname, ftype in self._type.fields_mapping.items():
             yield fname, ftype
-

@@ -4,9 +4,7 @@ from tomos.ayed2.evaluation.unknown_value import UnknownValue
 
 class MemoryAllocator:
     def __init__(self):
-        self.next_free_address = dict(
-            [(partition, 0) for partition in MemoryAddress.PARTITIONS]
-        )
+        self.next_free_address = dict([(partition, 0) for partition in MemoryAddress.PARTITIONS])
 
     def allocate(self, partition, var_type):
         assert partition in MemoryAddress.PARTITIONS
@@ -28,8 +26,8 @@ class MemoryAllocator:
 
 
 class MemoryAddress:
-    STACK = 'S'
-    HEAP = 'H'
+    STACK = "S"
+    HEAP = "H"
     PARTITIONS = [STACK, HEAP]
 
     def __init__(self, partition, address):
@@ -105,7 +103,7 @@ class ArrayCellCluster:
             if len(shape) == 1:
                 return lst
             n = reduce(mul, shape[1:])
-            return [reshape(lst[i*n:(i+1)*n], shape[1:]) for i in range(len(lst)//n)]
+            return [reshape(lst[i * n : (i + 1) * n], shape[1:]) for i in range(len(lst) // n)]
 
         values = [cell.value for cell in self.sub_cells]
         needed_shape = self.array_type.shape()
@@ -142,7 +140,7 @@ class TupleCellCluster:
     @property
     def value(self):
         # used by the UIs & testing
-        return {str(k):sc.value for k, sc in self.sub_cells.items()}
+        return {str(k): sc.value for k, sc in self.sub_cells.items()}
 
     def __repr__(self):
         return f"TupleCellCluster({self.tuple_type}, value={self.value})"

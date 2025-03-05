@@ -21,6 +21,7 @@ Options:
     --version             Show version and exit.
     -h --help             Show this message and exit.
 """
+
 import importlib.metadata
 from pathlib import Path
 from sys import exit
@@ -72,8 +73,6 @@ def main():
         pre_hooks = []
         post_hooks = []
 
-        load_state_from = opts["--load-state"]
-
         if opts["--movie"]:
             if not opts["--movie"].endswith(".mp4"):
                 print("Movie must be a .mp4 file.")
@@ -81,17 +80,17 @@ def main():
             timeline = RememberState()
             post_hooks = [timeline]
 
-        interpreter = Interpreter(ast,
-                                  pre_hooks=pre_hooks,
-                                  post_hooks=post_hooks)
+        interpreter = Interpreter(ast, pre_hooks=pre_hooks, post_hooks=post_hooks)
         final_state = interpreter.run(initial_state=initial_state)
 
         if opts["--movie"]:
             # slow import. Only needed if --movie is set
             from tomos.ui.movie.builder import build_movie_from_file
+
             movie_path = Path(opts["--movie"])
-            build_movie_from_file(source_path, movie_path, timeline,
-                                  explicit_frames_only=opts["--explicit-frames"])
+            build_movie_from_file(
+                source_path, movie_path, timeline, explicit_frames_only=opts["--explicit-frames"]
+            )
             if opts["--autoplay"]:
                 if not movie_path.exists():
                     print(f"Unable to find movie {movie_path}")
@@ -110,6 +109,7 @@ def play_movie(movie_path):
     from unittest import mock
     from moviepy import VideoFileClip
     from tomos.ui.patch_moviepy import FixedPreviewer
+
     with mock.patch("moviepy.video.io.ffplay_previewer.FFPLAY_VideoPreviewer", new=FixedPreviewer):
         clip = VideoFileClip(movie_path)
         clip.preview()

@@ -18,7 +18,7 @@ else:
 
 def build_movie_from_file(source_code_path, movie_path, timeline, explicit_frames_only=False):
     frames_path = FRAMES_PARENT_PATH / Path(source_code_path).name
-    source_code = open(source_code_path, 'r').read()
+    source_code = open(source_code_path, "r").read()
     build_movie_frames(source_code, timeline, frames_path, explicit_frames_only)
     generate_mp4(frames_path, movie_path)
     return

@@ -1,9 +1,15 @@
 from unittest import TestCase
 
-from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym, type_registry
+from tomos.ayed2.ast.types import IntType, BoolType, RealType, CharType, PointerOf, Synonym
 from tomos.ayed2.evaluation.state import State, UnknownValue, MemoryAddress
-from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosTypeError, UndeclaredVariableError
+from tomos.exceptions import (
+    AlreadyDeclaredVariableError,
+    MemoryInfrigementError,
+    TomosTypeError,
+    UndeclaredVariableError,
+)
 from .factories.expressions import VariableFactory
+
 
 def Var(name):
     return VariableFactory(name_token__value=name)
@@ -94,10 +100,10 @@ class TestEvalStateAllocFree(TestCase):
         state = State()
         state.declare_static_variable("x", PointerOf(IntType()))
         var = Var("x")
-        state.alloc(Var("x"))
-        state.free(Var("x"))
+        state.alloc(var)
+        state.free(var)
         with self.assertRaises(MemoryInfrigementError):
-            state.free(Var("x"))
+            state.free(var)
 
     def test_alloc_free_for_not_declared_variable_raises_exception(self):
         state = State()
@@ -132,4 +138,3 @@ class TestEvalStateForSynonyms(TestCase):
         state.free(var)
         self.assertEqual(state.get_variable_value(var), UnknownValue)
         self.assertNotIn(value, state.heap)
-

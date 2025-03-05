@@ -14,9 +14,9 @@ class MetadataParser:
 
 
 class DetectExplicitCheckpoints:
-    # pattern will express lines that ends with " // checkpoint" or "checkpoint:", and
+    # pattern will express lines that ends with " // checkpoint" or "checkpoint:", and
     # some optionally followed by the checkpoint name
-    pattern = re.compile(r'.*//\s*checkpoint(\W|$)(:.*)?')
+    pattern = re.compile(r".*//\s*checkpoint(\W|$)(:.*)?")
 
     def __init__(self, ast, source_code):
         self.ast = ast
@@ -81,4 +81,3 @@ class SentencesLister:
 
     def list_sentences(self, ast):
         return self.visit(ast.body)
-

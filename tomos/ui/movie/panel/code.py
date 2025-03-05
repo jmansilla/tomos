@@ -16,8 +16,8 @@ logger = getLogger(__name__)
 
 
 class NextPrevLineFormatter(ImageFormatter):
-    _NEXT = 'next'
-    _PREV = 'prev'
+    _NEXT = "next"
+    _PREV = "prev"
 
     def __init__(self, *args, next_line_nr=None, prev_line_nr=None, **kwargs):
         color_order = []
@@ -39,7 +39,7 @@ class NextPrevLineFormatter(ImageFormatter):
                     color_order = [self._NEXT, self._PREV]
                 else:
                     color_order = [self._PREV, self._NEXT]
-        kwargs['hl_lines'] = lines
+        kwargs["hl_lines"] = lines
         super().__init__(*args, **kwargs)
         self.color_order = color_order
         self._hl_prev_color = configs.CODEBOX_NEXT_LINE_BGCOLOR
@@ -63,6 +63,7 @@ class NextPrevLineFormatter(ImageFormatter):
 
 class CodeBox(BaseImgElem):
     line_pad = 2
+
     def __init__(self, source_code, language="ayed2", font_size=18, bg_color=None):
         self.source_code = source_code
         self.language = language
@@ -84,13 +85,14 @@ class CodeBox(BaseImgElem):
     def formatter(self):
         style = Ayed2Style
         style.background_color = self.bg_color
-        kw = {"font_size": self.font_size,
-              "line_pad": self.line_pad,
-              "line_numbers": True,
-              "style": style,
-              "next_line_nr": self.next_line_nr,
-              "prev_line_nr": self.prev_line_nr
-              }
+        kw = {
+            "font_size": self.font_size,
+            "line_pad": self.line_pad,
+            "line_numbers": True,
+            "style": style,
+            "next_line_nr": self.next_line_nr,
+            "prev_line_nr": self.prev_line_nr,
+        }
         return NextPrevLineFormatter(**kw)
 
     def draw_me(self, pencil):

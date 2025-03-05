@@ -1,5 +1,11 @@
 from tomos.ayed2.ast.types import ArrayOf, Tuple, Synonym
-from tomos.exceptions import AlreadyDeclaredVariableError, MemoryInfrigementError, TomosRuntimeError, TomosTypeError, UndeclaredVariableError
+from tomos.exceptions import (
+    AlreadyDeclaredVariableError,
+    MemoryInfrigementError,
+    TomosRuntimeError,
+    TomosTypeError,
+    UndeclaredVariableError,
+)
 from tomos.ayed2.evaluation.memory import MemoryAllocator, MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
 from tomos.ayed2.evaluation.limits import LIMITER
@@ -8,8 +14,8 @@ from tomos.ayed2.evaluation.limits import LIMITER
 class State:
     def __init__(self):
         self.allocator = MemoryAllocator()  # creates references to memory cells & clusters
-        self.stack = dict()                 # stack. Maps names -> cells
-        self.heap = dict()                  # heap.  Maps mem_address -> cells
+        self.stack = dict()  # stack. Maps names -> cells
+        self.heap = dict()  # heap.  Maps mem_address -> cells
 
     def set_expressions_evaluator(self, evaluator):
         self.evaluator = evaluator
@@ -69,13 +75,13 @@ class State:
         # AST Variables have a traversal_path attribute which is a list of steps.
         # Example: if the expression is days[i+1].year, a traversal path should start
         # with the "days" variable, first step should be an ArrayIndexing for (i+1),
-        # and following step should be an AccessedField step for "year".
+        # and following step should be an AccessedField step for "year".
 
         # Returns the memory cell resulting of walking each of the mentioned steps.
 
         name = var.name
         if name not in self.stack:
-            raise UndeclaredVariableError(f"Can't access variable \"{name}\". It was not declared.")
+            raise UndeclaredVariableError(f'Can\'t access variable "{name}". It was not declared.')
         cell = self.stack[name]
         for step in var.traverse_path:
             if step.kind == var.DEREFERENCE:
@@ -88,9 +94,7 @@ class State:
                 assert isinstance(cell.var_type, ArrayOf)
                 indexing = step.argument
                 exp_eval = self.get_expression_evaluator()
-                evaluated_indexing = [
-                    exp_eval.eval(expr, self) for expr in indexing
-                ]
+                evaluated_indexing = [exp_eval.eval(expr, self) for expr in indexing]
                 try:
                     cell = cell[evaluated_indexing]
                 except IndexError:
@@ -123,7 +127,6 @@ class State:
         cell.value = value
 
     def get_variable_value(self, var):
-        name = var.name
         cell = self.cell_after_traversal(var)
         if not cell.can_get_set_values_directly:
             raise MemoryInfrigementError(f"Cell type {type(cell)} can't be accessed directly.")

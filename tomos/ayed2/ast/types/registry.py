@@ -1,8 +1,7 @@
 from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.exceptions import TomosTypeError
-from .basic import IntType, RealType, BoolType, CharType, PointerOf, UserDefinedType
+from .basic import IntType, RealType, BoolType, CharType, UserDefinedType
 from .enum import Enum
-from .t_tuple import Tuple
 
 
 class EnumConstantsRegistry:
@@ -19,19 +18,24 @@ class EnumConstantsRegistry:
 
     def get_constant(self, name):
         if not name in self.constant_mapping:
-            raise TomosTypeError(f"Unknown enum constant: {name}. Available constants are: {list(self.constant_mapping.keys())}")
+            raise TomosTypeError(
+                f"Unknown enum constant: {name}. Available constants are: {list(self.constant_mapping.keys())}"
+            )
         return self.constant_mapping[name]
 
 
 class TypeRegistry:
     class Deferred:
         is_deferred = True
+
         def __init__(self, name, reg):
             self.name = name
             self.registry = reg
+
         def resolve(self):
             factory = self.registry.get_type_factory(self.name)
             return factory()
+
         def __repr__(self):
             return f"Deferred({self.name})"
 
@@ -53,7 +57,9 @@ class TypeRegistry:
     def register_type(self, name, new_type):
         name = str(name)  # get rid of Token objects
         if not isinstance(new_type, UserDefinedType):
-            raise TomosTypeError(f"Cant register type {new_type} because it does not inherit from UserDefinedType.")
+            raise TomosTypeError(
+                f"Cant register type {new_type} because it does not inherit from UserDefinedType."
+            )
         if name in self.type_map:
             raise TomosTypeError(f"Type {name} is already registered.")
         if isinstance(new_type, Enum):
@@ -70,7 +76,9 @@ class TypeRegistry:
         if name not in self.type_map:
             if deferred_if_not_found:
                 return self.Deferred(name, self)
-            raise TomosTypeError(f"Unknown type: {name}. Available types are: {list(self.type_map.keys())}")
+            raise TomosTypeError(
+                f"Unknown type: {name}. Available types are: {list(self.type_map.keys())}"
+            )
         return self.type_map[name]
 
     def list_types(self):
@@ -90,8 +98,10 @@ class TypeRegistry:
         self.type_map.update(other.type_map)
         new_enum_constants = other._enum_constants.constant_mapping
         if self._enum_constants.get_overlap(new_enum_constants):
-            raise TomosTypeError(f"Enum constants overlap: {self._enum_constants.get_overlap(new_enum_constants)}")
+            raise TomosTypeError(
+                f"Enum constants overlap: {self._enum_constants.get_overlap(new_enum_constants)}"
+            )
         self._enum_constants.update(new_enum_constants)
 
 
-type_registry = TypeRegistry()  # Global type registry
+type_registry = TypeRegistry()  # Global type registry

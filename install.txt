@@ -1,3 +1,0 @@
-In order to install tomos, you need to install manim. Please follow the steps for your architecture here
-
-https://docs.manim.community/en/stable/installation.html

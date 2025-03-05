@@ -13,9 +13,13 @@ class Tuple(UserDefinedType):
         self.tuple_size = 0
         for k, t in fields_mapping.items():
             if not isinstance(k, str):
-                raise TomosTypeError(f"Declaring Tuple, field name must be a string. Got {type(k)} instead.")
+                raise TomosTypeError(
+                    f"Declaring Tuple, field name must be a string. Got {type(k)} instead."
+                )
             if not isinstance(t, Ayed2Type):
-                raise TomosTypeError(f"Declaring Tuple, field type. Expected Ayed2Type, got {type(t)} instead.")
+                raise TomosTypeError(
+                    f"Declaring Tuple, field type. Expected Ayed2Type, got {type(t)} instead."
+                )
             self.tuple_size += t.SIZE  # type: ignore
         self.fields_mapping = fields_mapping
 

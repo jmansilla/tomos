@@ -2,8 +2,9 @@ from os import system
 from tomos.ayed2.parser.syntax_highlight import highlight
 from tomos.ui.colors import bcolors
 
+
 def _clear_screen():
-    system('cls' if system == 'nt' else 'clear')
+    system("cls" if system == "nt" else "clear")
 
 
 class ShowSentence:
@@ -12,7 +13,7 @@ class ShowSentence:
         self.filename = filename
         self.full = full
         source_hl = highlight(open(filename).read())
-        self.source_lines = source_hl.split('\n')
+        self.source_lines = source_hl.split("\n")
 
     def __call__(self, last_sentence, state, sentence_to_run):
         if self.full:
@@ -32,4 +33,3 @@ class ShowSentence:
             print(bcolors.OKCYAN, sentence_to_run, bcolors.ENDC)
             actual_line = self.source_lines[sentence_to_run.line_number - 1]
             print(bcolors.OKBLUE, actual_line, bcolors.ENDC)
-

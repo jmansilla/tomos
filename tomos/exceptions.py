@@ -1,6 +1,6 @@
-
 class TomosException(Exception):
     """Base class for custom exceptions in this project."""
+
     pass
 
 
@@ -20,13 +20,14 @@ class TomosSyntaxError(TomosException):
         if line_nr is None:
             return self.base_msg
         else:
-            return f'On line {line_nr}: {self.base_msg}.'
+            return f"On line {line_nr}: {self.base_msg}."
 
     def guess_line_number(self, data):
         from tomos.ayed2.parser.token import Token
         from tomos.ayed2.ast.expressions import Expr
         from tomos.ayed2.ast.program import ProgramExpression
         from tomos.ayed2.ast.sentences import Sentence
+
         if isinstance(data, Token):
             return data.line
         elif isinstance(data, (tuple, list)):

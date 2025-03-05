@@ -61,13 +61,11 @@ class BuiltinCall(Sentence):
 class If(Sentence):
     def __init__(self, guard, then_sentences, else_sentences):
         if not isinstance(guard, Expr):
-            raise TomosSyntaxError(
-                "guard must be an expression",
-                guess_line_nr_from=guard)
+            raise TomosSyntaxError("guard must be an expression", guess_line_nr_from=guard)
         if not isinstance(then_sentences, list) or not isinstance(else_sentences, list):
             raise TomosSyntaxError(
-                "then_sentences and else_sentences must be lists",
-                guess_line_nr_from=then_sentences)
+                "then_sentences and else_sentences must be lists", guess_line_nr_from=then_sentences
+            )
         self.guard = guard
         self.then_sentences = then_sentences
         if self.then_sentences:
@@ -122,7 +120,9 @@ class For(Sentence):
         if not isinstance(variable, Variable):
             raise TomosSyntaxError("variable must be a variable", guess_line_nr_from=variable)
         if not isinstance(start, Expr):
-            raise TomosSyntaxError("start must be an expression", guess_line_nr_from=[start, variable])
+            raise TomosSyntaxError(
+                "start must be an expression", guess_line_nr_from=[start, variable]
+            )
         if not isinstance(end, Expr):
             raise TomosSyntaxError("end must be an expression", guess_line_nr_from=[end, variable])
         if not isinstance(sentences, list):
@@ -130,8 +130,9 @@ class For(Sentence):
         elif not sentences:
             raise TomosSyntaxError("sentences must not be empty", guess_line_nr_from=variable)
         if direction_up not in (True, False):
-            raise TomosSyntaxError("direction_up must be True or False",
-                                   guess_line_nr_from=[direction_up, variable])
+            raise TomosSyntaxError(
+                "direction_up must be True or False", guess_line_nr_from=[direction_up, variable]
+            )
         self.loop_in_progress = False
         self.loop_variable = variable
         self.start = start
@@ -167,11 +168,12 @@ class Assignment(Sentence):
         if not isinstance(dest_variable, Variable):
             raise TomosSyntaxError(
                 f"dest_variable must be a variable, not {type(dest_variable)} instead",
-                guess_line_nr_from=dest_variable)
+                guess_line_nr_from=dest_variable,
+            )
         if not isinstance(expr, Expr):
             raise TomosSyntaxError(
-                f"expr must be an expression, not {type(expr)} instead",
-                guess_line_nr_from=expr)
+                f"expr must be an expression, not {type(expr)} instead", guess_line_nr_from=expr
+            )
         self.dest_variable = dest_variable
         self.expr = expr
 
