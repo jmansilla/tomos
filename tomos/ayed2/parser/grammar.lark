@@ -1,5 +1,4 @@
 // Everything that's defined like <<TYPEDECLARATION>> means to be done later
-// Everything in the shape of {some_name} will be replaced in python code
 
 ?program           : typedecl_section funprocdef_section body
 typedecl_section    : (typedecl _SEP)*

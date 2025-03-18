@@ -96,8 +96,7 @@ class PointerOf(BasicType):
 
     @classmethod
     def is_valid_value(cls, value):
-        from tomos.ayed2.evaluation.state import MemoryAddress  # FIXME
-
+        from tomos.ayed2.evaluation.state import MemoryAddress  # circular import
         return value in cls.NAMED_LITERALS.values() or isinstance(value, MemoryAddress)
 
     def has_deferrals(self, crumbs=[]):

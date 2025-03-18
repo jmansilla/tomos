@@ -1,4 +1,5 @@
 from .basic import (
+    BasicType,
     Ayed2Type,
     UserDefinedType,
     IntType,
@@ -15,6 +16,7 @@ from .synonym import Synonym
 from .t_tuple import Tuple
 
 __all__ = [
+    "BasicType",
     "Ayed2Type",
     "UserDefinedType",
     "IntType",
