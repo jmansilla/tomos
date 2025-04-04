@@ -54,6 +54,8 @@ class TomosScene(Scene):
         memory_block.z_index = 1
         self.add(memory_block)
         memory_block.shift(movement.RIGHT * (self.width / 2))
+        if configs.MEMORY_BOARD_DISPLACEMENT:
+            memory_block.shift(movement.RIGHT * configs.MEMORY_BOARD_DISPLACEMENT)
 
         code_block = TomosCode(self.source_code)
         code_block.center_respect_to(self)
