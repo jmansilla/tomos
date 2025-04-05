@@ -35,7 +35,8 @@ def build_movie_frames(code, timeline, frames_path, explicit_frames_only=False):
 def generate_mp4(frames_path, movie_path):
     frames_folder = frames_path / "frames"
     fps = getattr(configs, "FPS", 1)
-    image_files = [str(f) for f in sorted(frames_folder.glob("*.jpg"))]
+    extension = getattr(configs, "FRAME_FILE_FORMAT", "png")
+    image_files = [str(f) for f in sorted(frames_folder.glob("*." + extension))]
     if not image_files:
         logger.error(f"Unable to find any image in {frames_folder}")
         exit(0)
