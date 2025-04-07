@@ -12,6 +12,7 @@ i := getenv("LINKED_LIST_LENGTH":int)
 
 alloc(my_list)
 a_node := my_list
+i := i - 1 // first node built 
 
 while i > 0 do
     a_node->data := i*10
