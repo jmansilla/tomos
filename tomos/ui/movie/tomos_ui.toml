@@ -6,8 +6,12 @@ CANVAS_SIZE = [1280, 720]
 CANVAS_COLOR = "#1A1A1D"
 
 MEMORY_BOARD_SIZE = [300, 650] # we'll have one for stack and one for heap
+MEMORY_BOARD_DISPLACEMENT = 0  # negative for left, positive for right
+MEMORY_TITLE_FONT_COLOR = "#FFFFFF"
 HEAP_CANVAS_COLOR = "#6A1E55"
 STACK_CANVAS_COLOR = "#3B1C32"
+
+FRAME_FILE_FORMAT = "png"
 
 THICKNESS = 2
 
@@ -26,6 +30,7 @@ ARRAY_ORIENTATION = "vertical"  # "vertical" or "horizontal"
 TUPLE_ORIENTATION = "vertical"  # "vertical" or "horizontal"
 TUPLE_FIELD_NAME_MAX_LEN = 7
 
+CODEBOX_STYLE = "ayed" # "default"
 CODEBOX_BGCOLOR = "#000000"
 CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
 CODEBOX_PREV_LINE_BGCOLOR = "#004d00"
@@ -51,5 +56,5 @@ IntType = "#3333ff"  # blue
 BoolType = "#994d00" # brown
 RealType = "#ff80ff" # pink
 CharType = "#e60000" # red
-ArrayOf = "#ffbb99"  # orange
+ArrayOf = "#ff9966"  # orange
 Tuple = "#79d279"    # green

@@ -8,10 +8,12 @@ Usage:
   tomos --version
 
 Options:
-    --movie=<fname>       Generates a movie with the execution (implicitly cancels --no-run if set).
-                          Must be a .mp4 file.
-    --autoplay            Autoplay the movie. Implicitly sets --movie=movie.mp4 if not set.
-    --explicit-frames     Only build frames for sentences that are explicitly requested (ending in //checkpoint).
+    --movie=<fname>       Generates a movie with the execution (implicitly
+                          cancels --no-run if set). Must be a .mp4 file.
+    --autoplay            Autoplay the movie. Implicitly sets --movie=movie.mp4
+                          if not set.
+    --explicit-frames     Only build frames for sentences that are explicitly
+                          requested (ending in //checkpoint).
     --no-run              Skips executing the program. Useful for debugging.
     --no-final-state      Skips printing the final state.
     --showast             Show the abstract syntax tree.
@@ -24,6 +26,7 @@ Options:
 
 import importlib.metadata
 from pathlib import Path
+from pprint import pprint
 from sys import exit
 
 from docopt import docopt
@@ -102,7 +105,13 @@ def main():
 
         if not opts["--no-final-state"]:
             # Hard to read this if-guard. Double negation means DO SHOW IT.
-            print(final_state)
+            print("Final state:")
+            print('  stack:')
+            for name, cell in final_state.stack.items():
+                print(f"    {name} ({cell.var_type}): {cell.value}")
+            print('  heap:')
+            for addr, cell in final_state.heap.items():
+                print(f"    {addr} ({cell.var_type}): {cell.value}")
 
 
 def play_movie(movie_path):

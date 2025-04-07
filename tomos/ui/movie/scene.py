@@ -21,7 +21,9 @@ class TomosScene(Scene):
         self.uses_heap = False
         self.pointers_heap_to_heap = False
         self.extract_configs_from_timeline()
-        super().__init__(configs.CANVAS_SIZE, output_path, color=configs.CANVAS_COLOR)
+        super().__init__(configs.CANVAS_SIZE, output_path,
+                         color=configs.CANVAS_COLOR,
+                         file_extension=configs.FRAME_FILE_FORMAT)
 
     def extract_configs_from_timeline(self):
         def check_cell_is_or_contains_pointer(cell):
@@ -54,6 +56,8 @@ class TomosScene(Scene):
         memory_block.z_index = 1
         self.add(memory_block)
         memory_block.shift(movement.RIGHT * (self.width / 2))
+        if configs.MEMORY_BOARD_DISPLACEMENT:
+            memory_block.shift(movement.RIGHT * configs.MEMORY_BOARD_DISPLACEMENT)
 
         code_block = TomosCode(self.source_code)
         code_block.center_respect_to(self)

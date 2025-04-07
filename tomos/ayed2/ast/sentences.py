@@ -40,11 +40,6 @@ class Skip(Sentence):
         return "Skip()"
 
 
-class ProcedureCall(Sentence):
-    # TODO
-    pass
-
-
 class BuiltinCall(Sentence):
     def __init__(self, name, args):
         self.name = name
@@ -188,3 +183,13 @@ class Assignment(Sentence):
     def __repr__(self) -> str:
         full_name = str(self.dest_variable)
         return f"Assignment(dest={full_name}, expr={self.expr})"
+
+
+class ProcedureCall(Sentence):
+    # TODO
+    pass
+
+
+class FunctionCall(Sentence):
+    # TODO
+    pass

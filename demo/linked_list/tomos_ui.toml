@@ -1,2 +1,3 @@
-CANVAS_SIZE = [1380, 920]
-MEMORY_BOARD_SIZE = [300, 850] # we'll have one for stack and one for heap
+CANVAS_SIZE = [1280, 820]
+MEMORY_BOARD_SIZE = [300, 750] # we'll have one for stack and one for heap
+CANVAS_COLOR = "#868e96" # "#ced4da"
