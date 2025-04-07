@@ -30,6 +30,7 @@ ARRAY_ORIENTATION = "vertical"  # "vertical" or "horizontal"
 TUPLE_ORIENTATION = "vertical"  # "vertical" or "horizontal"
 TUPLE_FIELD_NAME_MAX_LEN = 7
 
+CODEBOX_STYLE = "ayed" # "default"
 CODEBOX_BGCOLOR = "#000000"
 CODEBOX_NEXT_LINE_BGCOLOR = "#4d0000"
 CODEBOX_PREV_LINE_BGCOLOR = "#004d00"

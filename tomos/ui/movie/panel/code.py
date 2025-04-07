@@ -83,16 +83,17 @@ class CodeBox(BaseImgElem):
 
     @property
     def formatter(self):
-        style = Ayed2Style
-        style.background_color = self.bg_color
         kw = {
             "font_size": self.font_size,
             "line_pad": self.line_pad,
             "line_numbers": True,
-            "style": style,
             "next_line_nr": self.next_line_nr,
             "prev_line_nr": self.prev_line_nr,
         }
+        if configs.CODEBOX_STYLE in ["ayed2", "ayed"]:
+            style = Ayed2Style
+            style.background_color = self.bg_color
+            kw["style"] = style
         return NextPrevLineFormatter(**kw)
 
     def draw_me(self, pencil):
