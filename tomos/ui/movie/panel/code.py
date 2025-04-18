@@ -42,8 +42,8 @@ class NextPrevLineFormatter(ImageFormatter):
         kwargs["hl_lines"] = lines
         super().__init__(*args, **kwargs)
         self.color_order = color_order
-        self._hl_prev_color = configs.CODEBOX_NEXT_LINE_BGCOLOR
-        self._hl_next_color = configs.CODEBOX_PREV_LINE_BGCOLOR
+        self._hl_next_color = configs.CODEBOX_NEXT_LINE_BGCOLOR
+        self._hl_prev_color = configs.CODEBOX_PREV_LINE_BGCOLOR
 
     @property
     def hl_color(self):
