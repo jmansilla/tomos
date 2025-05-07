@@ -51,6 +51,10 @@ class Blackboard(Container):
         self.last_block.append(var)
         self.add(var)
 
+    def del_var(self, var):
+        self.remove(var)
+        self.last_block.remove(var)
+
 
 class MemoryBlock(Container):
 
@@ -126,11 +130,12 @@ class MemoryBlock(Container):
         self.vars_by_name[name] = var
 
     def delete_var(self, name, in_heap):
-        if not in_heap:
-            raise NotImplementedError()
         var = self.vars_by_name[name]
         self.vars_by_name.pop(name)
-        self.heap_blackboard.remove(var)
+        if in_heap:
+            self.heap_blackboard.del_var(var)
+        else:
+            self.stack_blackboard.del_var(var)
 
     def set_value(self, name, value):
         var = self.vars_by_name[name]

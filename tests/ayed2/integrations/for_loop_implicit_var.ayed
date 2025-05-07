@@ -1,7 +1,6 @@
 var asc: array[5] of int
 var desc: array[5] of int
 var sum: array[5] of int
-var j: int
 
 for i := 0 to 4 do
     asc[i] := i
