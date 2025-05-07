@@ -1,7 +1,7 @@
 import logging
 
 from tomos.ayed2.ast.expressions import Expr
-from tomos.ayed2.ast.types import ArrayOf
+from tomos.ayed2.ast.types import ArrayOf, IntType
 from tomos.ayed2.evaluation.expressions import ExpressionEvaluator
 from tomos.ayed2.evaluation.limits import LIMITER
 from tomos.ayed2.evaluation.state import State
@@ -121,8 +121,11 @@ class SentenceEvaluator(NodeVisitor):
 
     def visit_for(self, for_sent, state, **kw):
         var = for_sent.loop_variable
-        if not for_sent.loop_in_progress:
+        if not for_sent.loop_in_progress: # Starting for loop.
             next_value = self.visit_expr(for_sent.start, state=state)
+            if var.name not in state.list_declared_variables():
+                state.declare_static_variable(var.name, IntType())
+                for_sent.remove_loop_variable = True
         else:
             next_value = for_sent.next_value(state.get_variable_value(var))
         end_value = self.visit_expr(for_sent.end, state=state)
@@ -132,6 +135,8 @@ class SentenceEvaluator(NodeVisitor):
             next_sent = for_sent.sentences[0]
         else:
             for_sent.loop_in_progress = False
+            if for_sent.remove_loop_variable:
+                state.undeclare_static_variable(var.name)
             next_sent = for_sent.next_instruction
         return state, next_sent
 
