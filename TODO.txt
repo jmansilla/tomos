@@ -37,19 +37,17 @@ m)  [x] For loops
         [x] variable scope, and dynamic visualization (on and off)
         [x] support for integers only
         [ ] ¿support for enums?
-n)  [ ] Better UI
+n)  [x] Better UI
         [x] Prototype with manim
         [x] syntax highlight
-o)  [ ] Distribution... pypi? website? others?
-        [x] basic website for running tomos
-        [ ] pypi package
+o)  [.] Distribution... pypi? website? others?
+        [x] pypi package
 p)  [ ] i18n
         [x] Adapt code messages to be i18n translated
         [ ] Create actual translations
-q)  [ ] const environment
-        [ ] add syntax for declaring constants
-        [ ] make it work with the interpreter (requesting such values from environment)
-        [ ] integrate on the website
+q)  [.] const environment
+        [.] add syntax for declaring constants
+        [.] make it work with the interpreter (requesting such values from environment)
 r)  [x] limit cycles and memory size by parameter (so the web executions survive abusive usage)
 
 
@@ -86,11 +84,3 @@ ex.6)  [ ] Add support for multi-module programs (imports)
 ex.7)  [ ] Interactive interpreter
 ex.8)  [x] Generate video only with frames explicitly requested ( // checkpoint comment)
 ex.9)  [x] If program uses only stack, only draw stack area and not heap
-ex.10) [ ] Mark unreachable cells on Heap
-
-misc:
- - strings?
- - valores booleanos como objetos distintos
- - default values para tipos basicos?
- - donde se usa null?
- - parsear null y/o inf
