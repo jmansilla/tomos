@@ -36,6 +36,12 @@ class State:
         LIMITER.check_type_sizing_limits(var_type)
         LIMITER.check_memory_size_limits(self)
 
+    def undeclare_static_variable(self, name):
+        # deletes a variable from the stack. Typicall used when for loop ends
+        if name not in self.stack:
+            raise UndeclaredVariableError(f"Variable {name} was not declared.")
+        del self.stack[name]
+
     def alloc(self, var):
         # Argument "var" refers to a variable in the stack. Should be a pointer.
         # After the allocation, the variable will "point" to the allocated memory,
