@@ -129,6 +129,7 @@ class For(Sentence):
                 "direction_up must be True or False", guess_line_nr_from=[direction_up, variable]
             )
         self.loop_in_progress = False
+        self.remove_loop_variable = False
         self.loop_variable = variable
         self.start = start
         self.end = end
