@@ -125,13 +125,17 @@ class SubVarMixin:
         self.add(self.name_sprite)  # type: ignore
         return self.name_sprite.box_width + configs.PADDING / 2, 0
 
-    def shift_rect_and_value(self, vector):
+    def shift_alignment(self, vector, nesting=0):
+        # This function is call when there's a need to apply
+        # some alignment so all sub-sprites and its names are tidy organized.
         self.rect.shift(vector)  # type: ignore
+        if nesting > 0:
+            self.name_sprite.shift(vector)
         if hasattr(self, "value_sprite"):
             self.value_sprite.shift(vector)  # type: ignore
         elif hasattr(self, "subsprites"):
             for sub_var in self.subsprites.values():  # type: ignore
-                sub_var.shift_rect_and_value(vector)
+                sub_var.shift_alignment(vector, nesting + 1)
         else:
             raise NotImplementedError
 
@@ -336,11 +340,11 @@ class ComposedSprite(VariableSprite):
         self.need_to_initialize_sub_sprites = False
 
     def build_subsprites(self, x, y, vertical):
-        x, y = x + self.margin, y + self.margin
         self.subsprites = {}
-        max_x = 0
-        last_x, last_y = x, y
-        last_delta = 0
+        # when orientation is vertical, we need to adjust the position of the subsprites
+        # so that they are aligned. That's why we need to keep track of the maximum start x
+        max_start_x = 0
+        next_x, next_y = x + self.margin, y + self.margin
         for i, (fname, ftype) in enumerate(self.iterate_fields()):
             sub_value = self.cached_value[fname]
             sub_var = create_variable_sprite(
@@ -348,27 +352,29 @@ class ComposedSprite(VariableSprite):
             )
             self.subsprites[fname] = sub_var
             self.add(sub_var)
-            sub_var.move_to(Point(last_x, last_y))
+            sub_var.move_to(Point(next_x, next_y))
             if vertical:
-                sub_var.shift(movement.DOWN * last_delta)
-                last_delta = sub_var.box_height
+                next_y += sub_var.box_height + self.margin
             else:
-                sub_var.shift(movement.RIGHT * last_delta)
-                last_delta = sub_var.box_width
-            last_x, last_y = sub_var.position
-            max_x = max(max_x, sub_var.rect.position.x)
+                next_x += sub_var.box_width + self.margin
+            max_start_x = max(max_start_x, sub_var.rect.position.x)
+        last_sub_var = sub_var
 
-        if vertical:
-            # and now, adjust the alignment
-            max_delta = 0
+        if vertical and max_start_x > 0:
+            # and now, adjust the alignment of the subsprites,
+            # and correct the size of the bounding box
+            max_end_x = 0
             for sub_var in self.subsprites.values():
-                if sub_var.rect.position.x < max_x:
-                    delta = max_x - sub_var.rect.position.x
-                    max_delta = max(delta, max_delta)
+                if sub_var.rect.position.x < max_start_x:
+                    delta = max_start_x - sub_var.rect.position.x
                     vector = movement.RIGHT * delta
-                    sub_var.shift_rect_and_value(vector)
-        if max_x > 0:
-            self.rect.width += max_x
+                    sub_var.shift_alignment(vector)
+                max_end_x = max(max_end_x, sub_var.end.x)
+            self.rect.width = max_end_x + self.margin - self.rect.position.x
+            self.rect.height = last_sub_var.rect.end.y + self.margin - self.rect.position.y
+        else:
+            # this actually needs to be implemented.
+            pass
 
 
 class ArraySprite(ComposedSprite):
