@@ -7,7 +7,6 @@ from tomos.ayed2.parser import parser
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ayed2.evaluation.memory import MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
-from tomos import exceptions as tomos_exceptions
 
 
 integrations_folder = pathlib.Path(__file__).parent.resolve() / "integrations"
@@ -19,9 +18,13 @@ class ExpectedTraceback:
     def __init__(self, expected):
         raw_msg = expected.split(error_marker, 1)[1]
         klass_name, msg = map(str.strip, raw_msg.split(":", 1))
+        import importlib
         self.klass = __builtins__.get(klass_name, None)
         if self.klass is None:
-            self.klass = getattr(tomos_exceptions, klass_name, None)
+            if '.' in klass_name:
+                module_name, pure_klass_name = klass_name.rsplit('.', 1)
+                module = importlib.import_module(module_name)
+                self.klass = getattr(module, pure_klass_name)
         if self.klass is None:
             raise ValueError(f"Unknown exception class \"{klass_name}\"")
         self.msg = msg
