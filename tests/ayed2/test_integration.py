@@ -7,10 +7,24 @@ from tomos.ayed2.parser import parser
 from tomos.ayed2.evaluation.interpreter import Interpreter
 from tomos.ayed2.evaluation.memory import MemoryAddress
 from tomos.ayed2.evaluation.unknown_value import UnknownValue
+from tomos import exceptions as tomos_exceptions
 
 
 integrations_folder = pathlib.Path(__file__).parent.resolve() / "integrations"
 splitter = "// EXPECTATION\n"
+error_marker = "ERROR:"
+
+
+class ExpectedTraceback:
+    def __init__(self, expected):
+        raw_msg = expected.split(error_marker, 1)[1]
+        klass_name, msg = map(str.strip, raw_msg.split(":", 1))
+        self.klass = __builtins__.get(klass_name, None)
+        if self.klass is None:
+            self.klass = getattr(tomos_exceptions, klass_name, None)
+        if self.klass is None:
+            raise ValueError(f"Unknown exception class \"{klass_name}\"")
+        self.msg = msg
 
 
 def list_test_files(folder_path):
@@ -27,8 +41,11 @@ def split_code_and_expectation(file_path):
             f"File {file_path} does not contain the splitter {splitter} (or has more than one)"
         )
     code, raw_expect = content.split(splitter)
-    raw_expect = raw_expect.replace("//", "")
-    expect = ast.literal_eval(raw_expect)
+    raw_expect = raw_expect.replace("//", "").strip()
+    if raw_expect.startswith(error_marker):
+        expect = ExpectedTraceback(raw_expect)
+    else:
+        expect = ast.literal_eval(raw_expect)
     return code, expect
 
 
@@ -58,10 +75,13 @@ class IntegrationMeta(type):
         def gen_test(ff):
             def test(self):
                 code, expected = split_code_and_expectation(ff)
-                actual = state_as_python_dict(execute_code(code))
-                self.assertStackEqual(actual.get("stack", {}), expected.get("stack", {}))
-                self.assertHeapEqual(actual.get("heap", {}), expected.get("heap", {}))
-
+                if isinstance(expected, ExpectedTraceback):
+                    with self.assertRaisesRegex(expected.klass, expected.msg):
+                        execute_code(code)
+                else:
+                    actual = state_as_python_dict(execute_code(code))
+                    self.assertStackEqual(actual.get("stack", {}), expected.get("stack", {}))
+                    self.assertHeapEqual(actual.get("heap", {}), expected.get("heap", {}))
             return test
 
         for file in list_test_files(integrations_folder):
