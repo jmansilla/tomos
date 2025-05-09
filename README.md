@@ -11,7 +11,7 @@ It's and interpreter of AyED2 language, and also a memory visualizer of executio
 
 The grammar of the language can be found
 [here](https://github.com/jmansilla/tomos/blob/main/tomos/ayed2/parser/grammar.lark).
-You can also find simple examples in [this folder](https://github.com/jmansilla/tomos/tree/main/demo/ayed2_examples), and a bit more complex ones with this [linked_list](https://github.com/jmansilla/tomos/tree/main/demo/linked_list) or [bubble_sort](https://github.com/jmansilla/tomos/tree/main/demo/bubble_sort) ones.
+You can also find simple examples in [this folder](https://github.com/jmansilla/tomos/tree/main/demo/ayed2_examples), and a bit more complex ones with these [linked_list](https://github.com/jmansilla/tomos/tree/main/demo/linked_list) or [bubble_sort](https://github.com/jmansilla/tomos/tree/main/demo/bubble_sort) ones.
 
 ### installation & usage
 
