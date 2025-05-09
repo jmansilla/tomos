@@ -46,7 +46,7 @@ class Blackboard(Container):
             var.to_edge(self, movement.TOP_EDGE)
             var.shift(movement.DOWN * padding)
         else:
-            var.to_edge(self.last_block[-1], movement.BOTTOM_EDGE)
+            var.to_edge(self.last_block[-1].rect, movement.BOTTOM_EDGE)
             var.shift(movement.DOWN * (var.box_height + padding))
         self.last_block.append(var)
         self.add(var)
