@@ -127,7 +127,13 @@ class SubVarMixin:
 
     def shift_rect_and_value(self, vector):
         self.rect.shift(vector)  # type: ignore
-        self.value_sprite.shift(vector)  # type: ignore
+        if hasattr(self, "value_sprite"):
+            self.value_sprite.shift(vector)  # type: ignore
+        elif hasattr(self, "subsprites"):
+            for sub_var in self.subsprites.values():  # type: ignore
+                sub_var.shift_rect_and_value(vector)
+        else:
+            raise NotImplementedError
 
     def get_stroke_with_and_color(self):
         return 1, "gray"
@@ -279,6 +285,8 @@ class ComposedSprite(VariableSprite):
     def __init__(self, name, _type, value, vars_index, in_heap=False):
         self.check_is_drawable(_type, value)
         self.length = len(value)
+        self.cached_value = deepcopy(value)
+        self.need_to_initialize_sub_sprites = True
         super().__init__(name, _type, value, vars_index, in_heap=in_heap)
 
     def check_is_drawable(self, _type, value):
@@ -320,40 +328,45 @@ class ComposedSprite(VariableSprite):
 
     def set_value(self, value):
         # asumes that value is a dict
-        first_time = False
-        if not hasattr(self, "cached_value"):
-            self.cached_value = deepcopy(value)
-            first_time = True
+        first_time = self.need_to_initialize_sub_sprites
         for k, val in value.items():
             if first_time or val != self.cached_value[k]:
                 self.subsprites[k].set_value(val)  # type: ignore
                 self.cached_value[k] = val
+        self.need_to_initialize_sub_sprites = False
 
     def build_subsprites(self, x, y, vertical):
         x, y = x + self.margin, y + self.margin
         self.subsprites = {}
         max_x = 0
+        last_x, last_y = x, y
+        last_delta = 0
         for i, (fname, ftype) in enumerate(self.iterate_fields()):
+            sub_value = self.cached_value[fname]
             sub_var = create_variable_sprite(
-                fname, ftype, "--", self.vars_index, in_heap=self.in_heap, mixin_to_use=SubVarMixin
+                fname, ftype, sub_value, self.vars_index, in_heap=self.in_heap, mixin_to_use=SubVarMixin
             )
             self.subsprites[fname] = sub_var
             self.add(sub_var)
-            sub_var.move_to(Point(x, y))
+            sub_var.move_to(Point(last_x, last_y))
             if vertical:
-                sub_var.shift(movement.DOWN * (i * sub_var.box_height))
+                sub_var.shift(movement.DOWN * last_delta)
+                last_delta = sub_var.box_height
             else:
-                sub_var.shift(movement.RIGHT * (i * sub_var.box_width))
+                sub_var.shift(movement.RIGHT * last_delta)
+                last_delta = sub_var.box_width
+            last_x, last_y = sub_var.position
             max_x = max(max_x, sub_var.rect.position.x)
 
-        # and now, adjust the alignment
-        max_delta = 0
-        for sub_var in self.subsprites.values():
-            if sub_var.rect.position.x < max_x:
-                delta = max_x - sub_var.rect.position.x
-                max_delta = max(delta, max_delta)
-                vector = movement.RIGHT * delta
-                sub_var.shift_rect_and_value(vector)
+        if vertical:
+            # and now, adjust the alignment
+            max_delta = 0
+            for sub_var in self.subsprites.values():
+                if sub_var.rect.position.x < max_x:
+                    delta = max_x - sub_var.rect.position.x
+                    max_delta = max(delta, max_delta)
+                    vector = movement.RIGHT * delta
+                    sub_var.shift_rect_and_value(vector)
         if max_x > 0:
             self.rect.width += max_x
 
@@ -398,11 +411,13 @@ class TupleSprite(ComposedSprite):
         if not isinstance(_type, ayed_types.Tuple):
             raise CantDrawError(f"Cannot draw a '{type(_type)}' as a tuple.")
 
+        allowed_sub_types = (ayed_types.PointerOf, ayed_types.Enum, ayed_types.BasicType,
+                             ayed_types.ArrayOf)
         for fname, ftype in _type.fields_mapping.items():
             if isinstance(ftype, ayed_types.Synonym):
                 ftype = ftype.underlying_type_closure()
-            if not isinstance(ftype, (ayed_types.PointerOf, ayed_types.Enum, ayed_types.BasicType)):
-                raise CantDrawError(f"Cannot draw an tuple with field of type '{type(ftype)}'.")
+            if not isinstance(ftype, allowed_sub_types):
+                raise CantDrawError(f"Cannot draw a tuple with field of type '{type(ftype)}'.")
 
         if len(_type.fields_mapping) != len(value):
             raise CantDrawError(
