@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-  - For loops accept implicit variable names
+  - For loops accept implicit variable names only, and it's forbidden to edit them.
+  - Visualizer is able to show arrays inside tuples
+  - (internal) Integration tests can declare expectations where Exceptions are raised.
 
 
 ## [0.1.5] - 2025-04-07
