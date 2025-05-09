@@ -28,10 +28,12 @@ class State:
             raise TomosRuntimeError("Expression evaluator not set.")
         return self.evaluator
 
-    def declare_static_variable(self, name, var_type):
+    def declare_static_variable(self, name, var_type, read_only=False):
         if name in self.stack:
             raise AlreadyDeclaredVariableError(f"Variable {name} already declared.")
         cell = self.allocator.allocate(MemoryAddress.STACK, var_type)
+        if read_only and cell.can_get_set_values_directly:
+            cell.read_only = True
         self.stack[name] = cell
         LIMITER.check_type_sizing_limits(var_type)
         LIMITER.check_memory_size_limits(self)
@@ -121,10 +123,14 @@ class State:
                 raise NotImplementedError(f"Unknown step kind {step.kind}")
         return cell
 
-    def set_variable_value(self, var, value):
+    def set_variable_value(self, var, value, permit_write_on_read_only=False):
         cell = self.cell_after_traversal(var)
         if not cell.can_get_set_values_directly:
             raise MemoryInfrigementError(f"Cell type {type(cell)} can't be modified directly.")
+
+        if cell.read_only and not permit_write_on_read_only:
+            raise MemoryInfrigementError(f"Variable {var} is read-only.")
+
         if not cell.var_type.is_valid_value(value):
             raise TomosTypeError(
                 f"Variable {var} was declared of type {cell.var_type}, "

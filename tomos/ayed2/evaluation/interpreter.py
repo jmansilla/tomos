@@ -122,15 +122,16 @@ class SentenceEvaluator(NodeVisitor):
     def visit_for(self, for_sent, state, **kw):
         var = for_sent.loop_variable
         if not for_sent.loop_in_progress: # Starting for loop.
+            if var.name in state.list_declared_variables():
+                raise RuntimeError(f"Variable {var.name} is already declared.")
+            state.declare_static_variable(var.name, IntType(), read_only=True)
+            for_sent.remove_loop_variable = True
             next_value = self.visit_expr(for_sent.start, state=state)
-            if var.name not in state.list_declared_variables():
-                state.declare_static_variable(var.name, IntType())
-                for_sent.remove_loop_variable = True
         else:
             next_value = for_sent.next_value(state.get_variable_value(var))
         end_value = self.visit_expr(for_sent.end, state=state)
         if for_sent.has_iterations_left(next_value, end_value):
-            state.set_variable_value(var, next_value)
+            state.set_variable_value(var, next_value, permit_write_on_read_only=True)
             for_sent.loop_in_progress = True
             next_sent = for_sent.sentences[0]
         else:

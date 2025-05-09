@@ -57,10 +57,12 @@ class MemoryCell:
     can_get_set_values_directly = True
     cell_count = 1
 
-    def __init__(self, address, var_type, value=None):
+    def __init__(self, address, var_type, value=None, read_only=False):
         assert isinstance(address, MemoryAddress)
         self.address = address
         self.var_type = var_type
+        self.read_only = read_only
+        # "read_only" is just a flag. It's the state that allows or disallows writing
         if value is None:
             self.value = UnknownValue
         else:
@@ -72,6 +74,7 @@ class MemoryCell:
 
 class ArrayCellCluster:
     can_get_set_values_directly = False
+    read_only = False
 
     def __init__(self, array_type, elements):
         assert isinstance(array_type, ArrayOf)
@@ -115,7 +118,8 @@ class ArrayCellCluster:
 
 
 class TupleCellCluster:
-    can_set_get_values_directly = False
+    can_get_set_values_directly = False
+    read_only = False
 
     def __init__(self, tuple_type, sub_cells):
         assert isinstance(tuple_type, Tuple)

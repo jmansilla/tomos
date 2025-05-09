@@ -1,0 +1,12 @@
+var i: int
+var asc: array[5] of int
+var desc: array[5] of int
+var sum: array[5] of int
+
+for i := 0 to 4 do
+    asc[i] := i
+    sum[i] := i
+od
+
+// EXPECTATION
+// ERROR: RuntimeError: Variable i is already declared
