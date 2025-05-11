@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
   - For loops accept implicit variable names only, and it's forbidden to edit them.
   - Visualizer is able to show arrays inside tuples
+  - cli prints state in a more structured way (a bit like pprint)
   - (internal) Integration tests can declare expectations where Exceptions are raised.
 
 
