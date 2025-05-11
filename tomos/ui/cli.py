@@ -106,12 +106,48 @@ def main():
         if not opts["--no-final-state"]:
             # Hard to read this if-guard. Double negation means DO SHOW IT.
             print("Final state:")
-            print('  stack:')
-            for name, cell in final_state.stack.items():
-                print(f"    {name} ({cell.var_type}): {cell.value}")
-            print('  heap:')
-            for addr, cell in final_state.heap.items():
-                print(f"    {addr} ({cell.var_type}): {cell.value}")
+            print(' Stack:')
+            MemoryPrinter.print_block(final_state.stack)
+            print(' Heap:')
+            MemoryPrinter.print_block(final_state.heap)
+
+
+class MemoryPrinter:
+    _idnt = "    "
+    @classmethod
+    def indent(cls, nesting):
+        return cls._idnt * (nesting + 1)
+
+    @classmethod
+    def print_block(cls, contents, nesting=0):
+        from tomos.ayed2.evaluation.memory import MetaMemCell
+        indentation = cls.indent(nesting)
+        for name, cell_or_val in contents.items():
+
+            if isinstance(cell_or_val, MetaMemCell):
+                val = cell_or_val.value  # type: ignore
+                mini_title = f"{indentation}\"{name}\" ({cell_or_val.var_type}):"  # type: ignore
+            else:
+                val = cell_or_val
+                mini_title = f"{indentation}\"{name}\":"
+            if isinstance(val, (dict, list)):
+                print(mini_title)
+                cls.print_value(val, nesting)
+            else:
+                print(f"{mini_title} {val}")
+
+    @classmethod
+    def print_value(cls, val, nesting, suffix=""):
+        if isinstance(val, dict):
+            cls.print_block(val, nesting + 1)
+        elif isinstance(val, list):
+            inner_indent = cls.indent(nesting + 1)
+            print(f"{inner_indent}[")
+            for v in val:
+                cls.print_value(v, nesting + 1, suffix=",")
+            print(f"{inner_indent}]{suffix}")
+        else:
+            print(f"{cls.indent(nesting)}{val}{suffix}")
 
 
 def play_movie(movie_path):
