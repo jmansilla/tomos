@@ -53,7 +53,12 @@ class MemoryAddress:
         return hash((self.partition, self.address))
 
 
-class MemoryCell:
+class MetaMemCell:
+    can_get_set_values_directly = False
+    read_only = False
+
+
+class MemoryCell(MetaMemCell):
     can_get_set_values_directly = True
     cell_count = 1
 
@@ -72,10 +77,7 @@ class MemoryCell:
         return f"MemoryCell({self.address}, {self.var_type}, value={self.value})"
 
 
-class ArrayCellCluster:
-    can_get_set_values_directly = False
-    read_only = False
-
+class ArrayCellCluster(MetaMemCell):
     def __init__(self, array_type, elements):
         assert isinstance(array_type, ArrayOf)
         self.array_type = array_type
@@ -117,10 +119,7 @@ class ArrayCellCluster:
         return self.sub_cells[idx]
 
 
-class TupleCellCluster:
-    can_get_set_values_directly = False
-    read_only = False
-
+class TupleCellCluster(MetaMemCell):
     def __init__(self, tuple_type, sub_cells):
         assert isinstance(tuple_type, Tuple)
         self.tuple_type = tuple_type
