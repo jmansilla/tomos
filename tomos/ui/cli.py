@@ -21,13 +21,13 @@ Options:
     --load-state=<fname>  Load the state from a file.
     --cfg=<conf>          Overrides configurations one by one.
     --version             Show version and exit.
+    --verbose=<V>         Verbose mode. [default: 0]
     -h --help             Show this message and exit.
 """
 
 import importlib.metadata
 from pathlib import Path
-from pprint import pprint
-from sys import exit
+from sys import exit, argv
 
 from docopt import docopt
 
@@ -39,9 +39,37 @@ from tomos.exceptions import TomosSyntaxError
 from tomos.ui.interpreter_hooks import ASTPrettyFormatter
 from tomos.ui.interpreter_hooks import RememberState
 
+GRAMMAR_LINK = "https://github.com/jmansilla/tomos/blob/main/tomos/ayed2/parser/grammar.lark"
+EXAMPLES_LINK = "https://github.com/jmansilla/tomos/tree/main/demo/ayed2_examples"
+
+
+def cli_parse(source_path, verbose_level):
+    try:
+        ast = parser.parse(open(source_path).read())
+    except Exception as error:
+        print("Parsing error:", type(error), error)
+        if verbose_level == 1:
+            print(f"For clarifying doubts, the grammar can be found at {GRAMMAR_LINK}")
+            print(f"You can also check some examples at {EXAMPLES_LINK}")
+        elif verbose_level >= 2:
+            import traceback
+            traceback.print_exc()
+        exit(1)
+
+    return ast
+
 
 def main():
-    opts = docopt(__doc__)  # type: ignore
+    my_argv = argv[1:]
+    if "--verbose" in my_argv:
+        level = my_argv.count("--verbose")
+        for _ in range(level):
+            my_argv.remove("--verbose")
+        my_argv.append(f"--verbose={level}")
+
+    opts = docopt(__doc__, argv=my_argv)
+
+    verbose_level = int(opts["--verbose"])
     if opts["--version"]:
         version = importlib.metadata.version("tomos")
         print(f"Tomos version {version}")
@@ -56,11 +84,8 @@ def main():
         initial_state = Persist.load_from_file(opts["--load-state"])
     else:
         initial_state = None
-    try:
-        ast = parser.parse(open(source_path).read())
-    except TomosSyntaxError as error:
-        print("Syntax error:", error)
-        exit(1)
+    ast = cli_parse(source_path, verbose_level)
+
     if opts["--explicit-frames"]:
         DetectExplicitCheckpoints(ast, source_path).detect()
 
