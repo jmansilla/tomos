@@ -37,6 +37,7 @@ CODEBOX_NEXT_LINE_BGCOLOR = "#004d00"
 
 POINTER_ARROW_COLOR = "#FFFFFF"
 POINTER_HEAP_ARROW_COLORS = ["#ffffff", "#b3b3b3", "#666666", "#a6a606", "#7b7b04", "#000000"]
+POINTER_HEAP_ARROW_OFFSET = 15
 DEAD_ARROW_COLOR = "#ff6666"
 
 # Colors to pick for CustomTypes (to be consumed, one per each

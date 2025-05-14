@@ -1,0 +1,7 @@
+var i: int
+var a: array [5] of int
+
+a[10] := 10
+
+// EXPECTATION
+// ERROR: tomos.exceptions.TomosTypeError: Index 10 is out of bounds for axis ArrayAxis(0, 5)

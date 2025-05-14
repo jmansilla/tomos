@@ -79,7 +79,7 @@ class IntegrationMeta(type):
             def test(self):
                 code, expected = split_code_and_expectation(ff)
                 if isinstance(expected, ExpectedTraceback):
-                    with self.assertRaisesRegex(expected.klass, expected.msg):
+                    with self.assertRaises(expected.klass, msg=expected.msg):
                         execute_code(code)
                 else:
                     actual = state_as_python_dict(execute_code(code))

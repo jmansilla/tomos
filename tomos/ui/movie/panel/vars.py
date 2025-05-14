@@ -221,7 +221,9 @@ class VariableSprite(Container):
 
 
 class PointerVarSprite(VariableSprite):
-    heap_arrow_manager = HeapToHeapArrowManager()
+    heap_arrow_manager = HeapToHeapArrowManager(
+        offset_step=configs.POINTER_HEAP_ARROW_OFFSET
+    )
 
     @property
     def arrow_start_point(self):

@@ -148,9 +148,8 @@ class MemoryBlock(Container):
         PointerVarSprite.heap_arrow_manager.clear()
         for name_or_addr in snapshot.diff.new_cells:
             var = self.vars_by_name[name_or_addr]
-            if hasattr(var, "cached_value"):
-                # make sure ComposedSprite is refreshed
-                del var.cached_value
+            # make sure ComposedSprite is refreshed
+            var.need_to_initialize_sub_sprites = True
             cell = snapshot.get_cell(name_or_addr)
             var.set_value(cell.value)
         HIGHLIGHTING_SWITCH.turn_on()
