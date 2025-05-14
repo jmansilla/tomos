@@ -34,14 +34,21 @@ def build_movie_frames(code, timeline, frames_path, explicit_frames_only=False):
 
 def generate_mp4(frames_path, movie_path):
     frames_folder = frames_path / "frames"
-    fps = getattr(configs, "FPS", 1)
     extension = getattr(configs, "FRAME_FILE_FORMAT", "png")
     image_files = [str(f) for f in sorted(frames_folder.glob("*." + extension))]
     if not image_files:
         logger.error(f"Unable to find any image in {frames_folder}")
         exit(0)
-    clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
-    clip.write_videofile(movie_path, codec="libx264", bitrate="5000k", audio=False)
+    fps = getattr(configs, "FPS", 1)
+    # hidden feature. fps can be a list, to create a several movie with different fps
+    if isinstance(fps, list):
+        for sub_fps in fps:
+            clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=sub_fps)
+            sub_movie_path = movie_path.with_suffix(f".{sub_fps}fps.mp4")
+            clip.write_videofile(sub_movie_path, codec="libx264", bitrate="5000k", audio=False)
+    else:
+        clip = ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
+        clip.write_videofile(movie_path, codec="libx264", bitrate="5000k", audio=False)
 
 
 def clean_folder(folder_path):
