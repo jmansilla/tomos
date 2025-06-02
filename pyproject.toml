@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tomos"
-version = "0.1.4.b1"
+version = "0.1.4.b2"
 description = "Code Tomographies for AyED2"
 authors = ["Javier Mansilla <javimansilla@gmail.com>"]
 license = "MIT"
@@ -18,7 +18,7 @@ moviepy = "^2.1.2"
 
 six = "^1.17.0"  # dont know why pygments does not solve this
 
-buttons-and-dials = "^0.1.5"
+buttons-and-dials = "^0.1.3"
 
 pydantic = "^2.10.6"
 [tool.poetry.group.dev.dependencies]
