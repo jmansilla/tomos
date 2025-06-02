@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "tomos"
-version = "0.1.6"
+version = "0.1.4.b2"
 description = "Code Tomographies for AyED2"
 authors = ["Javier Mansilla <javimansilla@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 lark = "^1.2.2"
 docopt = "^0.6.2"
 pygments = "^2.18.0"
